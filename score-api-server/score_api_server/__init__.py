@@ -1,5 +1,6 @@
 import json
 import pkgutil
+from flask import Flask
 
 
 def get_version():
@@ -11,3 +12,4 @@ def get_version_data():
     data = pkgutil.get_data('score_api_server', 'VERSION')
     return json.loads(data)
     
+app = Flask(__name__)
