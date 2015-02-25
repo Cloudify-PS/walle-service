@@ -11,6 +11,8 @@ from score_api_server.resources.blueprints import Blueprints
 app = Flask(__name__)
 api = restful.Api(app)
 
+allowed_orgs = ['37d9e482-a5d1-4811-b466-c4d1e2f67f2c']
+
 #note: assume vcs.organization.id is unique across the service
 @app.before_request
 def check_authorization():
@@ -23,6 +25,8 @@ def check_authorization():
     result = vcs.login(token=vcloud_token)
     if result:
         g.org_id = vcs.organization.id[vcs.organization.id.rfind(':')+1:]
+        if g.org_id not in allowed_orgs:
+            abort(401)
     else:
         abort(vcs.response.status_code)
         
@@ -31,8 +35,6 @@ def connect_to_cloudify():
     g.cc = CloudifyClient(host='192.240.158.81', port=5580)
         
 api.add_resource(Blueprints, '/blueprints', '/blueprints/<string:blueprint_id>')
-
-# api.add_resource(File, '/blueprints/<path:fname>')
 
 if __name__ == '__main__':
     app.run()
