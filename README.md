@@ -1,1 +1,1 @@
-# score-server
+# score-service
