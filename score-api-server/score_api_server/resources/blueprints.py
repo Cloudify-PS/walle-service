@@ -17,19 +17,20 @@ def decode(input_stream, buffer_size=8192):
         if len(read_buffer) < buffer_size:
             return
 
-
-#curl http://127.0.0.1:8080/blueprints --header 'x-vcloud-authorization: '$session_token --header 'x-vcloud-org-url: '$org_url --header 'x-vcloud-version: 5.6'|jq ".[].id"
-            
-#upload blueprint
-#curl -v -i -X PUT http://127.0.0.1:8080/blueprints/bp1 --header 'x-vcloud-authorization: '$session_token --header 'x-vcloud-org-url: '$org_url --header 'x-vcloud-version: 5.6' --data-binary @hellovcloud.tar.gz --header "Content-Type: application/octect-stream"
-
+#todo: download blueprint
 class Blueprints(restful.Resource):
+
     def get(self, blueprint_id=None):
-        blueprints = g.cc.blueprints.list()
-        result = []
-        for blueprint in blueprints:
-            if blueprint.id.startswith(g.org_id+'_'): result.append(blueprint)
-        return result
+        if blueprint_id is not None:
+            if not blueprint_id.startswith(g.org_id+'_'): 
+                return None
+            return g.cc.blueprints.get(blueprint_id)
+        else:
+            blueprints = g.cc.blueprints.list()
+            result = []
+            for blueprint in blueprints:
+                if blueprint.id.startswith(g.org_id+'_'): result.append(blueprint)
+            return result
 
     def put(self, blueprint_id):
         tempdir = tempfile.mkdtemp()
