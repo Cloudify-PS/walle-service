@@ -9,5 +9,5 @@ source $PRJ/venv/bin/activate
 
 pip install gunicorn
 
-pip install score-api-server
+pip install $PRJ/score-api-server
 

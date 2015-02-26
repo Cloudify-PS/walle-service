@@ -3,6 +3,7 @@
 PRJ=/home/ubuntu/score-service
 
 cd $PRJ
+virtualenv $PRJ/venv
 source $PRJ/venv/bin/activate
-cd $PRJ/score-api-server/score_api_server
-$PRJ/venv/bin/gunicorn -w 1 -b 127.0.0.1:8001 app:app
+cd $PRJ/score-api-server
+$PRJ/venv/bin/gunicorn -w 1 -b 127.0.0.1:8001 score_api_server.app:app
