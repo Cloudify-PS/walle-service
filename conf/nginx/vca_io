@@ -21,12 +21,9 @@ server {
 	ssl_certificate    /etc/ssl/bundle.crt;
 	ssl_certificate_key    /etc/ssl/vca_io.key;
 
-	root /home/ubuntu/score-service/www;
-	index index.html index.htm;
-
 	server_name vca.io;
 
-	location / {
-		try_files $uri $uri/ =404;
+	location /blueprints {
+		proxy_pass http://127.0.0.1:8001;
 	}
 }
