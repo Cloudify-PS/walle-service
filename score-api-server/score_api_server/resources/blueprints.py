@@ -33,10 +33,10 @@ class Blueprints(restful.Resource):
             return result
 
     def put(self, blueprint_id):
+        assert blueprint_id and blueprint_id.startswith(g.org_id+'_')        
         tempdir = tempfile.mkdtemp()
         try:
-            modified_id = g.org_id+'_'+blueprint_id
-            archive_file_name = tempdir + '/' + modified_id+'.tar.gz'
+            archive_file_name = tempdir + '/' + blueprint_id +'.tar.gz'
             self._save_file_locally(archive_file_name)
             
             tfile = tarfile.open(archive_file_name, 'r:gz')
@@ -48,13 +48,13 @@ class Blueprints(restful.Resource):
                     directory = file
                     break
             
-            blueprint = g.cc.blueprints.upload(tempdir + '/' + directory + '/blueprint.yaml', modified_id)
+            blueprint = g.cc.blueprints.upload(tempdir + '/' + directory + '/blueprint.yaml', blueprint_id)
             return blueprint, 201
         finally:
             shutil.rmtree(tempdir)
                 
     def delete(self, blueprint_id):
-        assert blueprint_id
+        assert blueprint_id and blueprint_id.startswith(g.org_id+'_')
         blueprint = g.cc.blueprints.delete(blueprint_id)
         return blueprint
                 
