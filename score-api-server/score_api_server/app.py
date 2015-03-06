@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask.ext import restful
 from flask import request, abort, g
@@ -13,9 +14,15 @@ from score_api_server.resources.executions import Executions
 app = Flask(__name__)
 api = restful.Api(app)
 
-allowed_orgs = ['37d9e482-a5d1-4811-b466-c4d1e2f67f2c', #on demand
+allowed_orgs = [
+                '37d9e482-a5d1-4811-b466-c4d1e2f67f2c', #on demand
                 'edaaea15-5ad9-40ca-af23-1e146640eba5', #app services
-                '0ea8e6de-8dc0-4b2d-83a0-629544be5465'] #vmop
+                '0ea8e6de-8dc0-4b2d-83a0-629544be5465', #vmop
+                'fdb1f868-9a16-4153-aaf4-25389fc18d03'  #cert23
+                ]
+                
+print 'connecting to cloudify manager server at', os.environ['CFY_HOST'], os.environ['CFY_PORT']
+                
 
 #note: assume vcs.organization.id is unique across the service
 @app.before_request
@@ -36,7 +43,8 @@ def check_authorization():
         
 @app.before_request
 def connect_to_cloudify():
-    g.cc = CloudifyClient(host='192.240.158.81', port=5580)
+    g.cc = CloudifyClient(host=os.environ['CFY_HOST'], port=int(os.environ['CFY_PORT']))
+    # g.cc = CloudifyClient(host='192.240.158.81', port=5580)
     # g.cc = CloudifyClient(host='192.168.109.5', port=80)
         
 api.add_resource(Blueprints, '/blueprints', '/blueprints/<string:blueprint_id>')
