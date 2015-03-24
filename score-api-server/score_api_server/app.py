@@ -18,7 +18,9 @@ allowed_orgs = [
                 '37d9e482-a5d1-4811-b466-c4d1e2f67f2c', #on demand
                 'edaaea15-5ad9-40ca-af23-1e146640eba5', #app services
                 '0ea8e6de-8dc0-4b2d-83a0-629544be5465', #vmop
-                'fdb1f868-9a16-4153-aaf4-25389fc18d03',  #cert23
+                'fdb1f868-9a16-4153-aaf4-25389fc18d03', #cert23
+                '72cb93a9-ab17-497c-96f6-5d278d908f89', #Timo
+		'eaa53571-0a98-4976-aaa1-678ac5e8bc6e', #Udi
                 '64c7bf06-3dd6-4d82-b25a-3edf58ff9d87'  #prod
                 ]
                 
