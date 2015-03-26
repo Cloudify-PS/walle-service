@@ -21,6 +21,10 @@ allowed_orgs = [
                 'fdb1f868-9a16-4153-aaf4-25389fc18d03', #cert23
                 '72cb93a9-ab17-497c-96f6-5d278d908f89', #Timo
 		'eaa53571-0a98-4976-aaa1-678ac5e8bc6e', #Udi
+		'61209cc8-c4ea-467d-bc07-d3fa74929ae4', #Bob
+		'dd3f9a9a-5894-4bac-8fde-f55c61a000c4', #Greg
+		'224b99a3-23f4-4f0a-aa3f-69f405bcf2ae', #Xiaoyun
+		'24d27926-2dcd-42d6-81b9-456e50de25ec', #Todd
                 '64c7bf06-3dd6-4d82-b25a-3edf58ff9d87'  #prod
                 ]
                 
