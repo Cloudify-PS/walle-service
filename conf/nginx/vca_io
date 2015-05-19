@@ -38,6 +38,10 @@ server {
 		proxy_pass http://127.0.0.1:8001;
 	}
     
+	location /events {
+		proxy_pass http://127.0.0.1:8001;
+	}    
+    
 	location / {
 		try_files $uri $uri/ =404;
 	}    
