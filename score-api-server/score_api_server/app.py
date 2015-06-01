@@ -16,6 +16,7 @@ app = Flask(__name__)
 api = restful.Api(app)
 
 allowed_orgs = [
+                'd7a623de-1183-46a9-9b02-9043ca68f441', #Paco on demand vCA
                 '37d9e482-a5d1-4811-b466-c4d1e2f67f2c', #Paco on demand
                 'edaaea15-5ad9-40ca-af23-1e146640eba5', #Paco app services
                 '0ea8e6de-8dc0-4b2d-83a0-629544be5465', #Paco vmop
