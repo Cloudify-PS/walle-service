@@ -72,8 +72,8 @@ both this sections are responsible for Score API server configuration and Cloudi
 Testing
 =======
 
-To run code style checks please do::
+To run code style checks please do:
 
-.. code-block:: bash
-
-    $ tox -e pep8
+```bash
+$ tox -e pep8
+```
