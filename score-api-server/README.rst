@@ -12,7 +12,7 @@ Deployment
     $ cd score_api_server/
     $ virtualenv .venv
     $ source .venv/bin/activate
-    $ pip install -r requirements
+    $ pip install -r requirements.txt
     $ python setup.py install
 
 
@@ -73,6 +73,7 @@ Testing
 =======
 
 To run code style checks please do::
+
 .. code-block:: bash
 
     $ tox -e pep8
