@@ -1,0 +1,10 @@
+language: python
+sudo: false
+python:
+  - "2.7"
+env:
+    - TOX_ENV=pep8
+install:
+    - pip install tox
+script:
+    - tox -c score_api_server/tox.ini -e $TOX_ENV
