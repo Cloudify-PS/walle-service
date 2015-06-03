@@ -73,7 +73,6 @@ Testing
 =======
 
 To run code style checks please do::
-
 .. code-block:: bash
 
     $ tox -e pep8
