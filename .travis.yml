@@ -7,4 +7,4 @@ env:
 install:
     - pip install tox
 script:
-    - tox -c score_api_server/tox.ini -e $TOX_ENV
+    - tox -c score-api-server/score_api_server/tox.ini -e $TOX_ENV
