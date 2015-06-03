@@ -1,6 +1,7 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
-import os
+import sys
+
 from flask import Flask
 from flask.ext import restful
 from flask import request, abort, g
@@ -8,6 +9,8 @@ from flask import request, abort, g
 from pyvcloud.vcloudsession import VCS
 from cloudify_rest_client.client import CloudifyClient
 
+from score_api_server.common import cfg
+from score_api_server.common import utils
 from score_api_server.resources.blueprints import Blueprints
 from score_api_server.resources.deployments import Deployments
 from score_api_server.resources.executions import Executions
@@ -15,6 +18,7 @@ from score_api_server.resources.events import Events
 
 app = Flask(__name__)
 api = restful.Api(app)
+CONF = cfg.CONF
 
 
 # '37d9e482-a5d1-4811-b466-c4d1e2f67f2c',  # Paco on demand
@@ -31,10 +35,6 @@ allowed_orgs = [
     '61209cc8-c4ea-467d-bc07-d3fa74929ae4',  # Bob
     'd7a623de-1183-46a9-9b02-9043ca68f441'  # Paco on demand vCA
 ]
-
-print('connecting to cloudify manager server at',
-      os.environ.get('CFY_HOST', 'localhost'),
-      (os.environ.get('CFY_PORT', '80')))
 
 
 # note: assume vcs.organization.id is unique across the service
@@ -60,8 +60,8 @@ def check_authorization():
 
 @app.before_request
 def connect_to_cloudify():
-    g.cc = CloudifyClient(host=os.environ.get('CFY_HOST', 'localhost'),
-                          port=int(os.environ.get('CFY_PORT', '80')))
+    g.cc = CloudifyClient(host=CONF.cloudifu.host,
+                          port=CONF.cloudifu.port)
 
 api.add_resource(Blueprints, '/blueprints',
                  '/blueprints/<string:blueprint_id>')
@@ -73,7 +73,7 @@ api.add_resource(Events, '/events')
 
 
 def main():
-    app.run()
+    utils.main(app, CONF, sys.argv)
 
 if __name__ == '__main__':
-    app.run()
+    main()
