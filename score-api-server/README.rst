@@ -74,6 +74,6 @@ Testing
 
 To run code style checks please do:
 
-```bash
+```
 $ tox -e pep8
 ```
