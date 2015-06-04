@@ -33,7 +33,8 @@ allowed_orgs = [
     '0ea8e6de-8dc0-4b2d-83a0-629544be5465',  # Paco vmop
     'fdb1f868-9a16-4153-aaf4-25389fc18d03',  # Paco cert23
     '61209cc8-c4ea-467d-bc07-d3fa74929ae4',  # Bob
-    'd7a623de-1183-46a9-9b02-9043ca68f441'  # Paco on demand vCA
+    'd7a623de-1183-46a9-9b02-9043ca68f441',  # Paco on demand vCA
+    '95e04439-7dcc-42e3-90ec-36ef2e4b0757'   # Anshima, on demand
 ]
 
 
