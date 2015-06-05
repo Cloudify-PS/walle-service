@@ -1,0 +1,6 @@
+user_github_key: some_user_private_github_key_name
+score_package_url: URL_to_`score`_package_if_exists
+manager_server_ip: manager_IP_address
+catalog: Public Catalog
+template: Ubuntu Server 12.04 LTS (amd64 20150127)
+user_public_key: ssh-rsa-key
