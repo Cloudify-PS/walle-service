@@ -8,8 +8,8 @@ Deployment
 
 .. code-block:: bash
 
-    $ git clone git@github.com:vchs/score-service.git
-    $ cd score_api_server/
+    $ git clone http://github.com/vcloudair/score-service.git
+    $ cd score-service/score-api-server/
     $ virtualenv .venv
     $ source .venv/bin/activate
     $ pip install -r requirements.txt
@@ -67,6 +67,7 @@ As you can see, configuration file contains two sections::
     [cloudify]
 
 both this sections are responsible for Score API server configuration and Cloudifys' manager connection.
+
 
 =======
 Testing
