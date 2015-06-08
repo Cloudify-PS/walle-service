@@ -9,10 +9,10 @@ parser = reqparse.RequestParser()
 
 class Events(restful.Resource):
 
-    def get(self):
+    def get(self, execution_id, include_logs=False):
         request_json = request.json
         print(request_json)
-        result = g.cc.events.get("e568e805-43c2-4565-b03b-189b6f31fed9")
+        result = g.cc.events.get(execution_id, include_logs)
         if len(result) == 2:
             r = result[0]
             r.append(result[1])
