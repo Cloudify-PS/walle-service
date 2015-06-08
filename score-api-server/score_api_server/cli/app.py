@@ -62,8 +62,8 @@ def check_authorization():
 
 @app.before_request
 def connect_to_cloudify():
-    g.cc = CloudifyClient(host=CONF.cloudifu.host,
-                          port=CONF.cloudifu.port)
+    g.cc = CloudifyClient(host=CONF.cloudify.host,
+                          port=CONF.cloudify.port)
 
 api.add_resource(Blueprints, '/blueprints',
                  '/blueprints/<string:blueprint_id>')
@@ -71,7 +71,7 @@ api.add_resource(Deployments, '/deployments',
                  '/deployments/<string:deployment_id>')
 api.add_resource(Executions, '/executions',
                  '/executions/<string:execution_id>')
-api.add_resource(Events, '/events')
+api.add_resource(Events, '/events/<string:event_id>')
 
 
 def main():
