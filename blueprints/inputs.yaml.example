@@ -1,0 +1,18 @@
+vcloud_username: some_user
+vcloud_password: some_password
+vcloud_url: https://vchs.vmware.com
+vcloud_service: VDC
+vcloud_org: VDC
+vcloud_vdc: VDC
+edge_gateway: gateway
+manager_server_name: some-server
+manager_server_catalog: default-catalog
+manager_server_template: Ubuntu Server 12.04 LTS (amd64 20150127)
+management_network_use_existing: true
+management_network_public_nat_use_existing: true
+management_network_name: some-net
+manager_private_key_path: ~/.ssh/manager.pem
+agent_private_key_path: ~/.ssh/manager.pem
+manager_public_key: some_key
+agent_public_key: some_key
+
