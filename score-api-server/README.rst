@@ -27,22 +27,45 @@ Once you will accomplish deployment guide your environment will have next CLI to
 Usage examples::
 .. code-block:: bash
 
-    $ score-server -h
+    $ export SCORE_HOST="0.0.0.0"; \
+      export SCORE_PORT="5000"; \
+      export SCORE_WORKERS="4";\
+      export CFY_MANAGER_HOST="127.0.0.1"; \
+      export CFY_MANAGER_PORT="80"; \
+      score-server
 
-    usage: score-server [-h] [--config-dir DIR] [--version] [--config-file PATH]
+      * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
 
-    optional arguments:
-      -h, --help          show this help message and exit
-      --config-dir DIR    Path to a config directory to pull *.conf files from.
-                          This file set is sorted, so as to provide a predictable
-                          parse order if individual options are over-ridden. The
-                          set is parsed after the file(s) specified via previous
-                          --config-file, arguments hence over-ridden options in
-                          the directory take precedence.
-      --version           show program's version number and exit
-      --config-file PATH  Path to a config file to use. Multiple config files can
-                          be specified, with values in later files taking
-                          precedence. The default files used are: None.
+====================
+Gunicorn integration
+====================
+
+To run score-server app under gunicorn please use this command
+.. code-block::bash
+
+    $ pip install gunicorn
+    $ gunicorn -h
+
+        usage: gunicorn [OPTIONS] [APP_MODULE]
+
+
+Usage examples::
+.. code-block:: bash
+
+    $ export SCORE_HOST="0.0.0.0"; \
+      export SCORE_PORT="5000"; \
+      export SCORE_WORKERS="4"
+      export CFY_MANAGER_HOST="127.0.0.1"; \
+      export CFY_MANAGER_PORT="80"; \
+      gunicorn -w ${SCORE_WORKERS} -b ${SCORE_HOST}:${SCORE_PORT} score_api_server.cli.app:main
+
+            [2015-06-09 13:11:34 +0000] [27905] [INFO] Starting gunicorn 19.3.0
+            [2015-06-09 13:11:34 +0000] [27905] [INFO] Listening at: http://0.0.0.0:5000 (27905)
+            [2015-06-09 13:11:34 +0000] [27905] [INFO] Using worker: sync
+            [2015-06-09 13:11:34 +0000] [27916] [INFO] Booting worker with pid: 27916
+            [2015-06-09 13:11:34 +0000] [27917] [INFO] Booting worker with pid: 27917
+            [2015-06-09 13:11:34 +0000] [27918] [INFO] Booting worker with pid: 27918
+            [2015-06-09 13:11:34 +0000] [27919] [INFO] Booting worker with pid: 27919
 
 
 =============
@@ -51,23 +74,15 @@ Configuration
 
 Once you would like to change default Score API server host/port and Cloudify manager
 host/port to connect to you will need to create a configuration file for score-server.
-Configuration file format might have next look::
+Configuration environment variables might have next look::
+.. code-block:: bash
 
-    [server]
-    host = localhost
-    port = 5000
+    $ export SCORE_HOST="0.0.0.0"
+    $ export SCORE_PORT="5000"
+    $ export SCORE_WORKERS="4"
 
-    [cloudify]
-    host = localhost
-    port = 8000
-
-As you can see, configuration file contains two sections::
-
-    [server]
-    [cloudify]
-
-both this sections are responsible for Score API server configuration and Cloudifys' manager connection.
-
+    $ export CFY_MANAGER_HOST="127.0.0.1"
+    $ export CFY_MANAGER_PORT="80"
 
 =======
 Testing
