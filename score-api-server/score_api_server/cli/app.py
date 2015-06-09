@@ -59,7 +59,7 @@ def check_authorization():
     else:
         abort(vcs.response.status_code)
 
-    
+
 @app.before_request
 def connect_to_cloudify():
     g.cc = CloudifyClient(host=CONF.cloudify.host,
