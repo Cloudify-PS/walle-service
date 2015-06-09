@@ -1,7 +1,5 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
-import sys
-
 from flask import Flask
 from flask.ext import restful
 from flask import request, abort, g
@@ -10,7 +8,6 @@ from pyvcloud.vcloudsession import VCS
 from cloudify_rest_client.client import CloudifyClient
 
 from score_api_server.common import cfg
-from score_api_server.common import utils
 from score_api_server.resources.blueprints import Blueprints
 from score_api_server.resources.deployments import Deployments
 from score_api_server.resources.executions import Executions
@@ -75,7 +72,17 @@ api.add_resource(Events, '/events')
 
 
 def main():
-    utils.main(app, CONF, sys.argv)
+    host, port, workers = (CONF.server.host,
+                           CONF.server.port,
+                           CONF.server.workers)
+    try:
+        app.run(
+            host=host,
+            port=port,
+            processes=workers
+        )
+    except Exception as e:
+        print(str(e))
 
 if __name__ == '__main__':
     main()

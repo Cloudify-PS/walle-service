@@ -1,5 +1,6 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
+import os
 from oslo_config import cfg
 
 
@@ -11,13 +12,16 @@ class PortOpt(cfg.Opt):
             **kwargs)
 
 rest_opts = [
-    cfg.IPOpt("host", version=4, default="127.0.0.1"),
-    PortOpt("port", default=5000)
+    cfg.IPOpt("host", version=4,
+              default=os.getenv("SCORE_HOST", "127.0.0.1")),
+    PortOpt("port", default=int(os.getenv("SCORE_PORT", 5000))),
+    cfg.IntOpt("workers", default=int(os.getenv("SCORE_WORKERS", 4)))
 ]
 
 cloudify_opts = [
-    cfg.IPOpt("host", version=4, default="127.0.0.1"),
-    PortOpt("port", default=8000)
+    cfg.IPOpt("host", version=4,
+              default=os.getenv("CFY_MANAGER_API", "127.0.0.1")),
+    PortOpt("port", default=int(os.getenv("CFY_MANAGER_PORT", 80)))
 ]
 
 rest_group = cfg.OptGroup("server", "ReST server config")
