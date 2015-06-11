@@ -1,7 +1,9 @@
-from flask import request, g
+from flask import g
+
 
 def add_org_prefix(name):
     return "{}_{}".format(g.org_id, name)
+
 
 def remove_org_prefix(obj):
     obj_copy = dict(obj)

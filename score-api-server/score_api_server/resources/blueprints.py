@@ -10,6 +10,7 @@ from flask.ext import restful
 from flask import request, g
 from score_api_server.common import util
 
+
 # Chunk is handled by gunicorn
 def decode(input_stream, buffer_size=8192):
     while True:
@@ -36,9 +37,11 @@ class Blueprints(restful.Resource):
     def put(self, blueprint_id):
         tempdir = tempfile.mkdtemp()
         try:
-            archive_file_name = os.path.join(tempdir, util.add_org_prefix(blueprint_id) + '.tar.gz')
+            archive_file_name = os.path.join(tempdir,
+                                             util.add_org_prefix(blueprint_id)
+                                             + '.tar.gz')
             self._save_file_locally(archive_file_name)
-            with  tarfile.open(archive_file_name, 'r:gz') as tfile:
+            with tarfile.open(archive_file_name, 'r:gz') as tfile:
                 tfile.extractall(tempdir)
             files = os.listdir(tempdir)
             directory = None
@@ -47,7 +50,8 @@ class Blueprints(restful.Resource):
                     directory = file
                     break
             blueprint = g.cc.blueprints.upload(
-                os.path.join(tempdir, directory, request.args['application_file_name']),
+                os.path.join(tempdir, directory,
+                             request.args['application_file_name']),
                 util.add_org_prefix(blueprint_id))
             return blueprint, 201
         finally:
