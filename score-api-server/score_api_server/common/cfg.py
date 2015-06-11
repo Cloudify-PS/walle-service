@@ -8,7 +8,7 @@ class PortOpt(cfg.Opt):
     def __init__(self, name, **kwargs):
         super(PortOpt, self).__init__(
             name,
-            type=cfg.types.Integer(min=1024, max=65535),
+            type=cfg.types.Integer(min=80, max=65535),
             **kwargs)
 
 rest_opts = [

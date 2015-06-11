@@ -1,5 +1,5 @@
 # Copyright (c) 2015 VMware. All rights reserved
-
+import sys
 from flask import Flask
 from flask.ext import restful
 from flask import request, abort, g
@@ -72,6 +72,7 @@ api.add_resource(Events, '/events')
 
 
 def main():
+    cfg.parse_args(sys.argv)
     host, port, workers = (CONF.server.host,
                            CONF.server.port,
                            CONF.server.workers)
