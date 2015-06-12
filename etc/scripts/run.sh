@@ -5,7 +5,6 @@ if [ -z "$PRJ" ]; then
 fi
 
 source $PRJ/.venv/bin/activate
-cd $PRJ/score-api-server
 
 if [ -z "$SCORE_HOST" ]; then
     export SCORE_HOST=127.0.0.1
