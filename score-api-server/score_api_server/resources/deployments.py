@@ -11,7 +11,8 @@ class Deployments(restful.Resource):
 
     def get(self, deployment_id=None):
         if deployment_id is not None:
-            return util.remove_org_prefix(g.cc.deployments.get(util.add_org_prefix(deployment_id)))
+            return util.remove_org_prefix(g.cc.deployments.get(\
+                        util.add_org_prefix(deployment_id)))
         else:
             deployments = g.cc.deployments.list()
             result = []
