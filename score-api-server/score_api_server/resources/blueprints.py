@@ -10,6 +10,7 @@ from flask.ext import restful
 from flask import request, g
 from score_api_server.common import util
 
+
 # Chunk is handled by gunicorn
 def decode(input_stream, buffer_size=8192):
     while True:
