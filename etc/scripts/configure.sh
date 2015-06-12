@@ -1,15 +1,15 @@
 #!/bin/bash
 
-PRJ=/home/ubuntu/score-service
+PRJ=~/score-service/score-api-server
 
 cd $PRJ
-virtualenv $PRJ/venv
-source $PRJ/venv/bin/activate
+virtualenv $PRJ/.venv
+source $PRJ/.venv/bin/activate
 
 pip install gunicorn
 
-pip install -r $PRJ/score-api-server/requirements.txt
-pip install -r $PRJ/score-api-server/test-requirements.txt
+pip install -r $PRJ/requirements.txt
+#pip install -r $PRJ/test-requirements.txt
 
-cd $PRJ/score-api-server
+cd $PRJ
 python setup.py install
