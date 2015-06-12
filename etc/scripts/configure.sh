@@ -11,5 +11,4 @@ pip install gunicorn
 pip install -r $PRJ/requirements.txt
 #pip install -r $PRJ/test-requirements.txt
 
-cd $PRJ
-python setup.py install
+pip install --edit $PRJ
