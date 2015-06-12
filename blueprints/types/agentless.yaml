@@ -1,7 +1,7 @@
 node_types:
 
     # template for nodejs node
-    agentless-nodecellar.nodes.NodeJSServer:
+    agentless.nodes.NodeJSServer:
         derived_from: cloudify.nodes.WebServer
         interfaces:
             cloudify.interfaces.lifecycle:
@@ -17,7 +17,7 @@ node_types:
                              config: {}
 
     # template for mongo node
-    agentless-nodecellar.nodes.MongoDatabase:
+    agentless.nodes.MongoDatabase:
         derived_from: cloudify.nodes.DBMS
         interfaces:
             cloudify.interfaces.lifecycle:
@@ -33,7 +33,7 @@ node_types:
                              config: {}
 
     # template for postgresql node
-    agentless-nodecellar.nodes.PostgreSqlDatabase:
+    agentless.nodes.PostgreSqlDatabase:
         derived_from: cloudify.nodes.DBMS
         interfaces:
             cloudify.interfaces.lifecycle:
@@ -49,7 +49,7 @@ node_types:
                              config: {}
 
     #template for nodejs application nodecellar
-    agentless-nodecellar.nodes.nodecellar:
+    agentless.nodes.nodecellar:
         derived_from: cloudify.nodes.ApplicationModule
         interfaces:
             cloudify.interfaces.lifecycle:

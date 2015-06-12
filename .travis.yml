@@ -17,3 +17,4 @@ script:
     - tox -c score-api-server/tox.ini -e $TOX_ENV
     - cfy init
     - cfy blueprints validate -p blueprints/vcloud-manager-blueprint.yaml
+    - cfy blueprints validate -p blueprints/postgresql-blueprint.yaml
