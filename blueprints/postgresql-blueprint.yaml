@@ -1,0 +1,84 @@
+tosca_definitions_version: cloudify_dsl_1_0
+
+imports:
+    - http://www.getcloudify.org/spec/cloudify/3.2/types.yaml
+    - https://raw.githubusercontent.com/cloudify-cosmo/tosca-vcloud-plugin/master/plugin.yaml
+    - http://www.getcloudify.org/spec/fabric-plugin/1.2/plugin.yaml
+    - types/agentless.yaml
+
+inputs:
+
+    catalog:
+        type: string
+
+    template:
+        type: string
+
+    server_cpu:
+        default: 2
+        description: >
+            cpu count for each server
+
+    server_memory:
+        default: 4096
+        description: >
+            memory amount for each server
+
+    user_public_key:
+        type: string
+
+    user:
+        description: >
+            User for connecting to agent VM's
+        type: string
+        default: ubuntu
+
+    edge_gateway:
+        type: string
+        default: gateway
+        description: >
+            For 'ondemand' service type, the value of edge_gateway
+            is always 'gateway'
+
+node_types:
+
+    # base server type for installation without agent
+    agentless.nodes.ParentTypeServer:
+        derived_from: cloudify.vcloud.nodes.Server
+        properties:
+            install_agent:
+                default: false
+            cloudify_agent:
+                default:
+                    user: ubuntu
+                    home_dir: /home/ubuntu
+
+node_templates:
+
+    postgresql_host:
+        type: agentless.nodes.ParentTypeServer
+        properties:
+            server:
+                catalog: { get_input: catalog }
+                template: { get_input: template }
+                hardware:
+                    cpu: { get_input: server_cpu }
+                    memory: { get_input: server_memory }
+                guest_customization:
+                    public_keys:
+                        -
+                         key:  { get_input: user_public_key }
+                         user: { get_input: user }
+
+    postgresql:
+        type: agentless.nodes.PostgreSqlDatabase
+        relationships:
+            - target: postgresql_host
+              type: cloudify.relationships.contained_in
+
+
+outputs:
+    endpoint:
+        description: Web application endpoint
+        value:
+            public_ip: { get_attribute: [ postgresql_host, ip ] }
