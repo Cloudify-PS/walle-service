@@ -20,7 +20,7 @@ rest_opts = [
 
 cloudify_opts = [
     cfg.IPOpt("host", version=4,
-              default=os.getenv("CFY_MANAGER_API", "127.0.0.1")),
+              default=os.getenv("CFY_MANAGER_HOST", "127.0.0.1")),
     PortOpt("port", default=int(os.getenv("CFY_MANAGER_PORT", 80)))
 ]
 
