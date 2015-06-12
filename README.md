@@ -4,6 +4,6 @@ This is the private repository of the vCloud Air Score service, for deployment o
 
 See [wiki] (https://github.com/vcloudair/score-service/wiki/Home) for detailed information.
 
-![CCI](https://magnum.travis-ci.com/vcloudair/score-service.svg?token=nbqWx87GyZzSWPQQsQME&branch=master "Circle CI")
+[![Build Status](https://magnum.travis-ci.com/vcloudair/score-service.svg?token=nbqWx87GyZzSWPQQsQME&branch=master "Circle CI")](https://magnum.travis-ci.com/vcloudair/score-service)
 
 
