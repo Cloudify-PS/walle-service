@@ -1,10 +1,12 @@
-import fabric
 from cloudify import ctx
+import fabric
+
 
 def _run(command):
     ctx.logger.info(command)
     out = fabric.api.run(command)
     ctx.logger.info(out)
+
 
 def install(config):
     ctx.logger.info("Config: " + str(config))

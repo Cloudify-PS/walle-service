@@ -2,14 +2,12 @@ import fabric
 
 
 def configure(vcloud_config):
-    """
-        only update container with vcloud specific packages
-    """
+    """only update container with vcloud specific packages"""
     _update_container()
 
 
 def _update_container():
-    """ install some packeges for future deployments creation """
+    """install some packeges for future deployments creation"""
     # update system to last version
     fabric.api.run("sudo docker exec -i -t cfy apt-get "
                    "update -q -y 2>&1")
