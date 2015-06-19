@@ -1,5 +1,9 @@
 from cloudify import ctx
 import fabric
+NODE_CELLAR_ARCHIVE = (
+    "https://github.com/cloudify-cosmo/" +
+    "nodecellar/archive/master.tar.gz"
+)
 
 
 def _run(command):
@@ -23,7 +27,8 @@ def _generate_service(mongodb_host):
         "    export NODECELLAR_PORT=8080",
         "    export MONGO_PORT=27017",
         "    export MONGO_HOST=" + mongodb_host,
-        "    exec /usr/bin/nodejs /home/ubuntu/nodecellar-master/server.js 2>&1 > /tmp/log",
+        "    exec /usr/bin/nodejs " +
+        "/home/ubuntu/nodecellar-master/server.js 2>&1 > /tmp/log",
         "end script"
     ]
 
@@ -31,7 +36,7 @@ def _generate_service(mongodb_host):
 def install(config):
     script = []
     script.append("""
-wget https://github.com/cloudify-cosmo/nodecellar/archive/master.tar.gz -c -v 2>&1
+wget -c -v """ + NODE_CELLAR_ARCHIVE + """ 2>&1
 tar -xvf master.tar.gz
 cd nodecellar-master && npm update
     """)
@@ -39,7 +44,9 @@ cd nodecellar-master && npm update
     service = _generate_service(config.get("mongo", "localhost"))
     script.append("rm -f /home/ubuntu/nodecellar.conf")
     for service_str in service:
-        script.append('echo "' + service_str + '" >> /home/ubuntu/nodecellar.conf')
+        script.append(
+            'echo "' + service_str + '" >> /home/ubuntu/nodecellar.conf'
+        )
     # create init file
     script.append("""
 sudo cp /home/ubuntu/nodecellar.conf /etc/init/nodecellar.conf

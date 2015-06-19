@@ -8,10 +8,12 @@ UBUNTU_HOME = '/home/ubuntu'
 SSH_DIR = '/.ssh/'
 ID_RSA = 'id_rsa'
 
+
 def _run(command):
     ctx.logger.info(command)
     out = fabric.api.run(command)
     ctx.logger.info(out)
+
 
 def _upload_user_github_key(source_path, destination_path):
     out = fabric.api.put(source_path, destination_path)
