@@ -24,14 +24,78 @@ inputs:
     description: >
       memory amount for each server
 
-  user_public_key:
+  score_ip_address:
+    type: string
+    default: ''
+    description: >
+      For 'ondemand' service type, the value of
+      score_ip_address can be empty
+
+  score_ssh:
+    type: string
+    default: 22
+    description: >
+      Ssh port for nodejs host
+
+  vcloud_username:
+    type: string
+
+  vcloud_password:
+    type: string
+
+  vcloud_token:
+    type: string
+    default: ''
+
+  vcloud_url:
+    type: string
+
+  vcloud_service:
+    type: string
+
+  vcloud_service_type:
+    type: string
+    default: 'subscription'
+
+  vcloud_instance:
+    type: string
+    default: ''
+    description: >
+      Only required for ondemand service type.
+
+  vcloud_api_version:
+    type: string
+    default: '5.6'
+
+  vcloud_org_url:
+    type: string
+    default: ''
+    description: >
+      Only required if using token based login on a private vcloud
+      director. This can be obtained by following the vcloud API
+      example docs. If you are unsure of how to obtain this, you will
+      need to use password based login.
+
+  vcloud_org:
+    type: string
+
+  vcloud_vdc:
+    type: string
+
+  network_use_existing:
+    type: boolean
+    default: false
+
+  common_network_name:
     type: string
 
   score_package_url:
     type: string
+    default: ''
 
   user_github_key:
     type: string
+    default: ''
 
   manager_server_ip:
     type: string
@@ -49,6 +113,28 @@ inputs:
       For 'ondemand' service type, the value of edge_gateway
       is always 'gateway'
 
+  common_network_public_nat_use_existing:
+    type: boolean
+    default: false
+
+  servers_user:
+    default: ubuntu
+    type: string
+
+  private_key_path:
+    default: ~/.ssh/cloudify-agent-kp.pem
+    type: string
+    description: >
+      Please upload key to manager server before use key
+
+  user_public_key:
+    type: string
+    default: ''
+
+  resources_prefix:
+    type: string
+    default: ''
+
 node_types:
 
   # base server type for installation without agent
@@ -62,13 +148,36 @@ node_types:
           user: ubuntu
           home_dir: /home/ubuntu
 
+  vcloud_configuration:
+    derived_from: cloudify.nodes.Root
+    properties:
+      vcloud_config: {}
+
 node_templates:
+
+  vcloud_configuration:
+    type: vcloud_configuration
+    properties:
+      vcloud_config:
+        username: { get_input: vcloud_username }
+        password: { get_input: vcloud_password }
+        token: { get_input: vcloud_token }
+        url: { get_input: vcloud_url }
+        service: { get_input: vcloud_service }
+        org: { get_input: vcloud_org }
+        vdc: { get_input: vcloud_vdc }
+        service_type: { get_input: vcloud_service_type }
+        instance: { get_input: vcloud_instance }
+        api_version: { get_input: vcloud_api_version }
+        org_url: { get_input: vcloud_org_url }
+        edge_gateway: { get_input: edge_gateway }
 
   gunicorn_nat:
     type: cloudify.vcloud.nodes.PublicNAT
     properties:
       nat:
         edge_gateway: { get_input: edge_gateway }
+        public_ip: { get_input: score_ip_address }
       rules:
        - type: DNAT
          protocol: tcp
@@ -100,11 +209,55 @@ node_templates:
             -
              key:  { get_input: user_public_key }
              user: { get_input: user }
+      management_network: { get_input: common_network_name }
+      vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
+
+  common_network:
+    type: cloudify.vcloud.nodes.Network
+    properties:
+      use_external_resource: { get_input: network_use_existing }
+      resource_id: { get_input: common_network_name }
+      network:
+        name: { get_input: common_network_name }
+        edge_gateway: { get_input: edge_gateway }
+        static_range: 10.67.80.129-10.67.80.254
+        netmask: 255.255.255.0
+        gateway_ip: 10.67.80.1
+        dns:
+          - 10.67.80.1
+          - 8.8.8.8
+        dhcp:
+          dhcp_range: 10.67.80.2-10.67.80.128
+      vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
+    relationships:
+      - target: common_network_nat
+        type: cloudify.vcloud.net_connected_to_public_nat
+
+  common_network_nat:
+    type: cloudify.vcloud.nodes.PublicNAT
+    properties:
+      use_external_resource: { get_input: common_network_public_nat_use_existing }
+      nat:
+        edge_gateway: { get_input: edge_gateway }
+        public_ip: { get_input: score_ip_address }
+      rules:
+        - type: SNAT
+      vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
+
   gunicorn:
     type: agentless-score.nodes.GunicornServer
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        start:
+          inputs:
+            fabric_env:
+              user: { get_input: servers_user }
+              key_filename: { get_input: private_key_path }
+              host_string: { get_attribute: [gunicorn_nat, public_ip] }
+              port: { get_input: score_ssh }
     relationships:
-        - type: cloudify.relationships.contained_in
-          target: gunicorn_host
+      - type: cloudify.relationships.contained_in
+        target: gunicorn_host
 
   score:
     type: agentless-score.nodes.score
@@ -112,12 +265,22 @@ node_templates:
       cloudify.interfaces.lifecycle:
         create:
           inputs:
+            fabric_env:
+              user: { get_input: servers_user }
+              key_filename: { get_input: private_key_path }
+              host_string: { get_attribute: [gunicorn_nat, public_ip] }
+              port: { get_input: score_ssh }
             task_properties:
               config:
                 score_package_url: { get_input: score_package_url }
                 user_github_key: { get_input: user_github_key }
         start:
           inputs:
+            fabric_env:
+              user: { get_input: servers_user }
+              key_filename: { get_input: private_key_path }
+              host_string: { get_attribute: [gunicorn_nat, public_ip] }
+              port: { get_input: score_ssh }
             task_properties:
               config:
                 manager_public_ip: { get_input: manager_server_ip }

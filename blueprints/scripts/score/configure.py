@@ -1,10 +1,12 @@
-import fabric
 from cloudify import ctx
+import fabric
+
 
 def _run(command):
     ctx.logger.info(command)
     out = fabric.api.run(command)
     ctx.logger.info(out)
+
 
 def _generate_service(server_host, cloudify_host):
     return [
@@ -22,9 +24,11 @@ def _generate_service(server_host, cloudify_host):
         "    export SCORE_WORKERS=4",
         "    export CFY_MANAGER_HOST=%s" % cloudify_host,
         "    export CFY_MANAGER_PORT=80",
-        "    exec /usr/bin/gunicorn -w 4 -b %s:8001 score_api_server.cli.app:app 2>&1 > /tmp/log" % server_host,
+        "    exec /usr/bin/gunicorn -w 4 -b %s:8001 " +
+        "score_api_server.cli.app:app 2>&1 > /tmp/log" % server_host,
         "end script"
     ]
+
 
 def configure(config):
     ctx.logger.info("Config: " + str(config))
@@ -50,6 +54,7 @@ sudo initctl start score_api_server
     script.append("""
 sudo rm /etc/nginx/sites-enabled/*
 sudo cp /home/ubuntu/score-service/etc/nginx/vca_io /etc/nginx/sites-enabled
+sudo cp /home/ubuntu/score-service/etc/keys/* /etc/nginx/
 sudo service nginx restart
     """)
     _run("\n".join(script))
