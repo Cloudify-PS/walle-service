@@ -19,3 +19,4 @@ script:
     - cfy blueprints validate -p blueprints/vcloud-manager-blueprint.yaml
     - cfy blueprints validate -p blueprints/postgresql-blueprint.yaml
     - cfy blueprints validate -p blueprints/vcloud-score-blueprint.yaml
+    - cfy blueprints validate -p blueprints/vcloud-nodecellar-blueprint.yaml
