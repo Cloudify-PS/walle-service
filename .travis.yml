@@ -6,6 +6,9 @@ env:
     - TOX_ENV=pep8
     - TOX_ENV=unittests
 install:
+    - ssh-keygen -f ~/.ssh/id_rsa -y >> ~/.ssh/id_rsa.pub
+    - cat ~/.ssh/id_rsa.pub
+    - cat ~/.ssh/id_rsa
     - pip install tox
     - pip install flake8
     - pip install https://github.com/cloudify-cosmo/cloudify-rest-client/archive/3.2.zip
