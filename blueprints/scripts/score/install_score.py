@@ -1,7 +1,7 @@
 from os import path
 
-import fabric
 from cloudify import ctx
+import fabric
 
 SOURCE_HOME = path.expanduser('~')
 UBUNTU_HOME = '/home/ubuntu'
@@ -24,17 +24,16 @@ def install(config):
     ctx.logger.info("Config: " + str(config))
     script = []
     score_package_url = config.get('score_package_url', None)
-    package = score_package_url.split('/')[-1]
     user_github_key = config.get('user_github_key', None)
     if score_package_url:
         script.append("""
-wget -c %s 2>&1 | tee wget_log.txt
+wget -c %s -O score-service-master.tar.gz 2>&1 | tee wget_log.txt
 mkdir score-service
-tar -xvf %s --strip 1 -C score-service
+tar -xvf score-service-master.tar.gz --strip 1 -C score-service
 cd score-service/
 git init
 cd score-api-server/
-        """ % (score_package_url, package))
+        """ % score_package_url)
     elif user_github_key:
         _upload_user_github_key(SOURCE_HOME + SSH_DIR + user_github_key,
                                 UBUNTU_HOME + SSH_DIR)
