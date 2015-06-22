@@ -2,6 +2,10 @@ language: python
 sudo: false
 python:
   - "2.7"
+
+services:
+    - docker
+
 env:
     - TOX_ENV=pep8
     - TOX_ENV=unittests
@@ -10,7 +14,6 @@ install:
     - cat ~/.ssh/id_rsa.pub
     - cat ~/.ssh/id_rsa
     - pip install tox
-    - pip install flake8
     - pip install https://github.com/cloudify-cosmo/cloudify-rest-client/archive/3.2.zip
     - pip install https://github.com/cloudify-cosmo/cloudify-dsl-parser/archive/3.2.zip
     - pip install https://github.com/cloudify-cosmo/cloudify-plugins-common/archive/3.2.zip

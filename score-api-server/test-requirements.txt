@@ -1,7 +1,6 @@
 hacking>=0.10.0,<0.11
 mock>=1.0
 nose>=1.3
-tox>=1.9
 coverage
-pyflakes
-flake8
+fabric==1.8.3
+testtools>=0.9.36,!=1.2.0
