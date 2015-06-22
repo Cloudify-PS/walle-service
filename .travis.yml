@@ -2,10 +2,6 @@ language: python
 sudo: false
 python:
   - "2.7"
-
-services:
-    - docker
-
 env:
     - TOX_ENV=pep8
     - TOX_ENV=unittests
