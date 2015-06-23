@@ -1,3 +1,5 @@
+import copy
+
 from flask import g
 
 
@@ -6,8 +8,9 @@ def add_org_prefix(name):
 
 
 def remove_org_prefix(obj):
-    obj_copy = dict(obj)
-    obj_copy['id'] = obj.id.replace("{}_".format(g.org_id), "", 1)
-    obj_copy['blueprint_id'] = obj.id.replace("{}_".format(g.org_id), "", 1)
-    obj_copy['deployment_id'] = obj.id.replace("{}_".format(g.org_id), "", 1)
+    obj_copy = copy.deepcopy(obj)
+    replaced_id = obj.id.replace("{}_".format(g.org_id), "", 1)
+    obj_copy['id'] = replaced_id
+    obj_copy['blueprint_id'] = replaced_id
+    obj_copy['deployment_id'] = replaced_id
     return obj_copy
