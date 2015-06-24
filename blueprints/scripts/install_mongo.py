@@ -6,9 +6,8 @@ from cloudify import ctx
 
 def _run(commands):
     ctx.logger.info(commands)
-    for command in commands:
-        out = fabric.api.run(command)
-        ctx.logger.info(out)
+    out = fabric.api.run(commands)
+    ctx.logger.info(out)
 
 
 def install(config):

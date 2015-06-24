@@ -21,6 +21,10 @@ script:
     - tox -c score-api-server/tox.ini -e $TOX_ENV
     - cfy init
     - cfy blueprints validate -p blueprints/vcloud-manager-blueprint.yaml
-    - cfy blueprints validate -p blueprints/postgresql-blueprint.yaml
+    - cfy blueprints validate -p blueprints/vcloud-postgresql-blueprint.yaml
     - cfy blueprints validate -p blueprints/vcloud-score-blueprint.yaml
     - cfy blueprints validate -p blueprints/vcloud-nodecellar-blueprint.yaml
+    - cfy blueprints validate -p blueprints/vcloud-nodecellar-blueprint-local.yaml
+    - cfy local init -p blueprints/vcloud-nodecellar-blueprint.yaml
+    - cfy local execute -w install
+    - cfy local execute -w uninstall
