@@ -14,11 +14,12 @@ env:
     - BP_VALIDATE=blueprints/vcloud-score-blueprint.yaml
     - BP_VALIDATE=blueprints/vcloud-nodecellar-blueprint.yaml
     - BP_VALIDATE=blueprints/vcloud-manager-blueprint.yaml
-    - BP_VALIDATE=blueprints/blueprints/vcloud-nodecellar-blueprint-local.yaml
+    - BP_VALIDATE=blueprints/vcloud-nodecellar-blueprint-local.yaml
     - BP_VALIDATE=blueprints/vcloud-nodecellar-blueprint-local-with-fabric.yaml
     - BP_VALIDATE=blueprints/vcloud-postgresql-blueprint-local-with-fabric.yaml
     - BP_INIT_WITH_INPUTS=blueprints/vcloud-nodecellar-blueprint-local-with-fabric.yaml
     - BP_INIT_WITH_INPUTS=blueprints/vcloud-postgresql-blueprint-local-with-fabric.yaml
+    - BP_INIT_WITH_INPUTS=blueprints/vcloud-nodecellar-blueprint-local.yaml
 
 install:
 
@@ -38,13 +39,13 @@ install:
     - pip install https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.zip
 
 script:
+    - cfy init
+
     - tox -c score-api-server/tox.ini -e $TOX_ENV
 
-    - cfy init
     - cfy blueprints validate -p $BP_VALIDATE
 
     - cfy local init --install-plugins -p $BP_INIT_WITH_INPUTS -i blueprints/inputs/inputs.travis-ci.yaml
-    - cfy local init -p blueprints/vcloud-nodecellar-blueprint-local.yaml
 
     # TODO(denismakogon): test local nodecellar blueprint with fabric
     # We have to check if we can run sudo commands through SSH inside container

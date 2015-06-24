@@ -16,15 +16,15 @@ def install(config):
         'export LC_ALL=C',
         'sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80' +
         ' --recv 7F0CEB10 2>&1',
-        'echo "deb http://repo.mongodb.org/apt/ubuntu ' +
-        '"$(lsb_release -sc)"/mongodb-org/3.0 multiverse" | sudo tee ' +
-        '/etc/apt/sources.list.d/mongodb-org-3.0.list 2>&1',
+        "echo 'deb http://downloads-distro.mongodb.org/" +
+        "repo/ubuntu-upstart dist 10gen' " +
+        "| sudo tee /etc/apt/sources.list.d/mongodb.list",
         'sudo apt-get update 2>&1',
         'sudo apt-get install -y mongodb-org 2>&1',
         # enable access from any ip
         # by default access blocked to localhost
         'sudo sed "s/bind_ip = /#bind_ip = /g" -i /etc/mongod.conf',
         'sudo initctl stop mongod',
-        'sudo initctl start mongod'
+        'sudo initctl start mongod',
     ]
     _run("\n".join(script))
