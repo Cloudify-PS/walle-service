@@ -1,5 +1,7 @@
-from cloudify import ctx
+# Copyright (c) 2015 VMware. All rights reserved
+
 import fabric
+from cloudify import ctx
 
 
 def _run(command):
@@ -10,12 +12,11 @@ def _run(command):
 
 def install(config):
     ctx.logger.info("Config: " + str(config))
-    script = []
-    script.append("""
+    script = ["""
 sudo apt-get update
-sudo apt-get install -y build-essential libssl-dev libffi-dev libxml2-dev
-sudo apt-get install -y libxslt-dev python-dev python-pip git
-sudo apt-get install gunicorn -q -y 2>&1
-sudo apt-get install nginx -q -y 2>&1
-    """)
+sudo apt-get install -qy build-essential libssl-dev libffi-dev libxml2-dev
+sudo apt-get install -qy libxslt-dev python-dev python-pip git
+sudo apt-get install gunicorn -qy 2>&1
+sudo apt-get install nginx -qy 2>&1
+    """]
     _run("\n".join(script))

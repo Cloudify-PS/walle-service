@@ -1,5 +1,7 @@
-from cloudify import ctx
+# Copyright (c) 2015 VMware. All rights reserved
+
 import fabric
+from cloudify import ctx
 
 
 def _run(command):
@@ -26,6 +28,7 @@ def _generate_service(server_host, cloudify_host):
         "    export CFY_MANAGER_PORT=80",
         "    exec /usr/bin/gunicorn -w 4 -b %s:8001 " +
         "score_api_server.cli.app:app 2>&1 > /tmp/log" % server_host,
+
         "end script"
     ]
 

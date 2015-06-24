@@ -1,5 +1,8 @@
+# Copyright (c) 2015 VMware. All rights reserved
+
 from cloudify import ctx
 import fabric
+
 NODE_CELLAR_ARCHIVE = (
     "https://github.com/cloudify-cosmo/" +
     "nodecellar/archive/master.tar.gz"

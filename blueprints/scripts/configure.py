@@ -1,3 +1,5 @@
+# Copyright (c) 2015 VMware. All rights reserved
+
 import tempfile
 import json
 
@@ -10,11 +12,10 @@ PROVIDER_CONTEXT_RUNTIME_PROPERTY = 'provider_context'
 
 
 def configure(vcloud_config):
-    """
-        copy configuration to managment host,
-        install docker
-        and save current context to .cloudify/context
-        For now - we have saved only managment network name
+    """Copy configuration to managment host,
+       install docker
+       and save current context to .cloudify/context
+       For now - we have saved only managment network name
     """
     _copy_vsphere_configuration_to_manager(vcloud_config)
     _install_docker()
@@ -22,20 +23,16 @@ def configure(vcloud_config):
 
 
 def _copy_vsphere_configuration_to_manager(vcloud_config):
-    """
-        Copy current config to remote node
-    """
+    """Copy current config to remote node"""
     tmp = tempfile.mktemp()
     with open(tmp, 'w') as f:
         json.dump(vcloud_config, f)
-    fabric.api.put(tmp,
-                   vcloud_plugin_common.Config.VCLOUD_CONFIG_PATH_DEFAULT)
+    fabric.api.put(
+        tmp, vcloud_plugin_common.Config.VCLOUD_CONFIG_PATH_DEFAULT)
 
 
 def _install_docker():
-    """
-        install docker from https://get.docker.com/
-    """
+    """Install docker from https://get.docker.com/"""
     distro = fabric.api.run(
         'python -c "import platform; print platform.dist()[0]"')
     kernel_version = fabric.api.run(
@@ -45,15 +42,15 @@ def _install_docker():
 
 
 def _save_context():
-    """
-        save current managment network for use as default network for
-        all new nodes
+    """Save current management network for use as default network for
+       all new nodes
     """
     resources = dict()
 
     node_instances = ctx._endpoint.storage.get_node_instances()
-    nodes_by_id = \
-        {node.id: node for node in ctx._endpoint.storage.get_nodes()}
+    nodes_by_id = {
+        node.id: node for node in ctx._endpoint.storage.get_nodes()
+    }
 
     for node_instance in node_instances:
         props = nodes_by_id[node_instance.node_id].properties
@@ -67,5 +64,5 @@ def _save_context():
         'resources': resources
     }
 
-    ctx.instance.runtime_properties[PROVIDER_CONTEXT_RUNTIME_PROPERTY] = \
-        provider
+    ctx.instance.runtime_properties[
+        PROVIDER_CONTEXT_RUNTIME_PROPERTY] = provider
