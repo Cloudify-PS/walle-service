@@ -1,5 +1,7 @@
-from cloudify import ctx
+# Copyright (c) 2015 VMware. All rights reserved
+
 import fabric
+from cloudify import ctx
 
 
 def _run(command):

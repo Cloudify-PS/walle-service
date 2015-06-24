@@ -1,5 +1,7 @@
-from cloudify import ctx
+# Copyright (c) 2015 VMware. All rights reserved
+
 import fabric
+from cloudify import ctx
 
 
 def _run(command):
@@ -10,10 +12,9 @@ def _run(command):
 
 def install(config):
     ctx.logger.info("Config: " + str(config))
-    script = []
-    script.append("""
+    script = ["""
 curl -sL https://deb.nodesource.com/setup | sudo bash -
 sudo apt-get update 2>&1
 sudo apt-get install nodejs make g++ wget -q -y 2>&1
-    """)
+    """]
     _run("\n".join(script))

@@ -6,8 +6,10 @@ env:
     - TOX_ENV=pep8
     - TOX_ENV=unittests
 install:
+    - ssh-keygen -f ~/.ssh/id_rsa -y >> ~/.ssh/id_rsa.pub
+    - cat ~/.ssh/id_rsa.pub
+    - cat ~/.ssh/id_rsa
     - pip install tox
-    - pip install flake8
     - pip install https://github.com/cloudify-cosmo/cloudify-rest-client/archive/3.2.zip
     - pip install https://github.com/cloudify-cosmo/cloudify-dsl-parser/archive/3.2.zip
     - pip install https://github.com/cloudify-cosmo/cloudify-plugins-common/archive/3.2.zip
@@ -22,4 +24,3 @@ script:
     - cfy blueprints validate -p blueprints/postgresql-blueprint.yaml
     - cfy blueprints validate -p blueprints/vcloud-score-blueprint.yaml
     - cfy blueprints validate -p blueprints/vcloud-nodecellar-blueprint.yaml
-    - flake8 blueprints/scripts/

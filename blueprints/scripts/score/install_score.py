@@ -1,3 +1,5 @@
+# Copyright (c) 2015 VMware. All rights reserved
+
 from os import path
 
 from cloudify import ctx
