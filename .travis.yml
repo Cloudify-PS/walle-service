@@ -2,13 +2,33 @@ language: python
 sudo: false
 python:
   - "2.7"
+
+addons:
+    ssh_known_hosts: localhost
+
 env:
     - TOX_ENV=pep8
     - TOX_ENV=unittests
+    - BP_VALIDATE=blueprints/vcloud-manager-blueprint.yaml
+    - BP_VALIDATE=blueprints/vcloud-postgresql-blueprint.yaml
+    - BP_VALIDATE=blueprints/vcloud-score-blueprint.yaml
+    - BP_VALIDATE=blueprints/vcloud-nodecellar-blueprint.yaml
+    - BP_VALIDATE=blueprints/vcloud-manager-blueprint.yaml
+    - BP_VALIDATE=blueprints/blueprints/vcloud-nodecellar-blueprint-local.yaml
+    - BP_VALIDATE=blueprints/vcloud-nodecellar-blueprint-local-with-fabric.yaml
+    - BP_VALIDATE=blueprints/vcloud-postgresql-blueprint-local-with-fabric.yaml
+    - BP_INIT_WITH_INPUTS=blueprints/vcloud-nodecellar-blueprint-local-with-fabric.yaml
+    - BP_INIT_WITH_INPUTS=blueprints/vcloud-postgresql-blueprint-local-with-fabric.yaml
+
 install:
+
     - ssh-keygen -f ~/.ssh/id_rsa -y >> ~/.ssh/id_rsa.pub
     - cat ~/.ssh/id_rsa.pub
     - cat ~/.ssh/id_rsa
+    - cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+    - chmod +x ~/.ssh/authorized_keys
+    - echo -e "StrictHostKeyChecking no\n" >> ~/.ssh/conf
+
     - pip install tox
     - pip install https://github.com/cloudify-cosmo/cloudify-rest-client/archive/3.2.zip
     - pip install https://github.com/cloudify-cosmo/cloudify-dsl-parser/archive/3.2.zip
@@ -19,12 +39,14 @@ install:
 
 script:
     - tox -c score-api-server/tox.ini -e $TOX_ENV
+
     - cfy init
-    - cfy blueprints validate -p blueprints/vcloud-manager-blueprint.yaml
-    - cfy blueprints validate -p blueprints/vcloud-postgresql-blueprint.yaml
-    - cfy blueprints validate -p blueprints/vcloud-score-blueprint.yaml
-    - cfy blueprints validate -p blueprints/vcloud-nodecellar-blueprint.yaml
-    - cfy blueprints validate -p blueprints/vcloud-nodecellar-blueprint-local.yaml
-    - cfy local init -p blueprints/vcloud-nodecellar-blueprint.yaml
-    - cfy local execute -w install
-    - cfy local execute -w uninstall
+    - cfy blueprints validate -p $BP_VALIDATE
+
+    - cfy local init --install-plugins -p $BP_INIT_WITH_INPUTS -i blueprints/inputs/inputs.travis-ci.yaml
+    - cfy local init -p blueprints/vcloud-nodecellar-blueprint-local.yaml
+
+    # TODO(denismakogon): test local nodecellar blueprint with fabric
+    # We have to check if we can run sudo commands through SSH inside container
+    #    - cfy local execute -w install
+    #    - cfy local execute -w uninstall

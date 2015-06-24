@@ -26,12 +26,12 @@ def _generate_service(mongodb_host):
         "respawn",
         "respawn limit 99 5",
         "script",
-        "    export HOME='/home/ubuntu'",
+        "    export LC_ALL=C",
         "    export NODECELLAR_PORT=8080",
         "    export MONGO_PORT=27017",
         "    export MONGO_HOST=" + mongodb_host,
-        "    exec /usr/bin/nodejs " +
-        "/home/ubuntu/nodecellar-master/server.js 2>&1 > /tmp/log",
+        "    exec LC_ALL=C /usr/bin/nodejs " +
+        "${HOME}/nodecellar-master/server.js &> /tmp/log",
         "end script"
     ]
 
@@ -39,23 +39,23 @@ def _generate_service(mongodb_host):
 def install(config):
     script = []
     script.append("""
+export LC_ALL=C
 wget -c -v """ + NODE_CELLAR_ARCHIVE + """ 2>&1
 tar -xvf master.tar.gz
 cd nodecellar-master && npm update
     """)
     # create service config
     service = _generate_service(config.get("mongo", "localhost"))
-    script.append("rm -f /home/ubuntu/nodecellar.conf")
+    script.append("rm -f ${HOME}/nodecellar.conf")
     for service_str in service:
         script.append(
-            'echo "' + service_str + '" >> /home/ubuntu/nodecellar.conf'
+            'echo "' + service_str + '" >> ${HOME}/nodecellar.conf'
         )
     # create init file
     script.append("""
-sudo cp /home/ubuntu/nodecellar.conf /etc/init/nodecellar.conf
+sudo cp ${HOME}/nodecellar.conf /etc/init/nodecellar.conf
 sudo chown root:root /etc/init/nodecellar.conf
 # run service
-sudo initctl stop nodecellar || echo "not started"
 sudo initctl start nodecellar
     """)
     _run("\n".join(script))
