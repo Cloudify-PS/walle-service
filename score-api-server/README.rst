@@ -20,6 +20,12 @@ Deployment
 Usage
 =====
 
+Before run call db update/creation by:
+    $   export SCORE_DB="sqlite:////tmp/score-service.db"
+        python score_api_server/cli/manage.py db upgrade
+
+And only first time please import sql from initial.sql to db.
+
 Once you will accomplish deployment guide your environment will have next CLI tool::
 
     score-server
@@ -32,6 +38,7 @@ Usage examples::
       export SCORE_WORKERS="4";\
       export CFY_MANAGER_HOST="127.0.0.1"; \
       export CFY_MANAGER_PORT="80"; \
+      export SCORE_DB="sqlite:////tmp/score-service.db"; \
       score-server
 
       * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
@@ -57,6 +64,7 @@ Usage examples::
       export SCORE_WORKERS="4"
       export CFY_MANAGER_HOST="127.0.0.1"; \
       export CFY_MANAGER_PORT="80"; \
+      export SCORE_DB="sqlite:////tmp/score-service.db"; \
       gunicorn -w ${SCORE_WORKERS} -b ${SCORE_HOST}:${SCORE_PORT} score_api_server.cli.app:main
 
             [2015-06-09 13:11:34 +0000] [27905] [INFO] Starting gunicorn 19.3.0
@@ -83,6 +91,7 @@ Configuration environment variables might have next look::
 
     $ export CFY_MANAGER_HOST="127.0.0.1"
     $ export CFY_MANAGER_PORT="80"
+    # export SCORE_DB="sqlite:////tmp/score-service.db"
 
 =======
 Testing
@@ -92,3 +101,4 @@ To run code style checks please do::
 .. code-block:: bash
 
     $ tox -e pep8
+    $ tox -e unittests

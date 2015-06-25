@@ -15,7 +15,10 @@ rest_opts = [
     cfg.IPOpt("host", version=4,
               default=os.getenv("SCORE_HOST", "127.0.0.1")),
     PortOpt("port", default=int(os.getenv("SCORE_PORT", 5000))),
-    cfg.IntOpt("workers", default=int(os.getenv("SCORE_WORKERS", 4)))
+    cfg.IntOpt("workers", default=int(os.getenv("SCORE_WORKERS", 4))),
+    cfg.StrOpt('db_uri', default=os.getenv(
+        "SCORE_DB", 'sqlite:////tmp/score.db'
+    ))
 ]
 
 cloudify_opts = [
