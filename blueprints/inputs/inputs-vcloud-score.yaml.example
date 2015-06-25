@@ -1,5 +1,5 @@
-catalog: giga
-template: Ubuntu Server 12.04 LTS (amd64 20140927)
+catalog: Public Catalog
+template: Ubuntu Server 12.04 LTS (amd64 20150127
 common_network_name: other-net
 vcloud_username: some_user
 vcloud_password: some_password

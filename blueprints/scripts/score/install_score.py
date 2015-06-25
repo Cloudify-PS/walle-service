@@ -34,7 +34,6 @@ mkdir score-service
 tar -xvf score-service-master.tar.gz --strip 1 -C score-service
 cd score-service/
 git init
-cd score-api-server/
         """ % score_package_url)
     elif user_github_key:
         _upload_user_github_key(SOURCE_HOME + SSH_DIR + user_github_key,
@@ -46,13 +45,14 @@ mv %s %s
                    UBUNTU_HOME + SSH_DIR + ID_RSA))
         script.append("""
 ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-chmod 400 ~/.ssh/id_rsa
+chmod 600 ~/.ssh/*
 eval `ssh-agent`
 ssh-add ~/.ssh/id_rsa
 git clone git@github.com:vcloudair/score-service.git
-cd score-service/score-api-server/
         """)
     script.append("""
+sudo apt-get upgrade -y
+cd ~/score-service/score-api-server/
 sudo pip install -r requirements.txt && sudo python setup.py install
     """)
     _run("\n".join(script))

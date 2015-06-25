@@ -45,11 +45,26 @@ node_types:
             type: integer
         interfaces:
             cloudify.interfaces.lifecycle:
-                start:
+                create:
                     implementation: fabric.fabric_plugin.tasks.run_task
                     inputs:
                         tasks_file:
                             default: scripts/install_postgresql.py
+                        task_name:
+                            default: install
+                        task_properties:
+                            default:
+                             config: {}
+
+    agentless.nodes.ScorePostgreSql:
+        derived_from: cloudify.nodes.ApplicationModule
+        interfaces:
+            cloudify.interfaces.lifecycle:
+                start:
+                    implementation: fabric.fabric_plugin.tasks.run_task
+                    inputs:
+                        tasks_file:
+                            default: scripts/install_score_postgresql.py
                         task_name:
                             default: install
                         task_properties:
@@ -72,6 +87,48 @@ node_types:
                             default: scripts/install_nodecellar.py
                         task_name:
                             default: install
+                        task_properties:
+                            default:
+                             config: {}
+
+    # template for gunicorn node
+    agentless.nodes.GunicornServer:
+        derived_from: cloudify.nodes.WebServer
+        interfaces:
+            cloudify.interfaces.lifecycle:
+                start:
+                    implementation: fabric.fabric_plugin.tasks.run_task
+                    inputs:
+                        tasks_file:
+                            default: scripts/score/install_dependencies.py
+                        task_name:
+                            default: install
+                        task_properties:
+                            default:
+                             config: {}
+
+    #template for gunicorn application score
+    agentless.nodes.score:
+        derived_from: cloudify.nodes.ApplicationModule
+        interfaces:
+            cloudify.interfaces.lifecycle:
+                create:
+                    implementation: fabric.fabric_plugin.tasks.run_task
+                    inputs:
+                        tasks_file:
+                            default: scripts/score/install_score.py
+                        task_name:
+                            default: install
+                        task_properties:
+                            default:
+                             config: {}
+                start:
+                    implementation: fabric.fabric_plugin.tasks.run_task
+                    inputs:
+                        tasks_file:
+                            default: scripts/score/configure.py
+                        task_name:
+                            default: configure
                         task_properties:
                             default:
                              config: {}
