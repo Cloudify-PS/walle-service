@@ -53,7 +53,7 @@ class Blueprints(restful.Resource):
                 os.path.join(tempdir, directory,
                              request.args['application_file_name']),
                 util.add_org_prefix(blueprint_id))
-            return blueprint, 201
+            return util.remove_org_prefix(blueprint), 201
         finally:
             shutil.rmtree(tempdir, True)
 
