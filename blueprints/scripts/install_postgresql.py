@@ -13,6 +13,7 @@ def _run(command):
 def install(config):
     ctx.logger.info("Config: " + str(config))
     _run("""
+export LC_ALL=C
 sudo apt-get update 2>&1
 sudo apt-get install -y postgresql postgresql-contrib 2>&1
     """)

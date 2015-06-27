@@ -1,0 +1,4 @@
+servers_user: travis
+private_key_path: /home/travis/.ssh/id_rsa
+host_string: localhost
+port: 22
