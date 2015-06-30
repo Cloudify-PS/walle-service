@@ -10,6 +10,8 @@ sql_database = 'sqlite:///' + current_dir + 'score-test.db'
 app = flask.Flask(__name__)
 db = SQLAlchemy(app)
 # use in memmory db
-app.config['SQLALCHEMY_DATABASE_URI'] = sql_database
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    "SCORE_DB", sql_database
+)
 # migrate to last version
 migrate = Migrate(app, db)
