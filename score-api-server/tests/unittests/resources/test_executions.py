@@ -45,7 +45,8 @@ class TestBase(testtools.TestCase):
                 'workflow_id': workflow}
             with self.app.test_request_context('/executions', method="POST",
                                                data=json.dumps(data),
-                                               content_type='application/json'):
+                                               content_type='application/'
+                                               'json'):
                 deployment_id, workflow_id = self.executions.post()
                 self.assertEqual(self.prefix_deployment(deployment),
                                  deployment_id)
@@ -62,7 +63,8 @@ class TestBase(testtools.TestCase):
                 'force': force}
             with self.app.test_request_context('/executions', method="PUT",
                                                data=json.dumps(data),
-                                               content_type='application/json'):
+                                               content_type='application/'
+                                               'json'):
                 execution_id, force_id = self.executions.put()
                 self.assertEqual(execution, execution_id)
                 self.assertEqual(force, force_id)
