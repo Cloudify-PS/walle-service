@@ -1,7 +1,9 @@
+# Copyright (c) 2015 VMware. All rights reserved
+
+import testtools
 import os
 import tarfile
 import tempfile
-import unittest
 
 import flask
 import mock
@@ -10,14 +12,13 @@ from score_api_server.resources import blueprints
 from tests.unittests import fake_objects
 
 
-class TestBase(unittest.TestCase):
+class TestBase(testtools.TestCase):
 
     def setUp(self):
         super(TestBase, self).setUp()
         self.bp_id = 'foo'
         self.app = flask.Flask(__name__)
         self.bluprient = blueprints.Blueprints()
-        self.addCleanup(super(TestBase, self).tearDown)
 
     @mock.patch.object(os, 'listdir')
     @mock.patch.object(tarfile, 'open')
