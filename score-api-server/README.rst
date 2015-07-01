@@ -22,7 +22,9 @@ Usage
 
 Before run call db update/creation by:
     $   export SCORE_DB="sqlite:////tmp/score-service.db"
-        python score_api_server/cli/manage.py db upgrade
+        score-manage db upgrade
+
+Also SCORE_DB can be postgresql://score:secret-password@localhost/score
 
 And only first time please import sql from initial.sql to db.
 

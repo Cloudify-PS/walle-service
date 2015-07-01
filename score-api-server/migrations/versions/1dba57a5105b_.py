@@ -20,6 +20,7 @@ def upgrade():
         'allowed_orgs',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('org_id', sa.String(), nullable=True),
+        sa.Column('org_info', sa.String(), nullable=True),
         sa.Column('deployments_limit', sa.Integer(), nullable=True),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('org_id')

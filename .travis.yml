@@ -40,6 +40,7 @@ install:
 
 before_script:
     - psql -c 'create database score;' -U postgres
+    - export SCORE_DB='postgresql://postgres@localhost/score'
 
 script:
     - tox -c score-api-server/tox.ini -e $TOX_ENV

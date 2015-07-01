@@ -1,3 +1,5 @@
+# Copyright (c) 2015 VMware. All rights reserved
+
 from flask import g
 import warnings
 
