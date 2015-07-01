@@ -4,7 +4,8 @@ python:
   - "2.7"
 
 addons:
-    ssh_known_hosts: localhost
+  - ssh_known_hosts: localhost
+  - postgresql: "9.3"
 
 env:
     - TOX_ENV=pep8
@@ -36,6 +37,10 @@ install:
     - pip install https://github.com/cloudify-cosmo/cloudify-script-plugin/archive/1.2.zip
     - pip install https://github.com/cloudify-cosmo/cloudify-cli/archive/3.2.zip
     - pip install https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.zip
+
+before_script:
+    - psql -c 'create database score;' -U postgres
+    - export SCORE_DB='postgresql://postgres@localhost/score'
 
 script:
     - tox -c score-api-server/tox.ini -e $TOX_ENV

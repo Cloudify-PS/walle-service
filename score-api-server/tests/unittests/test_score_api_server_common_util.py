@@ -6,14 +6,14 @@ import flask
 from score_api_server.common import util
 
 
-class TestBase(testtools.TestCase):
+class CommonUtilTest(testtools.TestCase):
 
     def setUp(self):
-        super(TestBase, self).setUp()
+        super(CommonUtilTest, self).setUp()
         self.app = flask.Flask(__name__)
 
     def tearDown(self):
-        super(TestBase, self).tearDown()
+        super(CommonUtilTest, self).tearDown()
 
     def test_add_org_prefix(self):
         with self.app.app_context():
