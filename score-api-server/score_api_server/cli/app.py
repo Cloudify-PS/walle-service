@@ -67,7 +67,7 @@ api.add_resource(Blueprints, '/blueprints',
 api.add_resource(Deployments, '/deployments',
                  '/deployments/<string:deployment_id>')
 api.add_resource(Executions, '/executions',
-                 '/executions/<string:execution_id>')
+                 '/executions')
 api.add_resource(Events, '/events')
 
 
