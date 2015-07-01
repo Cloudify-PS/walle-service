@@ -1,5 +1,6 @@
-import unittest
+# Copyright (c) 2015 VMware. All rights reserved
 
+import testtools
 import flask
 import mock
 import json
@@ -7,13 +8,12 @@ import json
 from score_api_server.resources import executions
 
 
-class TestBase(unittest.TestCase):
+class TestBase(testtools.TestCase):
 
     def setUp(self):
         super(TestBase, self).setUp()
         self.app = flask.Flask(__name__)
         self.executions = executions.Executions()
-        self.addCleanup(super(TestBase, self).tearDown)
         self.test_id = "some_id"
 
     def setup_context(self):
