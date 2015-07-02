@@ -9,20 +9,20 @@ from pyvcloud.vcloudsession import VCS
 from cloudify_rest_client.client import CloudifyClient
 
 from score_api_server.common import cfg
+from score_api_server.common import org_limit
 from score_api_server.resources.blueprints import Blueprints
 from score_api_server.resources.deployments import Deployments
 from score_api_server.resources.executions import Executions
 from score_api_server.resources.events import Events
+from score_api_server.resources.status import Status
 
 app = Flask(__name__)
 api = restful.Api(app)
 db = SQLAlchemy(app)
 
 CONF = cfg.CONF
-
+cfg.parse_args(sys.argv)
 app.config['SQLALCHEMY_DATABASE_URI'] = CONF.server.db_uri
-
-from score_api_server.common import org_limit
 
 
 # note: assume vcs.organization.id is unique across the service
@@ -58,10 +58,10 @@ api.add_resource(Deployments, '/deployments',
                  '/deployments/<string:deployment_id>')
 api.add_resource(Executions, '/executions')
 api.add_resource(Events, '/events')
+api.add_resource(Status, '/status')
 
 
 def main():
-    cfg.parse_args(sys.argv)
     host, port, workers = (CONF.server.host,
                            CONF.server.port,
                            CONF.server.workers)
