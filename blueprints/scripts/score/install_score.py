@@ -27,6 +27,7 @@ def install(config):
     script = []
     score_package_url = config.get('score_package_url', None)
     user_github_key = config.get('user_github_key', None)
+    score_branch = config.get('score_branch', None)
     if score_package_url:
         script.append("""
 wget -c %s -O score-service-master.tar.gz 2>&1 | tee wget_log.txt
@@ -50,8 +51,9 @@ eval `ssh-agent`
 ssh-add ~/.ssh/id_rsa
 git clone git@github.com:vcloudair/score-service.git
         """)
+        if score_branch:
+            script.append('git checkout %s' % score_branch)
     script.append("""
-sudo apt-get upgrade -y
 cd ~/score-service/score-api-server/
 sudo pip install -r requirements.txt && sudo python setup.py install
     """)
