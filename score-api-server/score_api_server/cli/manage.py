@@ -20,8 +20,10 @@ OrgIDCommands = Manager(usage="Performs action related to Org-IDs")
 
 @OrgIDCommands.option("--org-id", dest="org_id",
                       help="Adds Org-IDs to Score DB")
+@OrgIDCommands.option("--info", dest="info",
+                      help="Adds Org-IDs to Score DB")
 @OrgIDCommands.option("--db-uri", dest="db_uri", default=None)
-def add(org_id, db_uri=None):
+def add(org_id, db_uri=None, info=None):
     """Adds Org-ID."""
     if db_uri:
         flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
@@ -29,7 +31,7 @@ def add(org_id, db_uri=None):
     if not org_id:
         print("ERROR: Org-ID is required")
     else:
-        org = models.AllowedOrgs(org_id)
+        org = models.AllowedOrgs(org_id, info=info)
         org.save()
         print_utils.print_dict(org.to_dict())
 
@@ -60,7 +62,7 @@ def list(db_uri=None):
     if db_uri:
         flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     org_ids = models.AllowedOrgs.list()
-    print_utils.print_list(org_ids, ["id", "org_id"])
+    print_utils.print_list(org_ids, ["id", "org_id", "info"])
 
 
 manager.add_command('org-ids', OrgIDCommands)

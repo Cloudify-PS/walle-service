@@ -11,10 +11,12 @@ class AllowedOrgs(db.Model):
 
     id = db.Column(db.String(), primary_key=True)
     org_id = db.Column(db.String(), unique=True)
+    info = db.Column(db.String())
 
-    def __init__(self, org_id):
+    def __init__(self, org_id, info=None):
         self.id = str(uuid.uuid4())
         self.org_id = org_id
+        self.info = info
 
     def __repr__(self):
         return '#{}: Allowed {}'.format(
@@ -24,7 +26,8 @@ class AllowedOrgs(db.Model):
     def to_dict(self):
         return {
             "id": self.id,
-            "org_id": self.org_id
+            "org_id": self.org_id,
+            "info": self.info
         }
 
     @classmethod

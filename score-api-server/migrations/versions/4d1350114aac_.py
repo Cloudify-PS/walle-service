@@ -19,6 +19,7 @@ def upgrade():
     op.create_table('allowed_org_ids',
     sa.Column('id', sa.VARCHAR(), nullable=False),
     sa.Column('org_id', sa.VARCHAR(), nullable=True),
+    sa.Column('info', sa.VARCHAR()),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('org_id')
     )
