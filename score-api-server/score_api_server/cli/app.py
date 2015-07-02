@@ -1,9 +1,11 @@
 # Copyright (c) 2015 VMware. All rights reserved
+
 import sys
 from flask import Flask
 from flask.ext import restful
 from flask import request, abort, g
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.migrate import Migrate
 
 from pyvcloud.vcloudsession import VCS
 from cloudify_rest_client.client import CloudifyClient
@@ -17,6 +19,7 @@ from score_api_server.resources.events import Events
 app = Flask(__name__)
 api = restful.Api(app)
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 CONF = cfg.CONF
 

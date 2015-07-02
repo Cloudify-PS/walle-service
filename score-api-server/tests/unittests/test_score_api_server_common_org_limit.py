@@ -3,33 +3,29 @@
 import testtools
 import flask
 import os
-import random
-import string
-import sys
+import uuid
+
 from flask.ext.migrate import upgrade
 from score_api_server.common import org_limit
-# needed for load fake app from tests
-current_dir = os.path.dirname(os.path.realpath(__file__))
-sys.path.insert(0, current_dir)
-import app
-# import db models
-from score_api_server.resources.models import UsedOrgs, AllowedOrgs
-# migrate db before run tests
-with app.app.app_context():
-    migrate_dir = current_dir + '/../../migrations/'
-    upgrade(directory=migrate_dir)
-    app.db.create_all()
+from score_api_server.cli import app
+from score_api_server.db.models import AllowedOrgs
 
 
 class CommonOrgLimitTest(testtools.TestCase):
 
     def setUp(self):
-        super(CommonOrgLimitTest, self).setUp()
-
-        self.prefix = ''.join(
-            random.choice(string.ascii_lowercase) for _ in range(10)
-        )
+        # needed for load fake app from tests
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        with app.app.app_context():
+            # TODO(denismakogon): change hardcoded sqlite
+            # TODO(denismakogon): for tests to named temporary file
+            migrate_dir = current_dir + '/../../migrations/'
+            upgrade(directory=migrate_dir)
+            app.db.create_all()
+        self.prefix = str(uuid.uuid4())
         self.org_obj_list = []
+        self._create_limit_orgs()
+        super(CommonOrgLimitTest, self).setUp()
 
     def tearDown(self):
         for org in self.org_obj_list:
@@ -37,112 +33,31 @@ class CommonOrgLimitTest(testtools.TestCase):
         app.db.session.commit()
         super(CommonOrgLimitTest, self).tearDown()
 
-    def _create_usage_orgs(self):
-        # add some values
-        org = UsedOrgs(self.prefix + "some_id", 0)
-        k_org = UsedOrgs(self.prefix + "k_id", 1024)
-        app.db.session.add(org)
-        app.db.session.add(k_org)
-        app.db.session.commit()
-        self.org_obj_list.append(k_org)
-        self.org_obj_list.append(org)
-
     def _create_limit_orgs(self):
         # add some values
-        org = AllowedOrgs(self.prefix + "some_id", 0)
-        k_org = AllowedOrgs(self.prefix + "k_id", 1024)
-        app.db.session.add(org)
-        app.db.session.add(k_org)
-        app.db.session.commit()
+        org = AllowedOrgs(self.prefix + "some_id")
+        org.save()
+        k_org = AllowedOrgs(self.prefix + "k_id")
+        k_org.save()
         self.org_obj_list.append(k_org)
         self.org_obj_list.append(org)
-
-    def test_get_current_usage(self):
-        """get current amount of installation by organization"""
-        with app.app.app_context():
-            self._create_usage_orgs()
-            # check value for current existed
-            flask.g.org_id = self.prefix + "some_id"
-            usage = org_limit.get_current_usage()
-            self.assertTrue(usage)
-            self.assertEqual(usage.org_id, self.prefix + "some_id")
-            self.assertEqual(usage.deployments_count, 0)
-            # check count
-            flask.g.org_id = self.prefix + "k_id"
-            usage = org_limit.get_current_usage()
-            self.assertTrue(usage)
-            self.assertEqual(usage.org_id, self.prefix + "k_id")
-            self.assertEqual(usage.deployments_count, 1024)
-            # no orgs, created new record without commit
-            flask.g.org_id = self.prefix + "some_other_id"
-            usage = org_limit.get_current_usage()
-            self.assertTrue(usage)
-            self.assertEqual(usage.org_id, self.prefix + "some_other_id")
-            self.assertEqual(usage.deployments_count, 0)
 
     def test_get_current_limit(self):
         """get current limit for organizations"""
+
         with app.app.app_context():
-            self._create_limit_orgs()
             # check value for current existed
             flask.g.org_id = self.prefix + "some_id"
             limit = org_limit.get_current_limit()
             self.assertTrue(limit)
-            self.assertEqual(limit.org_id, self.prefix + "some_id")
-            self.assertEqual(limit.deployments_limit, 0)
+            self.assertIn(self.prefix + "some_id",
+                          limit.org_id)
             # check count
             flask.g.org_id = self.prefix + "k_id"
             limit = org_limit.get_current_limit()
             self.assertTrue(limit)
-            self.assertEqual(limit.org_id, self.prefix + "k_id")
-            self.assertEqual(limit.deployments_limit, 1024)
+            self.assertIn(self.prefix + "k_id", limit.org_id)
             # no orgs
             flask.g.org_id = self.prefix + "some_other_id"
             limit = org_limit.get_current_limit()
             self.assertFalse(limit)
-
-    def test_decrement(self):
-        """check decrement usage of organization"""
-        with app.app.app_context():
-            self._create_usage_orgs()
-            # if current usage is zero, does not do any thing
-            flask.g.org_id = self.prefix + "some_id"
-            org_limit.decrement()
-            # check
-            usage = org_limit.get_current_usage()
-            self.assertTrue(usage)
-            self.assertEqual(usage.org_id, self.prefix + "some_id")
-            self.assertEqual(usage.deployments_count, 0)
-            # current usage is not zero
-            flask.g.org_id = self.prefix + "k_id"
-            org_limit.decrement()
-            # check
-            usage = org_limit.get_current_usage()
-            self.assertTrue(usage)
-            self.assertEqual(usage.org_id, self.prefix + "k_id")
-            self.assertEqual(usage.deployments_count, 1023)
-
-    def test_increment(self):
-        """check increment usage of organization"""
-        with app.app.app_context():
-            self._create_usage_orgs()
-            self._create_limit_orgs()
-            # if current usage is zero, does not do any thing
-            flask.g.org_id = self.prefix + "some_id"
-            org_limit.increment()
-            # check
-            usage = org_limit.get_current_usage()
-            self.assertTrue(usage)
-            self.assertEqual(usage.org_id, self.prefix + "some_id")
-            self.assertEqual(usage.deployments_count, 1)
-            # current usage is not zero
-            flask.g.org_id = self.prefix + "k_id"
-            self.assertFalse(org_limit.increment())
-            # check
-            usage = org_limit.get_current_usage()
-            self.assertTrue(usage)
-            self.assertEqual(usage.org_id, self.prefix + "k_id")
-            self.assertEqual(usage.deployments_count, 1024)
-            # unknow org_id
-            flask.g.org_id = self.prefix + "something_secret"
-            self.assertFalse(org_limit.increment())
