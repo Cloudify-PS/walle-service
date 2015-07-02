@@ -10,7 +10,7 @@ def _run(command):
     ctx.logger.info(out)
 
 
-def _generate_service(server_host, cloudify_host):
+def _generate_service(server_host, cloudify_host, db_url):
     return [
         "description 'score service'",
         "# used to be: start on startup",
@@ -25,8 +25,9 @@ def _generate_service(server_host, cloudify_host):
         "    export SCORE_PORT=8001",
         "    export SCORE_WORKERS=4",
         "    export CFY_MANAGER_HOST=%s" % cloudify_host,
+        "    export SCORE_DB=%s" % db_url,
         "    export CFY_MANAGER_PORT=80",
-        "    exec /usr/bin/gunicorn -w 4 -b %s:8001 " % server_host +
+        "    exec /usr/bin/gunicorn -w 4 -b localhost:8001 " +
         "score_api_server.cli.app:app 2>&1 > /tmp/log",
 
         "end script"
@@ -36,16 +37,23 @@ def _generate_service(server_host, cloudify_host):
 def configure(config):
     ctx.logger.info("Config: " + str(config))
     script = []
-    server_host = config.get("score_public_ip", "0.0.0.0")
+    server_host = config.get("score_ip", "0.0.0.0")
     cloudify_host = config.get("manager_public_ip", "localhost")
+    db_ip = config.get("db_ip", "localhost")
 
+    db_url = "postgresql://score:secret-password@" + db_ip +  "/score"
     # create service config
-    service = _generate_service(server_host, cloudify_host)
+    service = _generate_service(server_host, cloudify_host, db_url)
     ctx.logger.info(service)
     script.append("rm -f /home/ubuntu/score_api_server.conf")
     for service_str in service:
         script.append('echo "' + service_str +
                       '" >> /home/ubuntu/score_api_server.conf')
+    # create db
+    db_upgrade = ('python /home/ubuntu/score-service/score-api-server/'
+                  'score_api_server/cli/manage.py db upgrade')
+    script.append('export SCORE_DB=%s' % db_url)
+    script.append(db_upgrade)
     # create init file
     script.append("""
 sudo cp /home/ubuntu/score_api_server.conf /etc/init/score_api_server.conf

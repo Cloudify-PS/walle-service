@@ -1,333 +1,479 @@
 tosca_definitions_version: cloudify_dsl_1_0
 
 imports:
-  - http://www.getcloudify.org/spec/cloudify/3.2/types.yaml
-  - https://raw.githubusercontent.com/cloudify-cosmo/tosca-vcloud-plugin/master/plugin.yaml
-  - http://www.getcloudify.org/spec/fabric-plugin/1.2/plugin.yaml
-  - types/agentless-score.yaml
+    - http://www.getcloudify.org/spec/cloudify/3.2/types.yaml
+    - https://raw.githubusercontent.com/cloudify-cosmo/tosca-vcloud-plugin/master/plugin.yaml
+    - http://www.getcloudify.org/spec/fabric-plugin/1.2/plugin.yaml
+    - types/agentless.yaml
 
 inputs:
+    vcloud_username:
+        type: string
+        description: >
+            User login for vcloud air
 
-  catalog:
-    type: string
-    description: >
-      Name of catalog, can be 'Public Catalog'
+    vcloud_password:
+        type: string
+        default: ''
+        description: >
+            User password for vcloud air - for login by name + password
 
-  template:
-    type: string
-    description: >
-      Name of template from catalog, can be
-      'Ubuntu Server 12.04 LTS (amd64 20150127)'
+    vcloud_token:
+        type: string
+        default: ''
+        description: >
+            User token for vcloud air - for login by name + token
 
-  server_cpu:
-    default: 2
-    description: >
-      cpu count for each server
+    vcloud_url:
+        type: string
+        description: >
+            Vcloud url
 
-  server_memory:
-    default: 4096
-    description: >
-      memory amount for each server
+    vcloud_service:
+        type: string
+        description: >
+            Vcloud service
 
-  score_ip_address:
-    type: string
-    default: ''
-    description: >
-      For 'ondemand' service type, the value of
-      score_ip_address can be empty
+    vcloud_service_type:
+        type: string
+        default: 'subscription'
+        description: >
+            Type of service: subscription, ondemand, vcd, private
 
-  score_ssh:
-    type: string
-    default: 22
-    description: >
-      Ssh port for nodejs host
+    vcloud_instance:
+        type: string
+        default: ''
+        description: >
+            Only required for ondemand service type, instance uuid
 
-  vcloud_username:
-    type: string
-    description: >
-      User login for vcloud air
+    vcloud_api_version:
+        type: string
+        default: '5.6'
+        description: >
+            Version of api, for now 5.6
 
-  vcloud_password:
-    type: string
-    default: ''
-    description: >
-      User password for vcloud air - for login by name + password
+    score_ssh:
+        type: string
+        default: 22
+        description: >
+            Ssh port for score host
 
-  vcloud_token:
-    type: string
-    default: ''
-    description: >
-      User token for vcloud air - for login by name + token
+    postgresql_ssh:
+        type: string
+        default: 23
+        description: >
+            Ssh port for postgresql host
 
-  vcloud_url:
-    type: string
-    description: >
-      Vcloud url
+    vcloud_org_url:
+        type: string
+        default: ''
+        description: >
+            Only required if using token based login on a private vcloud
+            director. This can be obtained by following the vcloud API
+            example docs. If you are unsure of how to obtain this, you will
+            need to use password based login.
 
-  vcloud_service:
-    type: string
-    description: >
-      Vcloud service
+    vcloud_org:
+        type: string
+        description: >
+            Organization uuid
 
-  vcloud_service_type:
-    type: string
-    default: 'subscription'
-    description: >
-      Type of service: subscription, ondemand, vcd, private
+    vcloud_vdc:
+        type: string
+        description: >
+            Virtual data center name
 
-  vcloud_instance:
-    type: string
-    default: ''
-    description: >
-      Only required for ondemand service type.
+    catalog:
+        type: string
+        description: >
+            Name of catalog, can be 'Public Catalog'
 
-  vcloud_api_version:
-    type: string
-    default: '5.6'
-    description: >
-      Version of api, for now 5.6
+    template:
+        type: string
+        description: >
+            Name of template from catalog,
+            can be 'Ubuntu Server 12.04 LTS (amd64 20150127)'
 
-  vcloud_org_url:
-    type: string
-    default: ''
-    description: >
-      Only required if using token based login on a private vcloud
-      director. This can be obtained by following the vcloud API
-      example docs. If you are unsure of how to obtain this, you will
-      need to use password based login.
+    server_cpu:
+        type: string
+        default: 2
+        description: >
+            Count cpu on nodes
 
-  vcloud_org:
-    type: string
-    description: >
-      Organization uuid
+    server_memory:
+        type: string
+        default: 4096
+        description: >
+            Amount memmory on nodes
 
-  vcloud_vdc:
-    type: string
-    description: >
-      Virtual data center name
+    network_use_existing:
+        type: boolean
+        default: false
+        description: >
+            Use existed network
 
-  network_use_existing:
-    type: boolean
-    default: false
-    description: >
-      Use existed network
+    common_network_name:
+        type: string
+        description: >
+            Name common network that can be used for nodes
 
-  common_network_name:
-    type: string
-    description: >
-      Name common network that can be used for nodes
+    port_ip_allocation_mode:
+        type: string
+        default: pool
+        description: >
+            Ip allocation type for case when you doesn't set public ip
+            for nodes and want auto allocate ip
 
-  score_package_url:
-    type: string
-    default: ''
+    score_ip_address:
+        type: string
+        default: ''
+        description: >
+            For 'ondemand' service type, the value of
+            score_ip_address can be empty
 
-  user_github_key:
-    type: string
-    default: ''
+    postgresql_ip_address:
+        type: string
+        default: ''
+        description: >
+            For 'ondemand' service type, the value of
+            postgresql_ip_address can be empty
 
-  manager_server_ip:
-    type: string
+    common_network_public_nat_use_existing:
+        type: boolean
+        default: false
+        description: >
+            Use already existed nat rules, only for case when you
+            doesn't want to change nat rules
 
-  user:
-    type: string
-    default: ubuntu
-    description: >
-      User for connecting to agent VM's
+    edge_gateway:
+        type: string
+        default: gateway
+        description: >
+            For 'ondemand' service type, the value of edge_gateway
+            is always 'gateway'
 
-  edge_gateway:
-    type: string
-    default: gateway
-    description: >
-      For 'ondemand' service type, the value of edge_gateway
-      is always 'gateway'
+    servers_user:
+        default: ubuntu
+        type: string
+        description: >
+            Default admin user in os template
 
-  common_network_public_nat_use_existing:
-    type: boolean
-    default: false
-    description: >
-      Use already existed nat rules, only for case when you doesn't want
-      to change nat rules
+    private_key_path:
+        default: ~/.ssh/cloudify-agent-kp.pem
+        type: string
+        description: >
+            Please upload key to manager server before use key
 
-  servers_user:
-    default: ubuntu
-    type: string
-    description: >
-      Default admin user in os template
+    user_public_key:
+        type: string
+        default: ''
+        description: >
+            Public key
 
-  private_key_path:
-    default: ~/.ssh/cloudify-agent-kp.pem
-    type: string
-    description: >
-      Please upload key to manager server before use key
+    resources_prefix:
+        type: string
+        default: ''
+        description: >
+            Prefix for nodes
 
-  user_public_key:
-    type: string
-    default: ''
-    description: >
-      Public key
+    score_package_url:
+        type: string
+        default: ''
 
-  resources_prefix:
-    type: string
-    default: ''
-    description: >
-      Prefix for nodes
+    user_github_key:
+        type: string
+        default: ''
+
+    manager_server_ip:
+        type: string
+        default: ''
 
 node_types:
 
-  # base server type for installation without agent
-  agentless-score.nodes.ParentTypeServer:
-    derived_from: cloudify.vcloud.nodes.Server
-    properties:
-      install_agent:
-        default: false
-      cloudify_agent:
-        default:
-          user: ubuntu
-          home_dir: /home/ubuntu
+    # base server type for installation without agent
+    agentless.nodes.ParentTypeServer:
+        derived_from: cloudify.vcloud.nodes.Server
+        properties:
+            install_agent:
+                default: false
 
-  vcloud_configuration:
-    derived_from: cloudify.nodes.Root
-    properties:
-      vcloud_config: {}
+    vcloud_configuration:
+        derived_from: cloudify.nodes.Root
+        properties:
+            vcloud_config: {}
 
 node_templates:
 
-  vcloud_configuration:
-    type: vcloud_configuration
-    properties:
-      vcloud_config:
-        username: { get_input: vcloud_username }
-        password: { get_input: vcloud_password }
-        token: { get_input: vcloud_token }
-        url: { get_input: vcloud_url }
-        service: { get_input: vcloud_service }
-        org: { get_input: vcloud_org }
-        vdc: { get_input: vcloud_vdc }
-        service_type: { get_input: vcloud_service_type }
-        instance: { get_input: vcloud_instance }
-        api_version: { get_input: vcloud_api_version }
-        org_url: { get_input: vcloud_org_url }
-        edge_gateway: { get_input: edge_gateway }
+    vcloud_configuration:
+        type: vcloud_configuration
+        properties:
+            vcloud_config:
+                username: { get_input: vcloud_username }
+                password: { get_input: vcloud_password }
+                token: { get_input: vcloud_token }
+                url: { get_input: vcloud_url }
+                service: { get_input: vcloud_service }
+                org: { get_input: vcloud_org }
+                vdc: { get_input: vcloud_vdc }
+                service_type: { get_input: vcloud_service_type }
+                instance: { get_input: vcloud_instance }
+                api_version: { get_input: vcloud_api_version }
+                org_url: { get_input: vcloud_org_url }
+                edge_gateway: { get_input: edge_gateway }
 
-  gunicorn_nat:
-    type: cloudify.vcloud.nodes.PublicNAT
-    properties:
-      nat:
-        edge_gateway: { get_input: edge_gateway }
-        public_ip: { get_input: score_ip_address }
-      rules:
-       - type: DNAT
-         protocol: tcp
-         original_port: 80
-         translated_port: 80
-       - type: DNAT
-         protocol: tcp
-         original_port: 443
-         translated_port: 443
-       - type: DNAT
-         protocol: tcp
-         original_port: 22
-         translated_port: 22
+    score_host:
+        type: agentless.nodes.ParentTypeServer
+        properties:
+            server:
+                catalog: { get_input: catalog }
+                template: { get_input: template }
+                guest_customization:
+                    public_keys:
+                        - { get_property: [common_keypair, public_key] }
+                hardware:
+                    cpu: { get_input: server_cpu }
+                    memory: { get_input: server_memory }
+            management_network: { get_input: common_network_name }
+            vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
+        relationships:
+            - target: score_host_nat
+              type: cloudify.vcloud.server_connected_to_public_nat
+            - target: node_security_group
+              type: cloudify.vcloud.server_connected_to_security_group
 
-  gunicorn_host:
-    type: agentless-score.nodes.ParentTypeServer
-    relationships:
-      - target: gunicorn_nat
-        type: cloudify.vcloud.server_connected_to_public_nat
-    properties:
-      server:
-        catalog: { get_input: catalog }
-        template: { get_input: template }
-        hardware:
-          cpu: { get_input: server_cpu }
-          memory: { get_input: server_memory }
-        guest_customization:
-          public_keys:
-            -
-             key:  { get_input: user_public_key }
-             user: { get_input: user }
-      management_network: { get_input: common_network_name }
-      vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
+    postgresql_host:
+        type: agentless.nodes.ParentTypeServer
+        properties:
+            server:
+                catalog: { get_input: catalog }
+                template: { get_input: template }
+                guest_customization:
+                    public_keys:
+                        - { get_property: [common_keypair, public_key] }
+                hardware:
+                    cpu: { get_input: server_cpu }
+                    memory: { get_input: server_memory }
+            management_network: { get_input: common_network_name }
+            vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
+        relationships:
+            - target: postgresql_server_nat
+              type: cloudify.vcloud.server_connected_to_public_nat
+            - target: node_security_group
+              type: cloudify.vcloud.server_connected_to_security_group
 
-  common_network:
-    type: cloudify.vcloud.nodes.Network
-    properties:
-      use_external_resource: { get_input: network_use_existing }
-      resource_id: { get_input: common_network_name }
-      network:
-        name: { get_input: common_network_name }
-        edge_gateway: { get_input: edge_gateway }
-        static_range: 10.67.80.129-10.67.80.254
-        netmask: 255.255.255.0
-        gateway_ip: 10.67.80.1
-        dns:
-          - 10.67.80.1
-          - 8.8.8.8
-        dhcp:
-          dhcp_range: 10.67.80.2-10.67.80.128
-      vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
-    relationships:
-      - target: common_network_nat
-        type: cloudify.vcloud.net_connected_to_public_nat
+    common_network:
+        type: cloudify.vcloud.nodes.Network
+        properties:
+            use_external_resource: { get_input: network_use_existing }
+            resource_id: { get_input: common_network_name }
+            network:
+                name: { get_input: common_network_name }
+                edge_gateway: { get_input: edge_gateway }
+                static_range: 10.67.80.129-10.67.80.254
+                netmask: 255.255.255.0
+                gateway_ip: 10.67.80.1
+                dns:
+                    - 10.67.80.1
+                    - 8.8.8.8
+                dhcp:
+                    dhcp_range: 10.67.80.2-10.67.80.128
+            vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
+        relationships:
+            - target: common_network_nat
+              type: cloudify.vcloud.net_connected_to_public_nat
 
-  common_network_nat:
-    type: cloudify.vcloud.nodes.PublicNAT
-    properties:
-      use_external_resource: { get_input: common_network_public_nat_use_existing }
-      nat:
-        edge_gateway: { get_input: edge_gateway }
-        public_ip: { get_input: score_ip_address }
-      rules:
-        - type: SNAT
-      vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
+    common_network_nat:
+        type: cloudify.vcloud.nodes.PublicNAT
+        properties:
+            use_external_resource: { get_input: common_network_public_nat_use_existing }
+            nat:
+                edge_gateway: { get_input: edge_gateway }
+                public_ip: { get_input: score_ip_address }
+            rules:
+                - type: SNAT
+            vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
 
-  gunicorn:
-    type: agentless-score.nodes.GunicornServer
-    interfaces:
-      cloudify.interfaces.lifecycle:
-        start:
-          inputs:
-            fabric_env:
-              user: { get_input: servers_user }
-              key_filename: { get_input: private_key_path }
-              host_string: { get_attribute: [gunicorn_nat, public_ip] }
-              port: { get_input: score_ssh }
-    relationships:
-      - type: cloudify.relationships.contained_in
-        target: gunicorn_host
+    score_host_nat:
+        type: cloudify.vcloud.nodes.PublicNAT
+        properties:
+            nat:
+                edge_gateway: { get_input: edge_gateway }
+                public_ip: { get_input: score_ip_address }
+            rules:
+             - type: DNAT
+               protocol: tcp
+               original_port: 80
+               translated_port: 80
+             - type: DNAT
+               protocol: tcp
+               original_port: 443
+               translated_port: 443
+             - type: DNAT
+               protocol: tcp
+               original_port: { get_input: score_ssh }
+               translated_port: 22
+            vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
 
-  score:
-    type: agentless-score.nodes.score
-    interfaces:
-      cloudify.interfaces.lifecycle:
-        create:
-          inputs:
-            fabric_env:
-              user: { get_input: servers_user }
-              key_filename: { get_input: private_key_path }
-              host_string: { get_attribute: [gunicorn_nat, public_ip] }
-              port: { get_input: score_ssh }
-            task_properties:
-              config:
-                score_package_url: { get_input: score_package_url }
-                user_github_key: { get_input: user_github_key }
-        start:
-          inputs:
-            fabric_env:
-              user: { get_input: servers_user }
-              key_filename: { get_input: private_key_path }
-              host_string: { get_attribute: [gunicorn_nat, public_ip] }
-              port: { get_input: score_ssh }
-            task_properties:
-              config:
-                manager_public_ip: { get_input: manager_server_ip }
-                score_public_ip: { get_attribute: [ gunicorn_host, ip ] }
-    relationships:
-      - type: cloudify.relationships.contained_in
-        target: gunicorn
+    postgresql_server_nat:
+        type: cloudify.vcloud.nodes.PublicNAT
+        properties:
+            nat:
+                edge_gateway: { get_input: edge_gateway }
+                public_ip: { get_input: postgresql_ip_address }
+            rules:
+             - type: DNAT
+               protocol: tcp
+               original_port: { get_input: postgresql_ssh }
+               translated_port: 22
+            vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
+
+    node_security_group:
+        type: cloudify.vcloud.nodes.SecurityGroup
+        properties:
+            security_group:
+                name: nodevcloud_security_group
+                edge_gateway: { get_input: edge_gateway }
+            rules:
+                - source: any
+                  destination: internal
+                  destination_port: { get_input: score_ssh }
+                  action: allow
+                  description: >
+                        ssh to score
+                  protocol: TCP
+                - source: any
+                  destination: internal
+                  destination_port: { get_input: postgresql_ssh }
+                  action: allow
+                  description: >
+                        ssh to postgresql
+                  protocol: TCP
+                - source: internal
+                  destination: internal
+                  destination_port: 5432
+                  action: allow
+                  description: >
+                        score <-> postgresql connection
+                  protocol: TCP
+                - source: external
+                  destination: internal
+                  destination_port: 80
+                  action: allow
+                  description: >
+                        http to score
+                  protocol: TCP
+                - source: external
+                  destination: internal
+                  destination_port: 443
+                  action: allow
+                  description: >
+                        https to score
+                  protocol: TCP
+                - source: internal
+                  destination: any
+                  action: allow
+                  description: >
+                         backward network connection for host updates
+                  protocol: any
+                - source: external
+                  destination: internal
+                  action: allow
+                  description: >
+                         Allow ping
+                  protocol: ICMP
+            vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
+
+    common_keypair:
+        type: cloudify.vcloud.nodes.KeyPair
+        properties:
+            private_key_path: { get_input: private_key_path }
+            public_key:
+                key: { get_input: user_public_key }
+                user: { get_input: servers_user }
+
+    gunicorn:
+        type: agentless.nodes.GunicornServer
+        relationships:
+          - target: score_host
+            type: cloudify.relationships.contained_in
+        interfaces:
+            cloudify.interfaces.lifecycle:
+                start:
+                    inputs:
+                        fabric_env:
+                            user: { get_input: servers_user }
+                            key_filename: { get_input: private_key_path }
+                            host_string: { get_attribute: [score_host_nat, public_ip] }
+                            port: { get_input: score_ssh }
+
+    postgresqld:
+        type: agentless.nodes.PostgreSqlDatabase
+        properties:
+            port: 5432
+        relationships:
+          - target: postgresql_host
+            type: cloudify.relationships.contained_in
+        interfaces:
+            cloudify.interfaces.lifecycle:
+                create:
+                    inputs:
+                        fabric_env:
+                            user: { get_input: servers_user }
+                            key_filename: { get_input: private_key_path }
+                            host_string: { get_attribute: [postgresql_server_nat, public_ip] }
+                            port: { get_input: postgresql_ssh }
+
+    postgresql_score:
+        type: agentless.nodes.ScorePostgreSql
+        relationships:
+          - target: postgresqld
+            type: cloudify.relationships.contained_in
+        interfaces:
+            cloudify.interfaces.lifecycle:
+                start:
+                    inputs:
+                        task_properties:
+                            config:
+                                ip: { get_attribute: [postgresql_host, ip] }
+                        fabric_env:
+                            user: { get_input: servers_user }
+                            key_filename: { get_input: private_key_path }
+                            host_string: { get_attribute: [postgresql_server_nat, public_ip] }
+                            port: { get_input: postgresql_ssh }
+
+    score:
+        type: agentless.nodes.score
+        interfaces:
+            cloudify.interfaces.lifecycle:
+                create:
+                    inputs:
+                        task_properties:
+                            config:
+                                score_package_url: { get_input: score_package_url }
+                                user_github_key: { get_input: user_github_key }
+                        fabric_env:
+                            user: { get_input: servers_user }
+                            key_filename: { get_input: private_key_path }
+                            host_string: { get_attribute: [score_host_nat, public_ip] }
+                            port: { get_input: score_ssh }
+                start:
+                    inputs:
+                        task_properties:
+                            config:
+                                manager_public_ip: { get_input: manager_server_ip }
+                                score_ip: { get_attribute: [score_host, ip] }
+                                db_ip: { get_attribute: [postgresql_host, ip] }
+                        fabric_env:
+                            user: { get_input: servers_user }
+                            key_filename: { get_input: private_key_path }
+                            host_string: { get_attribute: [score_host_nat, public_ip] }
+                            port: { get_input: score_ssh }
+        relationships:
+          - type: cloudify.relationships.contained_in
+            target: gunicorn
+          - type: cloudify.relationships.connected_to
+            target: postgresql_score
 
 outputs:
-  endpoint:
-    description: Web application endpoint
-    value:
-      public_ip: { get_attribute: [ gunicorn_nat, public_ip ] }
+    gunicorn_ip:
+        value: { get_attribute: [score_host_nat, public_ip] }

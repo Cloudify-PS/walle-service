@@ -15,7 +15,7 @@ def install(config):
     script = ["""
 sudo apt-get update
 sudo apt-get install -qy build-essential libssl-dev libffi-dev libxml2-dev
-sudo apt-get install -qy libxslt-dev python-dev python-pip git
+sudo apt-get install -qy libxslt-dev python-dev python-pip git libpq-dev
 sudo apt-get install gunicorn -qy 2>&1
 sudo apt-get install nginx -qy 2>&1
     """]
