@@ -10,3 +10,5 @@ oslo.config
 psycopg2
 Flask-SQLAlchemy
 Flask-Migrate
+oslo.utils
+PrettyTable>=0.7,<0.8

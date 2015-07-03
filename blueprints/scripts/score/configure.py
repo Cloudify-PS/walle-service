@@ -41,7 +41,7 @@ def configure(config):
     cloudify_host = config.get("manager_public_ip", "localhost")
     db_ip = config.get("db_ip", "localhost")
 
-    db_url = "postgresql://score:secret-password@" + db_ip +  "/score"
+    db_url = "postgresql://score:secret-password@" + db_ip + "/score"
     # create service config
     service = _generate_service(server_host, cloudify_host, db_url)
     ctx.logger.info(service)
