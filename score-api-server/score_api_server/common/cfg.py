@@ -21,22 +21,14 @@ rest_opts = [
     ))
 ]
 
-cloudify_opts = [
-    cfg.IPOpt("host", version=4,
-              default=os.getenv("CFY_MANAGER_HOST", "127.0.0.1")),
-    PortOpt("port", default=int(os.getenv("CFY_MANAGER_PORT", 80)))
-]
-
 rest_group = cfg.OptGroup("server", "ReST server config")
-cloudify_group = cfg.OptGroup("cloudify", "Cloudify connection config")
+
 
 CONF = cfg.CONF
 
 CONF.register_group(rest_group)
-CONF.register_group(cloudify_group)
 
 CONF.register_opts(rest_opts, rest_group)
-CONF.register_opts(cloudify_opts, cloudify_group)
 
 
 def parse_args(argv, default_config_files=None):

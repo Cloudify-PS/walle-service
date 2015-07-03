@@ -9,7 +9,7 @@ import flask
 import mock
 
 from score_api_server.resources import blueprints
-from tests.unittests import fake_objects
+from score_api_server.tests.unittests import fake_objects
 
 
 class TestBase(testtools.TestCase):

@@ -64,8 +64,6 @@ Usage examples::
     $ export SCORE_HOST="0.0.0.0"; \
       export SCORE_PORT="5000"; \
       export SCORE_WORKERS="4"
-      export CFY_MANAGER_HOST="127.0.0.1"; \
-      export CFY_MANAGER_PORT="80"; \
       export SCORE_DB="sqlite:////tmp/score-service.db"; \
       gunicorn -w ${SCORE_WORKERS} -b ${SCORE_HOST}:${SCORE_PORT} score_api_server.cli.app:main
 
@@ -91,8 +89,6 @@ Configuration environment variables might have next look::
     $ export SCORE_PORT="5000"
     $ export SCORE_WORKERS="4"
 
-    $ export CFY_MANAGER_HOST="127.0.0.1"
-    $ export CFY_MANAGER_PORT="80"
     # export SCORE_DB="sqlite:////tmp/score-service.db"
 
 
@@ -150,6 +146,69 @@ Here's an example of you can use this tool::
         +--------------------------------------+--------------------------------------+-------------+
 
 
+    $ score-manage org-id-limits
+
+        usage: Performs action related to Org-ID limits
+
+        Performs action related to Org-ID limits
+
+        positional arguments:
+          {create,list,update,delete}
+            create              Creates deployment limits pinned to specific Org-ID
+                                and specific Cloudify Manager
+            list                Lists all Org-ID limits.
+            update              Updates Org-ID limits with given keys by its ID.
+            delete              Deletes Org-ID limit by its ID.
+
+        optional arguments:
+          -?, --help            show this help message and exit
+
+
+    $ score-manage org-id-limits create --org-id 07c41213-608a-4970-aef6-4c8819f964ca \
+        --cloudify-host 127.0.0.1 \
+        --cloudify-port 80 \
+        --deployment-limits 100
+
+        +-----------------------+--------------------------------------+
+        | Property              | Value                                |
+        +-----------------------+--------------------------------------+
+        | cloudify_host         | 127.0.0.1                            |
+        | cloudify_port         | 80                                   |
+        | created_at            | 2015-07-03 12:08:03.914647           |
+        | deployment_limits     | 100                                  |
+        | id                    | 38d71fe2-eb31-44f3-9dcd-d71feacf50cb |
+        | number_of_deployments | 0                                    |
+        | org_id                | 07c41213-608a-4970-aef6-4c8819f964ca |
+        | updated_at            | 2015-07-03 12:08:03.914656           |
+        +-----------------------+--------------------------------------+
+
+
+    $ score-manage org-id-limits list
+
+        +--------------------------------------+--------------------------------------+---------------+---------------+-------------------+-----------------------+----------------------------+----------------------------+
+        | ID                                   | Org ID                               | Cloudify Host | Cloudify Port | Deployment Limits | Number Of Deployments | Created At                 | Updated At                 |
+        +--------------------------------------+--------------------------------------+---------------+---------------+-------------------+-----------------------+----------------------------+----------------------------+
+        | 38d71fe2-eb31-44f3-9dcd-d71feacf50cb | 07c41213-608a-4970-aef6-4c8819f964ca | 127.0.0.1     | 80            |               100 |                     0 | 2015-07-03 12:08:03.914647 | 2015-07-03 12:08:03.914656 |
+        +--------------------------------------+--------------------------------------+---------------+---------------+-------------------+-----------------------+----------------------------+----------------------------+
+
+
+    $ score-manage org-id-limits update --id 38d71fe2-eb31-44f3-9dcd-d71feacf50cb --deployment-limits -1
+
+
+        +-----------------------+--------------------------------------+
+        | Property              | Value                                |
+        +-----------------------+--------------------------------------+
+        | cloudify_host         | 127.0.0.1                            |
+        | cloudify_port         | 80                                   |
+        | created_at            | 2015-07-03 12:08:03.914647           |
+        | deployment_limits     | -1                                   |
+        | id                    | 38d71fe2-eb31-44f3-9dcd-d71feacf50cb |
+        | number_of_deployments | 0                                    |
+        | org_id                | 07c41213-608a-4970-aef6-4c8819f964ca |
+        | updated_at            | 2015-07-03 12:10:32.524507           |
+        +-----------------------+--------------------------------------+
+
+
 =======
 Testing
 =======
@@ -157,5 +216,5 @@ Testing
 To run code style checks please do::
 .. code-block:: bash
 
-    $ tox -e pep8
-    $ tox -e unittests
+    $ tox -e pep8 -c score-api-server/tox.ini
+    $ tox -e unittests -c score-api-server/tox.ini

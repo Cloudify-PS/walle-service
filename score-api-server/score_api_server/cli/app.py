@@ -2,7 +2,7 @@
 
 from flask import Flask
 from flask.ext import restful
-from flask import request, abort, g
+from flask import request, abort, g, make_response
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.migrate import Migrate
 
@@ -27,6 +27,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = CONF.server.db_uri
 
 
 # note: assume vcs.organization.id is unique across the service
+
 @app.before_request
 def check_authorization():
     vcloud_token = request.headers.get('x-vcloud-authorization')
@@ -34,24 +35,24 @@ def check_authorization():
     vcloud_version = request.headers.get('x-vcloud-version')
     if (vcloud_token is None or vcloud_org_url
        is None or vcloud_version is None):
-        abort(401)
+        abort(make_response("Unauthorized.", 401))
     vcs = VCS(vcloud_org_url, None, None, None,
               vcloud_org_url, vcloud_org_url,
               version=vcloud_version)
     result = vcs.login(token=vcloud_token)
     if result:
         g.org_id = vcs.organization.id[vcs.organization.id.rfind(':') + 1:]
-        limit = org_limit.get_current_limit()
-        if not limit:
-            abort(401)
+
+        if not org_limit.check_org_id():
+            abort(make_response("Unauthorized.", 401))
+
+        g.current_org_id_limits, cfy_host, cfy_port = (
+            org_limit.get_cloudify_credentials_and_org_id_limit())
+        g.cc = CloudifyClient(host=cfy_host,
+                              port=cfy_port)
     else:
         abort(vcs.response.status_code)
 
-
-@app.before_request
-def connect_to_cloudify():
-    g.cc = CloudifyClient(host=CONF.cloudify.host,
-                          port=CONF.cloudify.port)
 
 api.add_resource(Blueprints, '/blueprints',
                  '/blueprints/<string:blueprint_id>')

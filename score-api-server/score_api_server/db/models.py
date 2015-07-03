@@ -1,22 +1,21 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
-import uuid
-from score_api_server.cli import app
-
-db = app.db
+from score_api_server.db import base
 
 
-class AllowedOrgs(db.Model):
+class AllowedOrgs(base.BaseDatabaseModel, base.db.Model):
     __tablename__ = 'allowed_org_ids'
 
-    id = db.Column(db.String(), primary_key=True)
-    org_id = db.Column(db.String(), unique=True)
-    info = db.Column(db.String())
+    id = base.db.Column(base.db.String(), primary_key=True)
+    org_id = base.db.Column(base.db.String(), unique=True)
+    info = base.db.Column(base.db.String())
+    created_at = base.db.Column(base.db.String())
 
     def __init__(self, org_id, info=None):
-        self.id = str(uuid.uuid4())
         self.org_id = org_id
-        self.info = info
+        self.info = info if info else ""
+        super(AllowedOrgs, self).__init__()
+        self.save()
 
     def __repr__(self):
         return '#{}: Allowed {}'.format(
@@ -27,22 +26,42 @@ class AllowedOrgs(db.Model):
         return {
             "id": self.id,
             "org_id": self.org_id,
-            "info": self.info
+            "info": self.info,
+            "created_at": self.created_at,
         }
 
-    @classmethod
-    def find(cls, org_id):
-        org = cls.query.filter_by(org_id=org_id).first()
-        return org if org else None
 
-    def save(self):
-        app.db.session.add(self)
-        app.db.session.commit()
+class OrgIDToCloudifyAssociationWithLimits(base.BaseDatabaseModel,
+                                           base.db.Model):
+    __tablename__ = 'org_id_to_cloudify_with_limits'
 
-    def delete(self):
-        app.db.session.delete(self)
-        app.db.session.commit()
+    id = base.db.Column(base.db.String(), primary_key=True)
+    org_id = base.db.Column(base.db.String(), unique=True)
+    deployment_limits = base.db.Column(base.db.Integer())
+    number_of_deployments = base.db.Column(base.db.Integer())
+    cloudify_host = base.db.Column(base.db.String())
+    cloudify_port = base.db.Column(base.db.String())
+    created_at = base.db.Column(base.db.String())
+    updated_at = base.db.Column(base.db.String())
 
-    @classmethod
-    def list(cls):
-        return cls.query.all()
+    def __init__(self, org_id, cloudify_host,
+                 cloudify_port, deployment_limits=0):
+        self.org_id = org_id
+        self.cloudify_host = cloudify_host
+        self.cloudify_port = cloudify_port
+        self.deployment_limits = deployment_limits
+        self.number_of_deployments = 0
+        super(OrgIDToCloudifyAssociationWithLimits, self).__init__()
+        self.save()
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "org_id": self.org_id,
+            "deployment_limits": self.deployment_limits,
+            "number_of_deployments": self.number_of_deployments,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "cloudify_host": self.cloudify_host,
+            "cloudify_port": self.cloudify_port
+        }
