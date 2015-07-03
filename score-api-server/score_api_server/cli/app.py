@@ -46,10 +46,16 @@ def check_authorization():
         if not org_limit.check_org_id():
             abort(make_response("Unauthorized.", 401))
 
-        g.current_org_id_limits, cfy_host, cfy_port = (
-            org_limit.get_cloudify_credentials_and_org_id_limit())
-        g.cc = CloudifyClient(host=cfy_host,
-                              port=cfy_port)
+        g.current_org_id_limits = org_limit.get_org_id_limits()
+        if g.current_org_id_limits:
+            g.cc = CloudifyClient(host=g.current_org_id_limits.cfy_host,
+                                  port=g.current_org_id_limits.cfy_port)
+        else:
+            abort(make_response("Limits for Org-ID: %s were not defined. "
+                                "Unable to get corresponding "
+                                "Cloudify Manager host and port. "
+                                "Please contact administrator."
+                                % g.org_id, 403))
     else:
         abort(vcs.response.status_code)
 

@@ -1,6 +1,6 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
-from flask import g
+from flask import g, abort, make_response
 
 
 def check_org_id():
@@ -11,11 +11,9 @@ def check_org_id():
         return org
 
 
-def get_cloudify_credentials_and_org_id_limit():
+def get_org_id_limits():
     """Gets Cloudify credentials and current Org-ID limits."""
     from score_api_server.db.models import (
         OrgIDToCloudifyAssociationWithLimits)
-    limit = OrgIDToCloudifyAssociationWithLimits.find_by(
+    return OrgIDToCloudifyAssociationWithLimits.find_by(
         org_id=g.org_id)
-    if limit:
-        return limit, limit.cloudify_host, limit.cloudify_port

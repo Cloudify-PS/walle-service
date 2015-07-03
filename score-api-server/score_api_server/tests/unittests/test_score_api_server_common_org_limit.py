@@ -137,8 +137,10 @@ class TestDeploymentLimitsDBModel(base.BaseTestCaseWihtBackend):
 
         with app.app.app_context():
             flask.g.org_id = self.allowed_org_id.org_id
-            _limit, cfy_host, cfy_port = (
-                org_limit.get_cloudify_credentials_and_org_id_limit())
-            self.assertEqual(limit.cloudify_host, cfy_host)
-            self.assertEqual(limit.cloudify_port, cfy_port)
+            _limit = (
+                org_limit.get_org_id_limits())
+            self.assertEqual(limit.cloudify_host,
+                             _limit.cloudify_host)
+            self.assertEqual(limit.cloudify_port,
+                             _limit.cloudify_port)
             self.assertEqual(limit.org_id, _limit.org_id)
