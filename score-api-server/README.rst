@@ -218,3 +218,4 @@ To run code style checks please do::
 
     $ tox -e pep8 -c score-api-server/tox.ini
     $ tox -e unittests -c score-api-server/tox.ini
+    $ tox -e integration -c score-api-server/tox.ini

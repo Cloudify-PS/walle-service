@@ -35,18 +35,18 @@ class CommonOrgLimitTest(base.BaseTestCaseWihtBackend):
         with app.app.app_context():
             # check value for current existed
             flask.g.org_id = self.prefix + "some_id"
-            limit = org_limit.check_org_id()
+            limit = org_limit.check_org_id(flask.g.org_id)
             self.assertTrue(limit)
             self.assertIn(self.prefix + "some_id",
                           limit.org_id)
             # check count
             flask.g.org_id = self.prefix + "k_id"
-            limit = org_limit.check_org_id()
+            limit = org_limit.check_org_id(flask.g.org_id)
             self.assertTrue(limit)
             self.assertIn(self.prefix + "k_id", limit.org_id)
             # no orgs
             flask.g.org_id = self.prefix + "some_other_id"
-            limit = org_limit.check_org_id()
+            limit = org_limit.check_org_id(flask.g.org_id)
             self.assertFalse(limit)
 
 
@@ -138,7 +138,7 @@ class TestDeploymentLimitsDBModel(base.BaseTestCaseWihtBackend):
         with app.app.app_context():
             flask.g.org_id = self.allowed_org_id.org_id
             _limit = (
-                org_limit.get_org_id_limits())
+                org_limit.get_org_id_limits(flask.g.org_id))
             self.assertEqual(limit.cloudify_host,
                              _limit.cloudify_host)
             self.assertEqual(limit.cloudify_port,

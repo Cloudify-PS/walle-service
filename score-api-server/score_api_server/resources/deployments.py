@@ -5,7 +5,7 @@ import json
 from cloudify_rest_client import exceptions
 
 from flask.ext import restful
-from flask import request, abort, g, make_response
+from flask import request, g, make_response
 
 from score_api_server.common import util
 
@@ -26,23 +26,26 @@ class Deployments(restful.Resource):
             # Or deployment limits still greater than number of deployments
             return True
         else:
-            abort(make_response("Deployment quota exceeded.", 403))
+            return make_response("Deployment quota exceeded.", 403)
 
     def get(self, deployment_id=None):
-        if deployment_id is not None:
-            try:
-                result = g.cc.deployments.get(
-                    util.add_org_prefix(deployment_id))
-                return util.remove_org_prefix(result)
-            except exceptions.CloudifyClientError as e:
-                abort(make_response(str(e)), e.status_code)
-        else:
-            deployments = g.cc.deployments.list()
-            result = []
-            for deployment in deployments:
-                if deployment.id.startswith(g.org_id + '_'):
-                    result.append(util.remove_org_prefix(deployment))
-            return result
+        try:
+            if deployment_id is not None:
+                try:
+                    result = g.cc.deployments.get(
+                        util.add_org_prefix(deployment_id))
+                    return util.remove_org_prefix(result)
+                except exceptions.CloudifyClientError as e:
+                    return make_response(str(e), e.status_code)
+            else:
+                deployments = g.cc.deployments.list()
+                result = []
+                for deployment in deployments:
+                    if deployment.id.startswith(g.org_id + '_'):
+                        result.append(util.remove_org_prefix(deployment))
+                return result
+        except exceptions.CloudifyClientError as e:
+            return make_response(str(e), e.status_code)
 
     def delete(self, deployment_id):
         try:
@@ -56,7 +59,7 @@ class Deployments(restful.Resource):
             return result
 
         except exceptions.CloudifyClientError as e:
-            abort(make_response(str(e), e.status_code))
+            return make_response(str(e), e.status_code)
 
     def put(self, deployment_id):
         blueprint_id = request.json.get('blueprint_id')
@@ -73,4 +76,4 @@ class Deployments(restful.Resource):
             except(exceptions.CloudifyClientError,
                    exceptions.MissingRequiredDeploymentInputError,
                    exceptions.UnknownDeploymentInputError) as e:
-                abort(make_response(str(e), e.status_code))
+                return make_response(str(e), e.status_code)

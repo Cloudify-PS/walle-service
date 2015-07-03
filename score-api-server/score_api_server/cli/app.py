@@ -43,21 +43,20 @@ def check_authorization():
     if result:
         g.org_id = vcs.organization.id[vcs.organization.id.rfind(':') + 1:]
 
-        if not org_limit.check_org_id():
+        if not org_limit.check_org_id(g.org_id):
             abort(make_response("Unauthorized.", 401))
 
-        g.current_org_id_limits = org_limit.get_org_id_limits()
+        g.current_org_id_limits = org_limit.get_org_id_limits(g.org_id)
         if g.current_org_id_limits:
-            g.cc = CloudifyClient(host=g.current_org_id_limits.cfy_host,
-                                  port=g.current_org_id_limits.cfy_port)
+            g.cc = CloudifyClient(host=g.current_org_id_limits.cloudify_host,
+                                  port=g.current_org_id_limits.cloudify_port)
         else:
             abort(make_response("Limits for Org-ID: %s were not defined. "
-                                "Unable to get corresponding "
-                                "Cloudify Manager host and port. "
                                 "Please contact administrator."
                                 % g.org_id, 403))
     else:
-        abort(vcs.response.status_code)
+        abort(make_response("%s" % vcs.response.status,
+                            vcs.response.status_code))
 
 
 api.add_resource(Blueprints, '/blueprints',
