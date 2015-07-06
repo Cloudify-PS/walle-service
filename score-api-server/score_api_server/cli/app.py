@@ -24,7 +24,6 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 CONF = cfg.CONF
-cfg.parse_args(sys.argv)
 app.config['SQLALCHEMY_DATABASE_URI'] = CONF.server.db_uri
 
 
