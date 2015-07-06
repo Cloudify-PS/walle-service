@@ -1,6 +1,5 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
-import sys
 from flask import Flask
 from flask.ext import restful
 from flask import request, abort, g
