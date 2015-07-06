@@ -39,9 +39,13 @@ def configure(config):
     script = []
     server_host = config.get("score_ip", "0.0.0.0")
     cloudify_host = config.get("manager_public_ip", "localhost")
+    db_user = config.get('db_user', None)
+    db_name = config.get('db_name', None)
+    db_pass = config.get('db_pass', None)
     db_ip = config.get("db_ip", "localhost")
 
-    db_url = "postgresql://score:secret-password@" + db_ip + "/score"
+    db_url = ("postgresql://%s:%s@" % (db_user, db_pass) +
+              db_ip + "/%s" % db_name)
     # create service config
     service = _generate_service(server_host, cloudify_host, db_url)
     ctx.logger.info(service)
@@ -53,7 +57,13 @@ def configure(config):
     db_upgrade = ('python /home/ubuntu/score-service/score-api-server/'
                   'score_api_server/cli/manage.py db upgrade')
     script.append('export SCORE_DB=%s' % db_url)
+    script.append('cd /home/ubuntu/score-service/score-api-server/')
     script.append(db_upgrade)
+    path_to_initial_sql = '/home/ubuntu/score-service/' \
+                          'score-api-server/initial.sql'
+    script.append("""
+PGPASSWORD="%s" psql -U%s -h%s -d %s < %s
+""" % (db_pass, db_user, db_ip, db_name, path_to_initial_sql))
     # create init file
     script.append("""
 sudo cp /home/ubuntu/score_api_server.conf /etc/init/score_api_server.conf
