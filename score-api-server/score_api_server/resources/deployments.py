@@ -12,10 +12,11 @@ from score_api_server.common import util
 
 class Deployments(restful.Resource):
 
-    def update_quota(self, index):
+    def update_quota(self, increment_or_decrement):
         g.current_org_id_limits = g.current_org_id_limits.update(
             number_of_deployments=(
-                g.current_org_id_limits.number_of_deployments + index))
+                g.current_org_id_limits.number_of_deployments
+                + increment_or_decrement))
 
     def can_do_deployment(self):
         if g.current_org_id_limits.deployment_limits == -1 or (
@@ -66,14 +67,15 @@ class Deployments(restful.Resource):
         inputs = json.loads(request.json.get('inputs'))
         if self.can_do_deployment():
             try:
+                self.update_quota(+1)
                 g.cc.blueprints.get(util.add_org_prefix(blueprint_id))
                 deployment = g.cc.deployments.create(
                     util.add_org_prefix(blueprint_id),
                     util.add_org_prefix(deployment_id),
                     inputs=inputs)
-                self.update_quota(+1)
                 return deployment
             except(exceptions.CloudifyClientError,
                    exceptions.MissingRequiredDeploymentInputError,
                    exceptions.UnknownDeploymentInputError) as e:
+                self.update_quota(-1)
                 return make_response(str(e), e.status_code)
