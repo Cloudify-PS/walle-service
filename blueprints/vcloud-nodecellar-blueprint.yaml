@@ -391,6 +391,8 @@ node_templates:
 
     mongod:
         type: agentless.nodes.MongoDatabase
+        properties:
+            port: 27017
         relationships:
           - target: mongod_host
             type: cloudify.relationships.contained_in
@@ -406,6 +408,8 @@ node_templates:
 
     nodecellar:
         type: agentless.nodes.nodecellar
+        properties:
+            port: 8080
         interfaces:
             cloudify.interfaces.lifecycle:
                 start:
