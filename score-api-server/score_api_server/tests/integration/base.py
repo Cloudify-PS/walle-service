@@ -69,6 +69,14 @@ class IntegrationBaseTestCase(testtools.TestCase):
         self.do_common_setup()
         return self.client.delete(route, headers=self.headers)
 
+    def execute_put_request_with_route(self, route,
+                                       params=None, data=None):
+        self.do_common_setup()
+        return self.client.put(route,
+                               headers=self.headers,
+                               query_string=params,
+                               data=data)
+
     def tearDown(self):
 
         for org_id in models.AllowedOrgs.list():

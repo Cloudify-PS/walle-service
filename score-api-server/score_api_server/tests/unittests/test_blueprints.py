@@ -48,7 +48,7 @@ class TestBase(testtools.TestCase):
             fake_id = flask.g.org_id + '_' + self.bp_id
             fake_bp = fake_objects.FakeBlueprint(fake_id, fake_id, fake_id)
             flask.g.cc.blueprints.get = mock.MagicMock(return_value=fake_bp)
-            bp = self.bluprient.get(blueprint_id=self.bp_id)
+            bp, status = self.bluprient.get(blueprint_id=self.bp_id)
         self.assertEqual(fake_id, bp.id)
 
     def test_get_all_blueprints(self):
@@ -58,7 +58,7 @@ class TestBase(testtools.TestCase):
             fake_id = flask.g.org_id + '_' + self.bp_id
             fake_bp = fake_objects.FakeBlueprint(fake_id, fake_id, fake_id)
             flask.g.cc.blueprints.list = mock.MagicMock(return_value=[fake_bp])
-            bps = self.bluprient.get()
+            bps, status = self.bluprient.get()
         self.assertEqual(self.bp_id, bps[0].id)
 
     def test_delete(self):
@@ -69,5 +69,5 @@ class TestBase(testtools.TestCase):
             fake_bp = fake_objects.FakeBlueprint(fake_id, fake_id, fake_id)
             flask.g.cc.blueprints.delete = mock.MagicMock(
                 return_value=fake_bp)
-            bp = self.bluprient.delete(blueprint_id=self.bp_id)
+            bp, status = self.bluprient.delete(blueprint_id=self.bp_id)
         self.assertEqual(fake_id, bp.id)
