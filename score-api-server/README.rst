@@ -216,6 +216,18 @@ Testing
 To run code style checks please do::
 .. code-block:: bash
 
+
     $ tox -e pep8 -c score-api-server/tox.ini
+
     $ tox -e unittests -c score-api-server/tox.ini
+
     $ tox -e integration -c score-api-server/tox.ini
+
+    $ tox -e validate-blueprints -c score-api-server/tox.ini
+
+    $ tox -e cfy-local-nodecellar -c score-api-server/tox.ini
+
+    $ tox -e travis-cfy-local-nodecellar-with-fabric -c score-api-server/tox.ini
+
+    $ tox -e travis-cfy-local-postgresql-with-fabric -c score-api-server/tox.ini
+
