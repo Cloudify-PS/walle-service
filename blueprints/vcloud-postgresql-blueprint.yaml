@@ -75,6 +75,8 @@ node_templates:
         relationships:
             - target: postgresql_host
               type: cloudify.relationships.contained_in
+        properties:
+          port: 5432
 
 
 outputs:

@@ -31,9 +31,9 @@ install:
 before_script:
     - psql -c 'create database score;' -U postgres
     - export SCORE_DB='postgresql://postgres@localhost/score'
+    - cfy init
 
 script:
-    - cfy init
     - tox -c score-api-server/tox.ini -e $TOX_ENV
     - cfy blueprints validate -p blueprints/vcloud-manager-blueprint.yaml
     - cfy blueprints validate -p blueprints/vcloud-manager-blueprint.yaml
@@ -44,6 +44,6 @@ script:
     - cfy blueprints validate -p blueprints/vcloud-nodecellar-blueprint-local.yaml
     - cfy blueprints validate -p blueprints/vcloud-nodecellar-blueprint-local-with-fabric.yaml
     - cfy blueprints validate -p blueprints/vcloud-postgresql-blueprint-local-with-fabric.yaml
+    - cfy local init --install-plugins -p blueprints/vcloud-nodecellar-blueprint-local.yaml
     - cfy local init --install-plugins -p blueprints/vcloud-nodecellar-blueprint-local-with-fabric.yaml -i blueprints/inputs/inputs.travis-ci.yaml
     - cfy local init --install-plugins -p blueprints/vcloud-postgresql-blueprint-local-with-fabric.yaml -i blueprints/inputs/inputs.travis-ci.yaml
-    - cfy local init --install-plugins -p blueprints/vcloud-nodecellar-blueprint-local.yaml -i blueprints/inputs/inputs.travis-ci.yaml
