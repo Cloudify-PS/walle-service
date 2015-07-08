@@ -3,6 +3,7 @@
 from flask.ext import restful
 from flask import request, g, make_response
 from flask.ext.restful import reqparse
+from flask_restful_swagger import swagger
 
 from score_api_server.common import util
 
@@ -14,6 +15,18 @@ parser = reqparse.RequestParser()
 
 class Events(restful.Resource):
 
+    @swagger.operation(
+        nickname='events',
+        notes='Returns a list of events for the provided ElasticSearch query. '
+              'The response format is as ElasticSearch response format.',
+        parameters=[{'name': 'body',
+                     'description': 'ElasticSearch query.',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'}],
+        consumes=['application/json']
+    )
     def get(self):
         logger.debug("Entering Events.get method.")
         try:

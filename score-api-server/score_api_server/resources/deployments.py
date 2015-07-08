@@ -7,13 +7,38 @@ from cloudify_rest_client import exceptions
 
 from flask.ext import restful
 from flask import request, g, make_response
+from flask_restful_swagger import swagger
 
 from score_api_server.common import util
+from score_api_server.resources import responses
+from score_api_server.resources import requests_schema
 
 logger = util.setup_logging(__name__)
 
 
 class Deployments(restful.Resource):
+
+    @swagger.operation(
+        responseClass='List[{0}]'.format(responses.Deployment.__name__),
+        nickname="list",
+        notes="Returns a list existing deployments."
+    )
+    def get(self):
+        logger.debug("Entering Deployments.get method.")
+        try:
+            logger.info("Listing all deployments.")
+            deployments = g.cc.deployments.list()
+            result = []
+            for deployment in deployments:
+                if deployment.id.startswith(g.org_id + '_'):
+                    result.append(util.remove_org_prefix(deployment))
+            logger.debug("Done. Exiting Deployments.get method.")
+            return result
+        except exceptions.CloudifyClientError as e:
+            return make_response(str(e), e.status_code)
+
+
+class DeploymentsId(restful.Resource):
 
     def update_quota(self, increment_or_decrement):
         logger.debug("Entering Deployments.update_qouta method.")
@@ -42,30 +67,37 @@ class Deployments(restful.Resource):
                          g.org_id)
             return make_response("Deployment quota exceeded.", 403)
 
+    @swagger.operation(
+        responseClass=responses.Deployment,
+        nickname="getById",
+        notes="Returns a deployment by its id."
+    )
     def get(self, deployment_id=None):
-        logger.debug("Entering Deployments.get method.")
+        logger.debug("Entering DeploymentsId.get method.")
         try:
-            if deployment_id is not None:
-                logger.info("Seeking for deplyment %s .",
-                            deployment_id)
-                result = g.cc.deployments.get(
-                    util.add_org_prefix(deployment_id))
-                logger.info("Deployment found.")
-                return util.remove_org_prefix(result), 200
-            else:
-                logger.info("Listing all deployments.")
-                deployments = g.cc.deployments.list()
-                result = []
-                for deployment in deployments:
-                    if deployment.id.startswith(g.org_id + '_'):
-                        result.append(util.remove_org_prefix(deployment))
-                logger.debug(
-                    "Done. Exiting Deployments.get method.")
-                return result
+            logger.info("Seeking for deplyment %s .",
+                        deployment_id)
+            result = g.cc.deployments.get(util.add_org_prefix(deployment_id))
+            logger.info("Deployment found.")
+            return util.remove_org_prefix(result)
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
             return make_response(str(e), e.status_code)
 
+    @swagger.operation(
+        responseClass=responses.Deployment,
+        nickname="deleteById",
+        notes="deletes a deployment by its id.",
+        parameters=[{'name': 'ignore_live_nodes',
+                     'description': 'Specifies whether to ignore live nodes,'
+                                    'or raise an error upon such nodes '
+                                    'instead.',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'boolean',
+                     'defaultValue': False,
+                     'paramType': 'query'}]
+    )
     def delete(self, deployment_id):
         logger.debug("Entering Deployments.delete method.")
         try:
@@ -84,6 +116,20 @@ class Deployments(restful.Resource):
             logger.error(str(e))
             return make_response(str(e), e.status_code)
 
+    @swagger.operation(
+        responseClass=responses.Deployment,
+        nickname="createDeployment",
+        notes="Created a new deployment of the given blueprint.",
+        parameters=[{'name': 'body',
+                     'description': 'Deployment blue print',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': requests_schema.DeploymentRequest.__name__,
+                     'paramType': 'body'}],
+        consumes=[
+            "application/json"
+        ]
+    )
     def put(self, deployment_id):
         logger.debug("Entering Deployments.put method.")
         blueprint_id = request.json.get('blueprint_id')

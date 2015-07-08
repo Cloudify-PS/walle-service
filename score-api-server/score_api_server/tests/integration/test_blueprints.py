@@ -65,13 +65,13 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
 
         with open(tar_file, 'rb') as f:
             return self.execute_put_request_with_route(
-                '/blueprints/{0}'.format(blueprint_id),
+                'v1/blueprints/{0}'.format(blueprint_id),
                 params=query_params,
                 data=f.read()
             )
 
     def test_list_blueprints(self):
-        response = self.execute_get_request_with_route("/blueprints")
+        response = self.execute_get_request_with_route("v1/blueprints")
         self.assertEqual(200, response.status_code)
         self.assertIn("OK", response.status)
         self.assertIsNotNone(response.data)
@@ -79,12 +79,12 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
 
     def test_blueprint_not_found(self):
         response = self.execute_get_request_with_route(
-            "/blueprints/%s" % self.bp_id)
+            "v1/blueprints/%s" % self.bp_id)
         self.assertEqual(404, response.status_code)
 
     def test_delete_blueprint_not_found(self):
         response = self.execute_delete_request_with_route(
-            "/blueprints/%s" % self.bp_id)
+            "v1/blueprints/%s" % self.bp_id)
         self.assertEqual(404, response.status_code)
 
     def make_upload(self):
@@ -107,7 +107,7 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
         data = json.loads(response_upload.data)
         blueprint_id = data['blueprint_id']
         response_get = self.execute_get_request_with_route(
-            "/blueprints/%s" % blueprint_id)
+            "v1/blueprints/%s" % blueprint_id)
         self.assertNotEqual(404, response_get.status_code)
         self.assertEqual(200, response_get.status_code)
         self.assertIsNotNone(json.loads(response_get.data))
@@ -117,9 +117,9 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
         data = json.loads(response_upload.data)
         blueprint_id = data['blueprint_id']
         response_get = self.execute_get_request_with_route(
-            "/blueprints/%s" % blueprint_id)
+            "v1/blueprints/%s" % blueprint_id)
         response_delete = self.execute_delete_request_with_route(
-            "/blueprints/%s" % blueprint_id)
+            "v1/blueprints/%s" % blueprint_id)
 
         self.assertEqual(200, response_upload.status_code)
         self.assertEqual(200, response_get.status_code)
