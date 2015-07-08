@@ -10,7 +10,7 @@ def _run(command):
     ctx.logger.info(out)
 
 
-def _generate_service(server_host, cloudify_host, db_url):
+def _generate_service(server_host, db_url):
     return [
         "description 'score service'",
         "# used to be: start on startup",
@@ -24,9 +24,7 @@ def _generate_service(server_host, cloudify_host, db_url):
         "    export SCORE_HOST=%s" % server_host,
         "    export SCORE_PORT=8001",
         "    export SCORE_WORKERS=4",
-        "    export CFY_MANAGER_HOST=%s" % cloudify_host,
         "    export SCORE_DB=%s" % db_url,
-        "    export CFY_MANAGER_PORT=80",
         "    exec /usr/bin/gunicorn -w 4 -b localhost:8001 " +
         "score_api_server.cli.app:app 2>&1 > /tmp/log",
 
@@ -38,7 +36,6 @@ def configure(config):
     ctx.logger.info("Config: " + str(config))
     script = []
     server_host = config.get("score_ip", "0.0.0.0")
-    cloudify_host = config.get("manager_public_ip", "localhost")
     db_user = config.get('db_user', None)
     db_name = config.get('db_name', None)
     db_pass = config.get('db_pass', None)
@@ -47,7 +44,7 @@ def configure(config):
     db_url = ("postgresql://%s:%s@" % (db_user, db_pass) +
               db_ip + "/%s" % db_name)
     # create service config
-    service = _generate_service(server_host, cloudify_host, db_url)
+    service = _generate_service(server_host, db_url)
     ctx.logger.info(service)
     script.append("rm -f /home/ubuntu/score_api_server.conf")
     for service_str in service:

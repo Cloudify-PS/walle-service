@@ -1,5 +1,5 @@
 language: python
-sudo: false
+sudo: true
 python:
   - "2.7"
 
@@ -10,6 +10,11 @@ addons:
 env:
     - TOX_ENV=pep8
     - TOX_ENV=unittests
+    - TOX_ENV=integration
+    - TOX_ENV=validate-blueprints
+    - TOX_ENV=cfy-local-nodecellar
+    - TOX_ENV=travis-cfy-local-nodecellar-with-fabric
+    - TOX_ENV=travis-cfy-local-postgresql-with-fabric
 
 install:
 
@@ -21,29 +26,12 @@ install:
     - echo -e "StrictHostKeyChecking no\n" >> ~/.ssh/conf
 
     - pip install tox
-    - pip install https://github.com/cloudify-cosmo/cloudify-rest-client/archive/3.2.zip
-    - pip install https://github.com/cloudify-cosmo/cloudify-dsl-parser/archive/3.2.zip
-    - pip install https://github.com/cloudify-cosmo/cloudify-plugins-common/archive/3.2.zip
-    - pip install https://github.com/cloudify-cosmo/cloudify-script-plugin/archive/1.2.zip
-    - pip install https://github.com/cloudify-cosmo/cloudify-cli/archive/3.2.zip
-    - pip install https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.zip
 
 before_script:
     - psql -c 'create database score;' -U postgres
     - export SCORE_DB='postgresql://postgres@localhost/score'
-    - cfy init
 
 script:
+
     - tox -c score-api-server/tox.ini -e $TOX_ENV
-    - cfy blueprints validate -p blueprints/vcloud-manager-blueprint.yaml
-    - cfy blueprints validate -p blueprints/vcloud-manager-blueprint.yaml
-    - cfy blueprints validate -p blueprints/vcloud-postgresql-blueprint.yaml
-    - cfy blueprints validate -p blueprints/vcloud-score-blueprint.yaml
-    - cfy blueprints validate -p blueprints/vcloud-nodecellar-blueprint.yaml
-    - cfy blueprints validate -p blueprints/vcloud-manager-blueprint.yaml
-    - cfy blueprints validate -p blueprints/vcloud-nodecellar-blueprint-local.yaml
-    - cfy blueprints validate -p blueprints/vcloud-nodecellar-blueprint-local-with-fabric.yaml
-    - cfy blueprints validate -p blueprints/vcloud-postgresql-blueprint-local-with-fabric.yaml
-    - cfy local init --install-plugins -p blueprints/vcloud-nodecellar-blueprint-local.yaml
-    - cfy local init --install-plugins -p blueprints/vcloud-nodecellar-blueprint-local-with-fabric.yaml -i blueprints/inputs/inputs.travis-ci.yaml
-    - cfy local init --install-plugins -p blueprints/vcloud-postgresql-blueprint-local-with-fabric.yaml -i blueprints/inputs/inputs.travis-ci.yaml
+

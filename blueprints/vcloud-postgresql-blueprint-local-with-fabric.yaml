@@ -37,7 +37,7 @@ node_templates:
   host:
     type: cloudify.nodes.Compute
     properties:
-      ip: { get_input: servers_user }
+      ip: { get_input: host_string }
       install_agent: false
 
   posgresql:
@@ -49,7 +49,7 @@ node_templates:
         target: host
     interfaces:
         cloudify.interfaces.lifecycle:
-            start:
+            create:
                 inputs:
                     fabric_env:
                         user: { get_input: servers_user }

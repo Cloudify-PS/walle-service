@@ -1,3 +1,6 @@
+# Copyright (c) 2015 VMware. All rights reserved
+
+
 class FakeBlueprint(object):
     def __init__(self, obj_id, obj_blueprint_id, obj_deployment_id):
         self.id = obj_id
