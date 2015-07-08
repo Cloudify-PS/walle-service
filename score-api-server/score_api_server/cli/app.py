@@ -2,7 +2,7 @@
 
 from flask import Flask
 from flask.ext import restful
-from flask import request, abort, g, make_response
+from flask import request, g, make_response
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.migrate import Migrate
 
@@ -10,6 +10,7 @@ from pyvcloud.vcloudsession import VCS
 from cloudify_rest_client.client import CloudifyClient
 
 from score_api_server.common import cfg
+from score_api_server.common import util
 from score_api_server.common import org_limit
 from score_api_server.resources.blueprints import Blueprints
 from score_api_server.resources.deployments import Deployments
@@ -24,6 +25,7 @@ migrate = Migrate(app, db)
 
 CONF = cfg.CONF
 app.config['SQLALCHEMY_DATABASE_URI'] = CONF.server.db_uri
+app.logger.setLevel(util.get_logging_level())
 
 
 # note: assume vcs.organization.id is unique across the service
@@ -35,28 +37,34 @@ def check_authorization():
     vcloud_version = request.headers.get('x-vcloud-version')
     if (vcloud_token is None or vcloud_org_url
        is None or vcloud_version is None):
-        abort(make_response("Unauthorized.", 401))
+        app.logger.error("Unauthorized. Aborting.")
+        return make_response("Unauthorized.", 401)
     vcs = VCS(vcloud_org_url, None, None, None,
               vcloud_org_url, vcloud_org_url,
               version=vcloud_version)
     result = vcs.login(token=vcloud_token)
     if result:
+        app.logger.info("Organization authorized successfully.")
         g.org_id = vcs.organization.id[vcs.organization.id.rfind(':') + 1:]
 
         if not org_limit.check_org_id(g.org_id):
-            abort(make_response("Unauthorized.", 401))
+            app.logger.error("Unauthorized. Aborting.")
+            return make_response("Unauthorized.", 401)
 
         g.current_org_id_limits = org_limit.get_org_id_limits(g.org_id)
         if g.current_org_id_limits:
+            app.logger.info("Limits for Org-ID:%s were found.", g.org_id)
             g.cc = CloudifyClient(host=g.current_org_id_limits.cloudify_host,
                                   port=g.current_org_id_limits.cloudify_port)
         else:
-            abort(make_response("Limits for Org-ID: %s were not defined. "
-                                "Please contact administrator."
-                                % g.org_id, 403))
+            app.logger.error("No limits were defined for Org-ID: %s",
+                             g.org_id)
+            return make_response("Limits for Org-ID: %s were not defined. "
+                                 "Please contact administrator."
+                                 % g.org_id, 403)
     else:
-        abort(make_response("%s" % vcs.response.status,
-                            vcs.response.status_code))
+        return make_response(str(vcs.response.status),
+                             vcs.response.status_code)
 
 
 api.add_resource(Blueprints, '/blueprints',
@@ -72,6 +80,7 @@ def main():
     host, port, workers = (CONF.server.host,
                            CONF.server.port,
                            CONF.server.workers)
+    app.logger.setLevel(util.get_logging_level())
     try:
         app.run(
             host=host,

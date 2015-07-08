@@ -20,17 +20,20 @@ Deployment
 Usage
 =====
 
-Before run call db update/creation by:
-    $   export SCORE_DB="sqlite:////tmp/score-service.db"
-        score-manage db upgrade
+Before run call db update/creation by::
+.. code-block:: bash
+
+
+    $ export SCORE_DB="sqlite:////tmp/score-service.db"
+    $  score-manage db upgrade
+
 
 Also SCORE_DB can be postgresql://score:secret-password@localhost/score
-
 And only first time please import sql from initial.sql to db.
-
 Once you will accomplish deployment guide your environment will have next CLI tool::
 
     score-server
+    score-manage
 
 Usage examples::
 .. code-block:: bash
@@ -61,11 +64,14 @@ To run score-server app under gunicorn please use this command
 Usage examples::
 .. code-block:: bash
 
+
     $ export SCORE_HOST="0.0.0.0"; \
       export SCORE_PORT="5000"; \
-      export SCORE_WORKERS="4"
+      export SCORE_WORKERS="4"; \
       export SCORE_DB="sqlite:////tmp/score-service.db"; \
-      gunicorn -w ${SCORE_WORKERS} -b ${SCORE_HOST}:${SCORE_PORT} score_api_server.cli.app:main
+      export SCORE_LOGGING_LEVEL=INFO
+
+    $ gunicorn -w ${SCORE_WORKERS} -b ${SCORE_HOST}:${SCORE_PORT} score_api_server.cli.app:main
 
             [2015-06-09 13:11:34 +0000] [27905] [INFO] Starting gunicorn 19.3.0
             [2015-06-09 13:11:34 +0000] [27905] [INFO] Listening at: http://0.0.0.0:5000 (27905)
@@ -85,11 +91,12 @@ host/port to connect to you will need to create a configuration file for score-s
 Configuration environment variables might have next look::
 .. code-block:: bash
 
+
     $ export SCORE_HOST="0.0.0.0"
     $ export SCORE_PORT="5000"
     $ export SCORE_WORKERS="4"
-
-    # export SCORE_DB="sqlite:////tmp/score-service.db"
+    $ export SCORE_DB="sqlite:////tmp/score-service.db"
+    $ export SCORE_LOGGING_LEVEL=INFO
 
 
 ==============
@@ -99,6 +106,7 @@ Administration
 New CLI tool 'score-manage' does allow to add new Org-ID during Score service runtime.
 Here's an example of you can use this tool::
 .. code-block:: bash
+
 
     $ score-manage org-ids
 
@@ -230,4 +238,3 @@ To run code style checks please do::
     $ tox -e travis-cfy-local-nodecellar-with-fabric -c score-api-server/tox.ini
 
     $ tox -e travis-cfy-local-postgresql-with-fabric -c score-api-server/tox.ini
-

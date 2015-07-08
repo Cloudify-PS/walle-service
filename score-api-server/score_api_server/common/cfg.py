@@ -21,14 +21,22 @@ rest_opts = [
     ))
 ]
 
-rest_group = cfg.OptGroup("server", "ReST server config")
+logging_opts = [
+    cfg.StrOpt("level",
+               default=os.getenv("SCORE_LOGGING_LEVEL", "DEBUG"),
+               choices=("DEBUG", "INFO")),
+]
 
+rest_group = cfg.OptGroup("server", "ReST server config")
+logging_group = cfg.OptGroup("logging", "Score logging config.")
 
 CONF = cfg.CONF
 
 CONF.register_group(rest_group)
+CONF.register_group(logging_group)
 
 CONF.register_opts(rest_opts, rest_group)
+CONF.register_opts(logging_opts, logging_group)
 
 
 def parse_args(argv, default_config_files=None):
