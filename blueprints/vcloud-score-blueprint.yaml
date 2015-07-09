@@ -261,6 +261,8 @@ node_templates:
               type: cloudify.vcloud.server_connected_to_public_nat
             - target: node_security_group
               type: cloudify.vcloud.server_connected_to_security_group
+            - target: common_network
+              type: cloudify.vcloud.server_connected_to_network
 
     postgresql_host:
         type: agentless.nodes.ParentTypeServer
@@ -281,6 +283,8 @@ node_templates:
               type: cloudify.vcloud.server_connected_to_public_nat
             - target: node_security_group
               type: cloudify.vcloud.server_connected_to_security_group
+            - target: common_network
+              type: cloudify.vcloud.server_connected_to_network
 
     common_network:
         type: cloudify.vcloud.nodes.Network
