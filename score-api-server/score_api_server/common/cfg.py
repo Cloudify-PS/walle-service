@@ -25,6 +25,17 @@ logging_opts = [
     cfg.StrOpt("level",
                default=os.getenv("SCORE_LOGGING_LEVEL", "DEBUG"),
                choices=("DEBUG", "INFO")),
+    cfg.StrOpt("file", default=os.getenv("SCORE_LOGGING_FILE",
+                                         "/var/log/score-api.log")),
+    cfg.StrOpt("formatter",
+               default='[%(asctime)s] - '
+                       'PID: %(process)s - '
+                       '%(name)s - '
+                       '%(levelname)s - '
+                       '{%(pathname)s:%(lineno)d} - '
+                       '%(module)s - '
+                       '%(funcName)s - '
+                       '%(message)s')
 ]
 
 rest_group = cfg.OptGroup("server", "ReST server config")

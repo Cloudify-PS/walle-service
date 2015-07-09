@@ -25,7 +25,7 @@ migrate = Migrate(app, db)
 
 CONF = cfg.CONF
 app.config['SQLALCHEMY_DATABASE_URI'] = CONF.server.db_uri
-app.logger.setLevel(util.get_logging_level())
+util.setup_logging_for_app(app)
 
 
 # note: assume vcs.organization.id is unique across the service

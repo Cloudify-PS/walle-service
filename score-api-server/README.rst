@@ -41,8 +41,8 @@ Usage examples::
     $ export SCORE_HOST="0.0.0.0"; \
       export SCORE_PORT="5000"; \
       export SCORE_WORKERS="4";\
-      export CFY_MANAGER_HOST="127.0.0.1"; \
-      export CFY_MANAGER_PORT="80"; \
+      export SCORE_LOGGING_LEVEL=INFO \
+      export SCORE_LOGGING_FILE="/var/log/score.api" \
       export SCORE_DB="sqlite:////tmp/score-service.db"; \
       score-server
 
@@ -69,7 +69,8 @@ Usage examples::
       export SCORE_PORT="5000"; \
       export SCORE_WORKERS="4"; \
       export SCORE_DB="sqlite:////tmp/score-service.db"; \
-      export SCORE_LOGGING_LEVEL=INFO
+      export SCORE_LOGGING_LEVEL=INFO \
+      export SCORE_LOGGING_FILE="/var/log/score.api"
 
     $ gunicorn -w ${SCORE_WORKERS} -b ${SCORE_HOST}:${SCORE_PORT} score_api_server.cli.app:main
 
@@ -96,6 +97,7 @@ Configuration environment variables might have next look::
     $ export SCORE_PORT="5000"
     $ export SCORE_WORKERS="4"
     $ export SCORE_DB="sqlite:////tmp/score-service.db"
+    $ export SCORE_LOGGING_LEVEL=INFO
     $ export SCORE_LOGGING_LEVEL=INFO
 
 
@@ -145,7 +147,7 @@ Here's an example of you can use this tool::
         OK
 
 
-    $ score-manage org-ids list
+    $ score-manage org-ids list --db-uri sqlite:////tmp/score.db
 
         +--------------------------------------+--------------------------------------+-------------+
         | ID                                   | Org ID                               | Info        |
@@ -176,6 +178,7 @@ Here's an example of you can use this tool::
         --cloudify-host 127.0.0.1 \
         --cloudify-port 80 \
         --deployment-limits 100
+        --db-uri sqlite:////tmp/score.db
 
         +-----------------------+--------------------------------------+
         | Property              | Value                                |
@@ -191,7 +194,7 @@ Here's an example of you can use this tool::
         +-----------------------+--------------------------------------+
 
 
-    $ score-manage org-id-limits list
+    $ score-manage org-id-limits list --db-uri sqlite:////tmp/score.db
 
         +--------------------------------------+--------------------------------------+---------------+---------------+-------------------+-----------------------+----------------------------+----------------------------+
         | ID                                   | Org ID                               | Cloudify Host | Cloudify Port | Deployment Limits | Number Of Deployments | Created At                 | Updated At                 |
@@ -200,7 +203,7 @@ Here's an example of you can use this tool::
         +--------------------------------------+--------------------------------------+---------------+---------------+-------------------+-----------------------+----------------------------+----------------------------+
 
 
-    $ score-manage org-id-limits update --id 38d71fe2-eb31-44f3-9dcd-d71feacf50cb --deployment-limits -1
+    $ score-manage org-id-limits update --id 38d71fe2-eb31-44f3-9dcd-d71feacf50cb --deployment-limits -1 --db-uri sqlite:////tmp/score.db
 
 
         +-----------------------+--------------------------------------+
