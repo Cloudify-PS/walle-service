@@ -21,24 +21,40 @@ class BaseDatabaseModel(object):
         self.deleted_at = utcnow()
 
     def save(self):
-        app.db.session.add(self)
-        app.db.session.commit()
+        try:
+            app.db.session.add(self)
+            app.db.session.commit()
+        except Exception as e:
+            app.app.logger.error(str(e))
+            raise e
 
     def delete(self):
-        app.db.session.delete(self)
-        app.db.session.commit()
+        try:
+            app.db.session.delete(self)
+            app.db.session.commit()
+        except Exception as e:
+            app.app.logger.error(str(e))
+            raise e
 
     def update(self, **values):
-        for key in values:
-            if hasattr(self, key):
-                setattr(self, key, values[key])
-        self.updated_at = utcnow()
-        self.save()
-        return self.find_by(id=self.id)
+        try:
+            for key in values:
+                if hasattr(self, key):
+                    setattr(self, key, values[key])
+            self.updated_at = utcnow()
+            self.save()
+            return self.find_by(id=self.id)
+        except Exception as e:
+            app.app.logger.error(str(e))
+            raise e
 
     @classmethod
     def list(cls):
-        return cls.query.all()
+        try:
+            return cls.query.all()
+        except Exception as e:
+            app.app.logger.error(str(e))
+            raise e
 
     @classmethod
     def find_by(cls, **kwargs):

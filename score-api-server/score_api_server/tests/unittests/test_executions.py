@@ -30,9 +30,10 @@ class TestBase(testtools.TestCase):
             deployment = 123
             with self.app.test_request_context('/executions?deployment_id={}'.
                                                format(deployment)):
-                deployment_id = self.executions.get()
+                deployment_id, status = self.executions.get()
                 self.assertEqual(self.prefix_deployment(deployment),
                                  deployment_id)
+                self.assertEqual(200, status)
 
     def test_start_executions(self):
         with self.app.app_context():
@@ -47,10 +48,11 @@ class TestBase(testtools.TestCase):
                                                data=json.dumps(data),
                                                content_type='application/'
                                                'json'):
-                deployment_id, workflow_id = self.executions.post()
-                self.assertEqual(self.prefix_deployment(deployment),
-                                 deployment_id)
-                self.assertEqual(workflow, workflow_id)
+                deployment_tuple, status = self.executions.post()
+                self.assertIn(self.prefix_deployment(deployment),
+                              deployment_tuple)
+                self.assertIn(workflow, deployment_tuple)
+                self.assertEqual(202, status)
 
     def test_cancel_executions(self):
         with self.app.app_context():
@@ -65,6 +67,7 @@ class TestBase(testtools.TestCase):
                                                data=json.dumps(data),
                                                content_type='application/'
                                                'json'):
-                execution_id, force_id = self.executions.put()
-                self.assertEqual(execution, execution_id)
-                self.assertEqual(force, force_id)
+                execution_tuple, status = self.executions.put()
+                self.assertIn(execution, execution_tuple)
+                self.assertEqual(202, status)
+                self.assertIn(force, execution_tuple)
