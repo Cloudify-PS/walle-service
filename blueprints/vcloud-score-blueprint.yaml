@@ -455,7 +455,8 @@ node_templates:
                     inputs:
                         task_properties:
                             config:
-                                ip: { get_attribute: [postgresql_host, ip] }
+                                ip_postgres: { get_attribute: [postgresql_host, ip] }
+                                ip_score: { get_attribute: [score_host, ip] }
                                 db_user: { get_input: postgresql_db_user }
                                 db_name: { get_input: postgresql_db_name }
                                 db_pass: { get_input: postgresql_db_pass }

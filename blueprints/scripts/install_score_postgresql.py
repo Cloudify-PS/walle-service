@@ -33,7 +33,10 @@ sudo sed "s/#listen_addresses = 'localhost'/listen_addresses = '""" +
                   sudo cp /etc/postgresql/9.1/main/pg_hba.conf pg_hba.conf
                   sudo chmod 777 pg_hba.conf
                   echo "host %s %s """ % (db_name, db_user) +
-                  config.get('ip', "127.0.0.1") +
+                  config.get('ip_postgres', "127.0.0.1") +
+                  """/24 md5" >> pg_hba.conf
+                  echo "host %s %s """ % (db_name, db_user) +
+                  config.get('ip_score', "127.0.0.1") +
                   """/24 md5" >> pg_hba.conf
     """)
     script.append("""
