@@ -11,7 +11,6 @@ from flask_restful_swagger import swagger
 
 from score_api_server.common import util
 from score_api_server.resources import responses
-from score_api_server.resources import requests_schema
 
 logger = util.setup_logging(__name__)
 
@@ -21,7 +20,7 @@ class Deployments(restful.Resource):
     @swagger.operation(
         responseClass='List[{0}]'.format(responses.Deployment.__name__),
         nickname="list",
-        notes="Returns a list existing deployments."
+        notes="Returns a list of existing deployments.",
     )
     def get(self):
         logger.debug("Entering Deployments.get method.")
@@ -70,7 +69,13 @@ class DeploymentsId(restful.Resource):
     @swagger.operation(
         responseClass=responses.Deployment,
         nickname="getById",
-        notes="Returns a deployment by its id."
+        notes="Returns a deployment by its ID.",
+        parameters=[{'name': 'deployment_id',
+                     'description': 'Deployment ID',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'}]
     )
     def get(self, deployment_id=None):
         logger.debug("Entering DeploymentsId.get method.")
@@ -87,15 +92,12 @@ class DeploymentsId(restful.Resource):
     @swagger.operation(
         responseClass=responses.Deployment,
         nickname="deleteById",
-        notes="deletes a deployment by its id.",
-        parameters=[{'name': 'ignore_live_nodes',
-                     'description': 'Specifies whether to ignore live nodes,'
-                                    'or raise an error upon such nodes '
-                                    'instead.',
-                     'required': False,
+        notes="Deletes a deployment by its ID.",
+        parameters=[{'name': 'deployment_id',
+                     'description': 'Deployment ID',
+                     'required': True,
                      'allowMultiple': False,
-                     'dataType': 'boolean',
-                     'defaultValue': False,
+                     'dataType': 'string',
                      'paramType': 'query'}]
     )
     def delete(self, deployment_id):
@@ -120,12 +122,24 @@ class DeploymentsId(restful.Resource):
         responseClass=responses.Deployment,
         nickname="createDeployment",
         notes="Created a new deployment of the given blueprint.",
-        parameters=[{'name': 'body',
-                     'description': 'Deployment blue print',
+        parameters=[{'name': 'blueprint_id',
+                     'description': 'Blueprint ID',
                      'required': True,
                      'allowMultiple': False,
-                     'dataType': requests_schema.DeploymentRequest.__name__,
-                     'paramType': 'body'}],
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'deployment_id',
+                     'description': 'Deployment ID',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'inputs',
+                     'description': 'Deployment inputs',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'}],
         consumes=[
             "application/json"
         ]

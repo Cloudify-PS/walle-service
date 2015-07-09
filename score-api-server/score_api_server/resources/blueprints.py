@@ -55,7 +55,13 @@ class BlueprintsId(restful.Resource):
     @swagger.operation(
         responseClass=responses.BlueprintState,
         nickname="getById",
-        notes="Returns a blueprint by its id."
+        notes="Returns a blueprint by its ID.",
+        parameters=[{'name': 'blueprint_id',
+                     'description': 'Blueprint ID',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'}]
     )
     def get(self, blueprint_id=None):
         logger.debug("Entering BlueprintsId.get method.")
@@ -71,33 +77,19 @@ class BlueprintsId(restful.Resource):
     @swagger.operation(
         responseClass=responses.BlueprintState,
         nickname="upload",
-        notes="Submitted blueprint should be an archive "
-              "containing the directory which contains the blueprint. "
-              "Archive format may be zip, tar, tar.gz or tar.bz2."
-              " Blueprint archive may be submitted via either URL or by "
-              "direct upload.",
-        parameters=[{'name': 'application_file_name',
-                     'description': 'File name of yaml '
-                                    'containing the "main" blueprint.',
-                     'required': False,
+        notes="Submits an unzipped blueprint to Cloudify manager.",
+        parameters=[{'name': 'blueprint_id',
+                     'description': 'Blueprint ID',
+                     'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'query',
-                     'defaultValue': 'blueprint.yaml'},
-                    {'name': 'blueprint_archive_url',
-                     'description': 'url of a blueprint archive file',
-                     'required': False,
+                     'paramType': 'body'},
+                    {'name': 'blueprint_path',
+                     'description': 'URL of a blueprint file',
+                     'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'query'},
-                    {
-                        'name': 'body',
-                        'description': 'Binary form of the tar '
-                                       'gzipped blueprint directory',
-                        'required': True,
-                        'allowMultiple': False,
-                        'dataType': 'binary',
-                        'paramType': 'body'}],
+                     'paramType': 'query'}],
         consumes=[
             "application/octet-stream"
         ]
@@ -137,7 +129,13 @@ class BlueprintsId(restful.Resource):
     @swagger.operation(
         responseClass=responses.BlueprintState,
         nickname="deleteById",
-        notes="deletes a blueprint by its id."
+        notes="Deletes a blueprint by its ID.",
+        parameters=[{'name': 'blueprint_id',
+                     'description': 'Blueprint ID',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'}]
     )
     def delete(self, blueprint_id):
         logger.debug("Entering Blueprints.delete method.")

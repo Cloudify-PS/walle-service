@@ -22,21 +22,7 @@ class Executions(restful.Resource):
         responseClass='List[{0}]'.format(responses.Execution.__name__),
         nickname="list",
         notes="Returns a list of executions for the optionally provided "
-              "deployment id.",
-        parameters=[{'name': 'deployment_id',
-                     'description': 'List execution of a specific deployment',
-                     'required': False,
-                     'allowMultiple': False,
-                     'dataType': 'string',
-                     'defaultValue': None,
-                     'paramType': 'query'},
-                    {'name': 'include_system_workflows',
-                     'description': 'Include executions of system workflows',
-                     'required': False,
-                     'allowMultiple': False,
-                     'dataType': 'bool',
-                     'defaultValue': False,
-                     'paramType': 'query'}]
+              "deployment id."
     )
     def get(self):
         logger.debug("Entering Execution.get method.")
@@ -61,6 +47,13 @@ class ExecutionsId(restful.Resource):
         responseClass=responses.Execution,
         nickname="getById",
         notes="Returns the execution state by its id.",
+        parameters=[{'name': 'execution_id',
+                     'description': 'Execution ID',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'defaultValue': None,
+                     'paramType': 'query'}]
     )
     def get(self, execution_id=None):
         try:
@@ -79,10 +72,35 @@ class ExecutionsId(restful.Resource):
         nickname="startExecution",
         notes="Started a new execution of the given deployment and "
               "workflow ids.",
-        parameters=[{'name': 'body',
-                     'description': 'Execution start',
+        parameters=[{'name': 'deployment_id',
+                     'description': 'Deployment id',
                      'required': True,
                      'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'},
+                    {'name': 'workflow_id',
+                     'description': 'Workflow id',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': requests_schema.ExecutionRequest.__name__,
+                     'paramType': 'query'},
+                    {'name': 'parameters',
+                     'description': 'Parameters for execution',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': requests_schema.ExecutionRequest.__name__,
+                     'paramType': 'body'},
+                    {'name': 'allow_custom_parameters',
+                     'description': 'Custom parameters',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': requests_schema.ExecutionRequest.__name__,
+                     'paramType': 'body'},
+                    {'name': 'force',
+                     'description': 'Execution start force',
+                     'required': False,
+                     'allowMultiple': False,
+                     'defaultValue': False,
                      'dataType': requests_schema.ExecutionRequest.__name__,
                      'paramType': 'body'}],
         consumes=[

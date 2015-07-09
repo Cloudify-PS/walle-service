@@ -16,14 +16,6 @@ class ExecutionRequest(object):
 
 
 @swagger.model
-class DeploymentRequest(object):
-
-    resource_fields = {
-        'blueprint_id': fields.String,
-    }
-
-
-@swagger.model
 class ModifyExecutionRequest(object):
 
     resource_fields = {
