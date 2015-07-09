@@ -28,9 +28,9 @@ class Events(restful.Resource):
             if len(result) == 2:
                 r = result[0]
                 r.append(result[1])
-                return r, 200
+                return r
             else:
-                return [], 200
+                return []
         except exceptions.CloudifyClientError as e:
             app.logger.error(str(e))
             return make_response(str(e), e.status_code)

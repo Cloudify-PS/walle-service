@@ -34,7 +34,7 @@ class Blueprints(restful.Resource):
                 app.logger.info("Seeking for blueprint: %s.",
                                 blueprint_id)
                 return g.cc.blueprints.get(
-                    util.add_org_prefix(blueprint_id)), 200
+                    util.add_org_prefix(blueprint_id))
             else:
                 app.logger.info("Listing all blueprints.")
                 blueprints = g.cc.blueprints.list()
@@ -43,7 +43,7 @@ class Blueprints(restful.Resource):
                     if blueprint.id.startswith(g.org_id + '_'):
                         result.append(util.remove_org_prefix(blueprint))
                 app.logger.debug("Done. Exiting Blueprints.get method.")
-                return result, 200
+                return result
         except exceptions.CloudifyClientError as e:
             app.logger.error(str(e))
             return make_response(str(e), e.status_code)
@@ -72,7 +72,7 @@ class Blueprints(restful.Resource):
                              request.args['application_file_name']),
                 util.add_org_prefix(blueprint_id))
             app.logger.debug("Done. Exiting Blueprints.put method.")
-            return util.remove_org_prefix(blueprint), 201
+            return util.remove_org_prefix(blueprint)
         except (Exception, exceptions.CloudifyClientError) as e:
             app.logger.error(str(e))
             return make_response(str(e), 400 if not isinstance(
@@ -89,7 +89,7 @@ class Blueprints(restful.Resource):
             blueprint = g.cc.blueprints.delete(
                 util.add_org_prefix(blueprint_id))
             app.logger.debug("Done. Exiting Blueprints.delete method.")
-            return blueprint, 202
+            return blueprint
         except exceptions.CloudifyClientError as e:
             app.logger.error(str(e))
             return make_response(str(e), e.status_code)
