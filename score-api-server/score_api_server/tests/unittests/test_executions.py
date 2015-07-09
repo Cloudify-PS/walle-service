@@ -30,10 +30,9 @@ class TestBase(testtools.TestCase):
             deployment = 123
             with self.app.test_request_context('/executions?deployment_id={}'.
                                                format(deployment)):
-                deployment_id, status = self.executions.get()
-                self.assertEqual(self.prefix_deployment(deployment),
-                                 deployment_id)
-                self.assertEqual(200, status)
+                deployment_id = self.executions.get()
+                self.assertIn(self.prefix_deployment(deployment),
+                              deployment_id)
 
     def test_start_executions(self):
         with self.app.app_context():
@@ -48,11 +47,10 @@ class TestBase(testtools.TestCase):
                                                data=json.dumps(data),
                                                content_type='application/'
                                                'json'):
-                deployment_tuple, status = self.executions.post()
+                deployment_tuple = self.executions.post()
                 self.assertIn(self.prefix_deployment(deployment),
                               deployment_tuple)
                 self.assertIn(workflow, deployment_tuple)
-                self.assertEqual(202, status)
 
     def test_cancel_executions(self):
         with self.app.app_context():
@@ -67,7 +65,6 @@ class TestBase(testtools.TestCase):
                                                data=json.dumps(data),
                                                content_type='application/'
                                                'json'):
-                execution_tuple, status = self.executions.put()
+                execution_tuple = self.executions.put()
                 self.assertIn(execution, execution_tuple)
-                self.assertEqual(202, status)
                 self.assertIn(force, execution_tuple)

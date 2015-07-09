@@ -98,8 +98,8 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
 
     def test_uploda_blueprint(self):
         response = self.make_upload()
-        self.assertEqual(201, response.status_code)
-        self.assertIn("CREATED", response.status)
+        self.assertEqual(200, response.status_code)
+        self.assertIn("OK", response.status)
         self.assertIsNotNone(json.loads(response.data))
 
     def test_upload_with_get(self):
@@ -121,6 +121,6 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
         response_delete = self.execute_delete_request_with_route(
             "/blueprints/%s" % blueprint_id)
 
-        self.assertEqual(201, response_upload.status_code)
+        self.assertEqual(200, response_upload.status_code)
         self.assertEqual(200, response_get.status_code)
-        self.assertEqual(202, response_delete.status_code)
+        self.assertEqual(200, response_delete.status_code)
