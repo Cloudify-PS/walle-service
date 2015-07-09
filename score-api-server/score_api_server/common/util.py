@@ -32,3 +32,25 @@ def get_logging_level():
         "INFO": logging.INFO,
     }
     return logging_mapping.get(CONF.logging.level)
+
+
+def common_log_setup():
+    log_file_handler = logging.FileHandler(CONF.logging.file)
+    formatter = logging.Formatter(CONF.logging.formatter,
+                                  "%Y-%m-%d %H:%M:%S")
+    log_file_handler.setFormatter(formatter)
+    return log_file_handler
+
+
+def setup_logging_for_app(app):
+    app.logger.addHandler(common_log_setup())
+    app.logger.setLevel(get_logging_level())
+
+
+def setup_logging(name):
+    import logging
+    log_file_handler = common_log_setup()
+    logger = logging.getLogger(name)
+    logger.addHandler(log_file_handler)
+    logger.setLevel(get_logging_level())
+    return logger
