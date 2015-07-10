@@ -32,7 +32,7 @@ class Blueprints(restful.Resource):
     @swagger.operation(
         responseClass='List[{0}]'.format(responses.BlueprintState.__name__),
         nickname="list",
-        notes="Returns a list a submitted blueprints."
+        notes="Returns a list of uploaded blueprints."
     )
     def get(self):
         logger.debug("Entering Blueprints.get method.")
@@ -77,7 +77,7 @@ class BlueprintsId(restful.Resource):
     @swagger.operation(
         responseClass=responses.BlueprintState,
         nickname="upload",
-        notes="Submits an unzipped blueprint to Cloudify manager.",
+        notes="Uploads a tar gzipped blueprint archive to the server.",
         parameters=[{'name': 'blueprint_id',
                      'description': 'Blueprint ID',
                      'required': True,
@@ -85,7 +85,7 @@ class BlueprintsId(restful.Resource):
                      'dataType': 'string',
                      'paramType': 'body'},
                     {'name': 'blueprint_path',
-                     'description': 'URL of a blueprint file',
+                     'description': 'URL of a blueprint tar gzipped file',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
