@@ -51,15 +51,16 @@ def configure(config):
         script.append('echo "' + service_str +
                       '" >> /home/ubuntu/score_api_server.conf')
     # create db
+    script.append('pwd')  # Needs to be known which the user executes commands
     script.append('mkdir -p /home/ubuntu/score_logs')
     script.append(
         'echo export SCORE_LOGGING_FILE=/home/ubuntu/score_logs/score-api.log '
         '>> ~/.bashrc')
     script.append('echo export SCORE_DB=%s >> ~/.bashrc' % db_url)
     script.append('echo export SCORE_LOGGING_LEVEL=INFO >> ~/.bashrc')
-    script.append('source ~/.bashrc')
+    script.append('sudo -u ubuntu source /home/ubuntu/.bashrc')
     script.append('cd /home/ubuntu/score-service/score-api-server/')
-    script.append('score-manage db upgrade')
+    script.append('sudo -u ubuntu score-manage db upgrade')
     path_to_initial_sql = ('/home/ubuntu/score-service/'
                            'score-api-server/initial.sql')
     script.append("""
