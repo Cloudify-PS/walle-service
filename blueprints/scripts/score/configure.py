@@ -53,10 +53,11 @@ def configure(config):
     # create db
     script.append('mkdir -p /home/ubuntu/score_logs')
     script.append(
-        'export SCORE_LOGGING_FILE=/home/ubuntu/score_logs/score-api.log')
+        'echo export SCORE_LOGGING_FILE=/home/ubuntu/score_logs/score-api.log '
+        '>> ~/.bashrc')
     script.append('echo export SCORE_DB=%s >> ~/.bashrc' % db_url)
+    script.append('echo export SCORE_LOGGING_LEVEL=INFO >> ~/.bashrc')
     script.append('source ~/.bashrc')
-    script.append('export SCORE_LOGGING_LEVEL=INFO')
     script.append('cd /home/ubuntu/score-service/score-api-server/')
     script.append('score-manage db upgrade')
     path_to_initial_sql = ('/home/ubuntu/score-service/'
