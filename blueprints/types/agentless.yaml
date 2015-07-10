@@ -6,15 +6,10 @@ node_types:
         interfaces:
             cloudify.interfaces.lifecycle:
                 start:
-                    implementation: fabric.fabric_plugin.tasks.run_task
+                    implementation: fabric.fabric_plugin.tasks.run_script
                     inputs:
-                        tasks_file:
-                            default: scripts/install_nodejs.py
-                        task_name:
-                            default: install
-                        task_properties:
-                            default:
-                             config: {}
+                        script_path:
+                            default: scripts/install_nodejs.sh
 
     # template for mongo node
     agentless.nodes.MongoDatabase:
@@ -26,15 +21,10 @@ node_types:
         interfaces:
             cloudify.interfaces.lifecycle:
                 start:
-                    implementation: fabric.fabric_plugin.tasks.run_task
+                    implementation: fabric.fabric_plugin.tasks.run_script
                     inputs:
-                        tasks_file:
-                            default: scripts/install_mongo.py
-                        task_name:
-                            default: install
-                        task_properties:
-                            default:
-                             config: {}
+                        script_path:
+                            default: scripts/install_mongo.sh
 
     # template for postgresql node
     agentless.nodes.PostgreSqlDatabase:
@@ -77,15 +67,15 @@ node_types:
         interfaces:
             cloudify.interfaces.lifecycle:
                 start:
-                    implementation: fabric.fabric_plugin.tasks.run_task
+                    implementation: fabric.fabric_plugin.tasks.run_script
                     inputs:
-                        tasks_file:
-                            default: scripts/install_nodecellar.py
-                        task_name:
-                            default: install
-                        task_properties:
-                            default:
-                             config: {}
+                        script_path:
+                            default: scripts/install_nodecellar.sh
+                stop:
+                    implementation: fabric.fabric_plugin.tasks.run_script
+                    inputs:
+                        script_path:
+                            default: scripts/stop_nodecellar.sh
 
     # template for gunicorn node
     agentless.nodes.GunicornServer:

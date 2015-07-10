@@ -90,6 +90,14 @@ node_templates:
                         key_filename: { get_input: private_key_path }
                         host_string: { get_input: host_string }
                         port: { get_input: port }
+                    MONGO_HOST: { get_input: host_string }
+            stop:
+                inputs:
+                    fabric_env:
+                        user: { get_input: servers_user }
+                        key_filename: { get_input: private_key_path }
+                        host_string: { get_input: host_string }
+                        port: { get_input: port }
 
 
 ###########################################################
