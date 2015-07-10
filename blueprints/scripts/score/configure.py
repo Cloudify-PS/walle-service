@@ -53,7 +53,8 @@ def configure(config):
     # create db
     db_upgrade = ('python /home/ubuntu/score-service/score-api-server/'
                   'score_api_server/cli/manage.py db upgrade')
-    script.append('export SCORE_DB=%s' % db_url)
+    script.append('echo export SCORE_DB=%s >> ~/.bashrc' % db_url)
+    script.append('source ~/.bashrc')
     script.append('cd /home/ubuntu/score-service/score-api-server/')
     script.append(db_upgrade)
     path_to_initial_sql = '/home/ubuntu/score-service/' \
