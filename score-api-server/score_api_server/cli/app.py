@@ -26,43 +26,47 @@ migrate = Migrate(app, db)
 CONF = cfg.CONF
 app.config['SQLALCHEMY_DATABASE_URI'] = CONF.server.db_uri
 util.setup_logging_for_app(app)
+logger = util.setup_logging(__name__)
 
 
 # note: assume vcs.organization.id is unique across the service
 
 @app.before_request
 def check_authorization():
+    logger.debug("Request headers %s", str(request.headers))
     vcloud_token = request.headers.get('x-vcloud-authorization')
     vcloud_org_url = request.headers.get('x-vcloud-org-url')
     vcloud_version = request.headers.get('x-vcloud-version')
     if (vcloud_token is None or vcloud_org_url
        is None or vcloud_version is None):
-        app.logger.error("Unauthorized. Aborting.")
+        logger.error("Unauthorized. Aborting.")
         return make_response("Unauthorized.", 401)
     vcs = VCS(vcloud_org_url, None, None, None,
               vcloud_org_url, vcloud_org_url,
               version=vcloud_version)
     result = vcs.login(token=vcloud_token)
     if result:
-        app.logger.info("Organization authorized successfully.")
+        logger.info("Organization authorized successfully.")
         g.org_id = vcs.organization.id[vcs.organization.id.rfind(':') + 1:]
-
+        logger.debug("Org-ID: %s.", g.org_id)
         if not org_limit.check_org_id(g.org_id):
-            app.logger.error("Unauthorized. Aborting.")
+            logger.error("Unauthorized. Aborting.")
             return make_response("Unauthorized.", 401)
 
         g.current_org_id_limits = org_limit.get_org_id_limits(g.org_id)
         if g.current_org_id_limits:
-            app.logger.info("Limits for Org-ID:%s were found.", g.org_id)
+            logger.debug("Org-ID limits entity: %s",
+                         g.current_org_id_limits.to_dict())
+            logger.info("Limits for Org-ID:%s were found.", g.org_id)
             g.cc = CloudifyClient(host=g.current_org_id_limits.cloudify_host,
                                   port=g.current_org_id_limits.cloudify_port)
         else:
-            app.logger.error("No limits were defined for Org-ID: %s",
-                             g.org_id)
+            logger.error("No limits were defined for Org-ID: %s", g.org_id)
             return make_response("Limits for Org-ID: %s were not defined. "
                                  "Please contact administrator."
                                  % g.org_id, 403)
     else:
+        logger.error(str(vcs.response.status))
         return make_response(str(vcs.response.status),
                              vcs.response.status_code)
 
