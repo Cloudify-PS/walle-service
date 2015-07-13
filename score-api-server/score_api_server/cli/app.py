@@ -12,12 +12,8 @@ from cloudify_rest_client.client import CloudifyClient
 from score_api_server.common import cfg
 from score_api_server.common import util
 from score_api_server.common import org_limit
-from score_api_server.resources.blueprints import Blueprints
-from score_api_server.resources.deployments import Deployments
-from score_api_server.resources.executions import Executions
-from score_api_server.resources.events import Events
-from score_api_server.resources.status import Status
-from score_api_server.resources.login import Login
+from score_api_server.resources import resources
+
 
 app = Flask(__name__)
 api = restful.Api(app)
@@ -35,8 +31,7 @@ logger = util.setup_logging(__name__)
 @app.before_request
 def check_authorization():
     logger.debug("Request headers %s", str(request.headers))
-    if request.path == '/login':
-        app.logger.info("Skipping authorizations with request headers, using user:password authorization.")
+    if _can_skip_auth(request.path):
         return
     vcloud_token = request.headers.get('x-vcloud-authorization')
     vcloud_org_url = request.headers.get('x-vcloud-org-url')
@@ -75,14 +70,20 @@ def check_authorization():
                              vcs.response.status_code)
 
 
-api.add_resource(Blueprints, '/blueprints',
-                 '/blueprints/<string:blueprint_id>')
-api.add_resource(Deployments, '/deployments',
-                 '/deployments/<string:deployment_id>')
-api.add_resource(Executions, '/executions')
-api.add_resource(Events, '/events')
-api.add_resource(Status, '/status')
-api.add_resource(Login, '/login')
+def _can_skip_auth(path):
+    name = request.path.split('/')[1].lower()
+    if name == 'api':
+        app.logger.info("Skipping authorizations with request headers,"
+                        " show api specification.")
+        return True
+    elif name == 'login':
+        app.logger.info("Skipping authorizations with request headers,"
+                        " using user:password authorization.")
+        return True
+    return False
+
+
+resources.setup_resources(api)
 
 
 def main():

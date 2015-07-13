@@ -2,6 +2,7 @@
 
 from flask.ext import restful
 from flask import request, g, make_response
+from flask_restful_swagger import swagger
 
 from score_api_server.common import util
 
@@ -12,6 +13,38 @@ logger = util.setup_logging(__name__)
 
 class Events(restful.Resource):
 
+    @swagger.operation(
+        nickname='events',
+        notes='Returns a list of events.',
+        parameters=[{'name': 'execution_id',
+                     'description': 'Execution ID',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'},
+                    {'name': 'from_event',
+                     'description': 'Index of event',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'defaultValue': '0',
+                     'paramType': 'query'},
+                    {'name': 'batch_size',
+                     'description': 'Batch size',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'defaultValue': '100',
+                     'paramType': 'query'},
+                    {'name': 'include_logs',
+                     'description': 'Include logs',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'boolean',
+                     'defaultValue': False,
+                     'paramType': 'query'}],
+        consumes=['application/json']
+    )
     def get(self):
         logger.debug("Entering Events.get method.")
         try:

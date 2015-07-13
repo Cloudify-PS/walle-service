@@ -1,15 +1,74 @@
 # Copyright (c) 2015 VMware. All rights reserved
 from flask import request, make_response
+from score_api_server.resources import responses
 from flask.ext import restful
 
-from cloudify_rest_client import exceptions
 from score_api_server.common import util
 from pyvcloud.vcloudair import VCA
+from flask_restful_swagger import swagger
 
 logger = util.setup_logging(__name__)
 
 
 class Login(restful.Resource):
+    @swagger.operation(
+        responseClass=responses.Login,
+        nickname="login",
+        notes="Returns information for authentification in vCloud.",
+        parameters=[{'name': 'user',
+                     'description': 'User login.',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'},
+                    {'name': 'host',
+                     'description': 'vCloud Air authentification host.',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'},
+                    {'name': 'password',
+                     'description': 'User password.',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'},
+                    {'name': 'service_type',
+                     'description': 'Type of service "subscription"'
+                                    ' or "ondemand".',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'},
+                    {'name': 'service_version',
+                     'description': 'API version of service one of'
+                                    ' 5.6 or 5.7. Default 5.6.',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'},
+                    {'name': 'instance',
+                     'description': 'Instance ID. Required for'
+                                    ' ondemand service.',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'},
+                    {'name': 'service',
+                     'description': 'Service name. Required'
+                                    ' for subscription service.',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'},
+                    {'name': 'org_name',
+                     'description': 'Organisation name.',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'}],
+        consumes=['application/json']
+    )
     def get(self):
         logger.debug("Entering Login.get method.")
         try:
@@ -40,7 +99,8 @@ class Login(restful.Resource):
         except Exception as e:
             logger.exception(e)
             http_response_code = e.message
-            return make_response("Connection error: {}.".format(e), http_response_code)
+            return make_response("Connection error: {}.".format(e),
+                                 http_response_code)
 
 
 def _login_user_to_service(user, host, password, service_type,
