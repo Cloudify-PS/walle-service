@@ -33,6 +33,7 @@ logger = util.setup_logging(__name__)
 
 @app.before_request
 def check_authorization():
+    logger.debug("Request headers %s", str(request.headers))
     vcloud_token = request.headers.get('x-vcloud-authorization')
     vcloud_org_url = request.headers.get('x-vcloud-org-url')
     vcloud_version = request.headers.get('x-vcloud-version')
@@ -47,19 +48,20 @@ def check_authorization():
     if result:
         logger.info("Organization authorized successfully.")
         g.org_id = vcs.organization.id[vcs.organization.id.rfind(':') + 1:]
-
+        logger.debug("Org-ID: %s.", g.org_id)
         if not org_limit.check_org_id(g.org_id):
             logger.error("Unauthorized. Aborting.")
             return make_response("Unauthorized.", 401)
 
         g.current_org_id_limits = org_limit.get_org_id_limits(g.org_id)
         if g.current_org_id_limits:
+            logger.debug("Org-ID limits entity: %s",
+                         g.current_org_id_limits.to_dict())
             logger.info("Limits for Org-ID:%s were found.", g.org_id)
             g.cc = CloudifyClient(host=g.current_org_id_limits.cloudify_host,
                                   port=g.current_org_id_limits.cloudify_port)
         else:
-            logger.error("No limits were defined for Org-ID: %s",
-                             g.org_id)
+            logger.error("No limits were defined for Org-ID: %s", g.org_id)
             return make_response("Limits for Org-ID: %s were not defined. "
                                  "Please contact administrator."
                                  % g.org_id, 403)
