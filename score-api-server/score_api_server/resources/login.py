@@ -41,20 +41,20 @@ class Login(restful.Resource):
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
             return make_response(str(e), e.status_code)
+        except Exception as e:
+            logger.error(str(e))
+            return make_response("Connection error", e.message)
 
 
 def _login_user_to_service(user, host, password, service_type,
                            service_version, instance, service, org_name):
     vca = VCA(host, user, service_type, service_version)
-    try:
-        result = vca.login(password=password)
-        if result:
-            if 'ondemand' == service_type and instance:
-                result = vca.login_to_instance(instance, password)
-            elif 'subscription' == service_type and service:
-                result = vca.login_to_org(service, org_name)
-                if result:
-                    return vca
-    except Exception as e:
-        logger.info("Connection error: {}".format(e))
+    result = vca.login(password=password)
+    if result:
+        if 'ondemand' == service_type and instance:
+            result = vca.login_to_instance(instance, password)
+        elif 'subscription' == service_type and service:
+            result = vca.login_to_org(service, org_name)
+            if result:
+                return vca
     return None
