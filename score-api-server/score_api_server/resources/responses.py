@@ -131,3 +131,18 @@ class Status(object):
     def __init__(self, **kwargs):
         self.status = kwargs['status']
         self.services = kwargs['services']
+
+
+@swagger.model
+class Login(object):
+
+    resource_fields = {
+        'x_vcloud_authorization': fields.String,
+        'x_vcloud_org_url': fields.String,
+        'x_vcloud_version': fields.String
+    }
+
+    def __init__(self, **kwargs):
+        self.x_vcloud_authorization = kwargs['x_vcloud_authorization']
+        self.x_vcloud_org_url = kwargs['x_vcloud_org_url']
+        self.x_vcloud_version = kwargs['x_vcloud_version']

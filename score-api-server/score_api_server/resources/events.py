@@ -2,7 +2,6 @@
 
 from flask.ext import restful
 from flask import request, g, make_response
-from flask.ext.restful import reqparse
 from flask_restful_swagger import swagger
 
 from score_api_server.common import util
@@ -10,7 +9,6 @@ from score_api_server.common import util
 from cloudify_rest_client import exceptions
 
 logger = util.setup_logging(__name__)
-parser = reqparse.RequestParser()
 
 
 class Events(restful.Resource):
