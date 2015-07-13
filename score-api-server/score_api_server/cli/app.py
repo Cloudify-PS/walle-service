@@ -36,7 +36,7 @@ logger = util.setup_logging(__name__)
 def check_authorization():
     logger.debug("Request headers %s", str(request.headers))
     if request.path == '/login':
-        app.logger.info("Skip authorization. User login")
+        app.logger.info("Skipping authorizations with request headers, using user:password authorization.")
         return
     vcloud_token = request.headers.get('x-vcloud-authorization')
     vcloud_org_url = request.headers.get('x-vcloud-org-url')
