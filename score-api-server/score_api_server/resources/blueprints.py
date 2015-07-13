@@ -8,9 +8,12 @@ import os.path
 
 from flask.ext import restful
 from flask import request, g, make_response
+from flask_restful_swagger import swagger
+
 from cloudify_rest_client import exceptions
 
 from score_api_server.common import util
+from score_api_server.resources import responses
 
 
 # Chunk is handled by gunicorn
@@ -24,30 +27,73 @@ def decode(input_stream, buffer_size=8192):
 logger = util.setup_logging(__name__)
 
 
-# TODO(???): download blueprint
 class Blueprints(restful.Resource):
 
-    def get(self, blueprint_id=None):
+    @swagger.operation(
+        responseClass='List[{0}]'.format(responses.BlueprintState.__name__),
+        nickname="list",
+        notes="Returns a list of uploaded blueprints."
+    )
+    def get(self):
         logger.debug("Entering Blueprints.get method.")
         try:
-            if blueprint_id is not None:
-                logger.info("Seeking for blueprint: %s.",
-                            blueprint_id)
-                return g.cc.blueprints.get(
-                    util.add_org_prefix(blueprint_id))
-            else:
-                logger.info("Listing all blueprints.")
-                blueprints = g.cc.blueprints.list()
-                result = []
-                for blueprint in blueprints:
-                    if blueprint.id.startswith(g.org_id + '_'):
-                        result.append(util.remove_org_prefix(blueprint))
-                logger.debug("Done. Exiting Blueprints.get method.")
-                return result
+            logger.info("Listing all blueprints.")
+            blueprints = g.cc.blueprints.list()
+            result = []
+            for blueprint in blueprints:
+                if blueprint.id.startswith(g.org_id + '_'):
+                    result.append(util.remove_org_prefix(blueprint))
+            logger.debug("Done. Exiting Blueprints.get method.")
+            return result
+        except exceptions.CloudifyClientError as e:
+            return make_response(str(e), e.status_code)
+
+
+# TODO(???): download blueprint
+class BlueprintsId(restful.Resource):
+
+    @swagger.operation(
+        responseClass=responses.BlueprintState,
+        nickname="getById",
+        notes="Returns a blueprint by its ID.",
+        parameters=[{'name': 'blueprint_id',
+                     'description': 'Blueprint ID',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'}]
+    )
+    def get(self, blueprint_id=None):
+        logger.debug("Entering BlueprintsId.get method.")
+        try:
+            logger.info("Seeking for blueprint: %s.",
+                        blueprint_id)
+            return g.cc.blueprints.get(
+                util.add_org_prefix(blueprint_id))
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
             return make_response(str(e), e.status_code)
 
+    @swagger.operation(
+        responseClass=responses.BlueprintState,
+        nickname="upload",
+        notes="Uploads a tar gzipped blueprint archive to the server.",
+        parameters=[{'name': 'blueprint_id',
+                     'description': 'Blueprint ID',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'blueprint_path',
+                     'description': 'URL of a blueprint tar gzipped file',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'}],
+        consumes=[
+            "application/octet-stream"
+        ]
+    )
     def put(self, blueprint_id):
         logger.debug("Entering Blueprints.put method.")
         tempdir = tempfile.mkdtemp()
@@ -80,6 +126,17 @@ class Blueprints(restful.Resource):
         finally:
             shutil.rmtree(tempdir, True)
 
+    @swagger.operation(
+        responseClass=responses.BlueprintState,
+        nickname="deleteById",
+        notes="Deletes a blueprint by its ID.",
+        parameters=[{'name': 'blueprint_id',
+                     'description': 'Blueprint ID',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'}]
+    )
     def delete(self, blueprint_id):
         logger.debug("Entering Blueprints.delete method.")
         try:

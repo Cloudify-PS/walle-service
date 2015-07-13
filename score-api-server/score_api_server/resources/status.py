@@ -1,9 +1,11 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
 import score_api_server
+from score_api_server.resources import responses
 
 from flask import g, make_response
 from flask.ext import restful
+from flask_restful_swagger import swagger
 
 from cloudify_rest_client import exceptions
 
@@ -14,6 +16,11 @@ logger = util.setup_logging(__name__)
 
 class Status(restful.Resource):
 
+    @swagger.operation(
+        responseClass=responses.Status,
+        nickname="status",
+        notes="Returns state of running system services"
+    )
     def get(self):
         logger.debug("Entering Status.get method.")
         try:

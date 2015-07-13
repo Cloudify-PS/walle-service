@@ -14,6 +14,7 @@ class TestBase(testtools.TestCase):
         super(TestBase, self).setUp()
         self.app = flask.Flask(__name__)
         self.executions = executions.Executions()
+        self.executions_id = executions.ExecutionsId()
         self.test_id = "some_id"
 
     def setup_context(self):
@@ -47,7 +48,7 @@ class TestBase(testtools.TestCase):
                                                data=json.dumps(data),
                                                content_type='application/'
                                                'json'):
-                deployment_tuple = self.executions.post()
+                deployment_tuple = self.executions_id.post()
                 self.assertIn(self.prefix_deployment(deployment),
                               deployment_tuple)
                 self.assertIn(workflow, deployment_tuple)
@@ -65,6 +66,6 @@ class TestBase(testtools.TestCase):
                                                data=json.dumps(data),
                                                content_type='application/'
                                                'json'):
-                execution_tuple = self.executions.put()
+                execution_tuple = self.executions_id.put()
                 self.assertIn(execution, execution_tuple)
                 self.assertIn(force, execution_tuple)
