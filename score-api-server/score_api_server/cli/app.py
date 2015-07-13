@@ -17,6 +17,7 @@ from score_api_server.resources.deployments import Deployments
 from score_api_server.resources.executions import Executions
 from score_api_server.resources.events import Events
 from score_api_server.resources.status import Status
+from score_api_server.resources.login import Login
 
 app = Flask(__name__)
 api = restful.Api(app)
@@ -32,6 +33,9 @@ util.setup_logging_for_app(app)
 
 @app.before_request
 def check_authorization():
+    if request.path == '/login':
+        app.logger.info("Skip authorization. Login new user")
+        return
     vcloud_token = request.headers.get('x-vcloud-authorization')
     vcloud_org_url = request.headers.get('x-vcloud-org-url')
     vcloud_version = request.headers.get('x-vcloud-version')
@@ -74,6 +78,7 @@ api.add_resource(Deployments, '/deployments',
 api.add_resource(Executions, '/executions')
 api.add_resource(Events, '/events')
 api.add_resource(Status, '/status')
+api.add_resource(Login, '/login')
 
 
 def main():

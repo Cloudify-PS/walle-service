@@ -9,7 +9,6 @@ from score_api_server.common import util
 from cloudify_rest_client import exceptions
 
 logger = util.setup_logging(__name__)
-parser = reqparse.RequestParser()
 
 
 class Events(restful.Resource):
