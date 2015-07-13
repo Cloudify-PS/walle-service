@@ -10,12 +10,15 @@ import tarfile
 from os.path import expanduser
 
 from flask.ext.migrate import upgrade
+import git
 
 from score_api_server.cli import app
 from score_api_server.db import models
 
 from score_api_server.tests.fakes import vcloud_air_client
 from score_api_server.tests.fakes import cloudify_manager
+
+RUN_INTEGRATION_TESTS = 'RunIntegrationTests'
 
 
 class BaseScoreAPIClient(testtools.TestCase):
@@ -200,11 +203,27 @@ class FakeScoreAPIClient(BaseScoreAPIClient):
         super(FakeScoreAPIClient, self).tearDown()
 
 
+def _lookup_mode_value(message):
+    found_string = filter(lambda x: RUN_INTEGRATION_TESTS in x,
+                          message.split('\n'))[0]
+    return found_string.split(' ')[1]
+
+
+def _checking_mode():
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    git_dir = current_dir + '/../../../..'
+    git_repo = git.repo.Repo(git_dir)
+    message = git_repo.commit().message
+    if (RUN_INTEGRATION_TESTS in message and
+            _lookup_mode_value(message) == 'True'):
+        return True
+    return False
+
+
 def get_base_class():
-    score_api_client_type = os.environ.get(
-        "SCORE_INTEGRATION_TEST_TYPE", "fake")
+    test_mode = _checking_mode()
     base_class = (FakeScoreAPIClient
-                  if score_api_client_type == "fake"
+                  if test_mode is not True
                   else RealScoreAPIClient)
     return base_class
 

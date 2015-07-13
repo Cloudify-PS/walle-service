@@ -9,8 +9,7 @@ addons:
 env:
     - TOX_ENV=pep8
     - TOX_ENV=unittests
-    - TOX_ENV=integration-fake
-    - TOX_ENV=integration-real
+    - TOX_ENV=integration
     - TOX_ENV=validate-blueprints
     - TOX_ENV=cfy-local-nodecellar
     - TOX_ENV=travis-cfy-local-nodecellar-with-fabric
