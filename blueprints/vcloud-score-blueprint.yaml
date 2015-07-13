@@ -180,13 +180,6 @@ inputs:
         type: string
         default: ''
 
-    user_github_key:
-        type: string
-        default: ''
-        description: >
-            Please write name your github private key which located in
-            manager node in docker container in `~/.ssh/`
-
     score_branch:
         type: string
         default: ''
@@ -479,7 +472,6 @@ node_templates:
                         task_properties:
                             config:
                                 score_package_url: { get_input: score_package_url }
-                                user_github_key: { get_input: user_github_key }
                                 score_branch: { get_input: score_branch }
                         fabric_env:
                             user: { get_input: servers_user }
