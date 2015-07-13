@@ -2,7 +2,6 @@
 
 from flask.ext import restful
 from flask import request, g, make_response
-from flask.ext.restful import reqparse
 
 from score_api_server.common import util
 
