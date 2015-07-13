@@ -83,15 +83,10 @@ node_types:
         interfaces:
             cloudify.interfaces.lifecycle:
                 start:
-                    implementation: fabric.fabric_plugin.tasks.run_task
+                    implementation: fabric.fabric_plugin.tasks.run_script
                     inputs:
-                        tasks_file:
-                            default: scripts/score/install_dependencies.py
-                        task_name:
-                            default: install
-                        task_properties:
-                            default:
-                             config: {}
+                        script_path:
+                            default: scripts/score/install_dependencies.sh
 
     #template for gunicorn application score
     agentless.nodes.score:
