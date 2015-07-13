@@ -3,6 +3,21 @@ Code reviewing, Submission, Acceptance policies.
 ================================================
 
 ----------
+Committing
+----------
+
+Commit message must contain::
+
+    * Detailed content of the work done on the patch.
+    * In order to run real-mode integration tests ,as part of CI checks,
+      over submitted pull request each developer should explicitly mention
+      specific flag inside commit message  body:
+             RunIntegrationTests: True
+      Otherwise, pull request will be tested with fake-mode integration tests
+      (including fake vCloud and Cloudify manager).
+
+
+----------
 Submitting
 ----------
 

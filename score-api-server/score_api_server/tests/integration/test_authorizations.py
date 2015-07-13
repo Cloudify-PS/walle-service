@@ -13,18 +13,16 @@ class TestScoreAuthorizationHooks(base.IntegrationBaseTestCase):
         base.vcloud_air_client.VCS.login = self.safe
 
     def test_unauthorized(self):
-        rv = self.client.get('/')
+        rv = self.try_auth()
         self.assertEqual(401, rv.status_code)
 
     def test_authorized_with_no_limits(self):
-        response = self.client.get(
-            "/",
+        response = self.try_auth(
             headers={
                 "x-vcloud-authorization": "True",
                 "x-vcloud-org-url": "URL",
                 "x-vcloud-version": "some_version"
-            }
-        )
+            })
         self.assertEqual(403, response.status_code)
         self.assertIn("FORBIDDEN", response.status)
         self.assertIn("were not defined.", response.data)
