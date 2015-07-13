@@ -13,7 +13,7 @@ class Login(restful.Resource):
     def get(self):
         logger.debug("Entering Login.get method.")
         try:
-            logger.info("Seeking login parameters")
+            logger.info("Seeking login parameters.")
             request_json = request.json
             user = request_json.get('user')
             host = request_json.get('host')
@@ -37,13 +37,10 @@ class Login(restful.Resource):
 
             logger.error("Unauthorized. Aborting.")
             return make_response("Unauthorized.", 401)
-
-        except exceptions.CloudifyClientError as e:
-            logger.error(str(e))
-            return make_response(str(e), e.status_code)
         except Exception as e:
-            logger.error(str(e))
-            return make_response("Connection error", e.message)
+            logger.exception(e)
+            http_response_code = e.message
+            return make_response("Connection error: {}.".format(e), http_response_code)
 
 
 def _login_user_to_service(user, host, password, service_type,
