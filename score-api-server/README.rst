@@ -7,7 +7,7 @@ Deployment
 ==========
 
 .. code-block:: bash
-    $ sudo apt-get install postgresql-common libpq-dev
+    $ sudo apt-get install git postgresql-common libpq-dev
     $ sudo apt-get install libxml2-dev libxslt1-dev python-dev
     $ git clone http://github.com/vcloudair/score-service.git
     $ cd score-service/score-api-server/
