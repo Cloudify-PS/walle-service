@@ -178,14 +178,13 @@ inputs:
 
     score_package_url:
         type: string
-        default: ''
-
-    score_branch:
-        type: string
-        default: ''
         description: >
-            Please write branch which has a stable version of score service.
-            If this field is omitted, it will be installed from master.
+            Score TAR.GZ package
+
+    score_nginx_configuration_url:
+        type: string
+        description: >
+            Score-related nginx configuration
 
     manager_server_ip:
         type: string
@@ -469,10 +468,9 @@ node_templates:
             cloudify.interfaces.lifecycle:
                 create:
                     inputs:
-                        task_properties:
-                            config:
-                                score_package_url: { get_input: score_package_url }
-                                score_branch: { get_input: score_branch }
+                        SCORE_PACKAGE_URL: { get_input: score_package_url }
+                        SCORE_NGINX_CONFIGURATION_URL: { get_input: score_nginx_configuration_url }
+
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
@@ -480,14 +478,10 @@ node_templates:
                             port: { get_input: score_ssh }
                 start:
                     inputs:
-                        task_properties:
-                            config:
-                                manager_public_ip: { get_input: manager_server_ip }
-                                score_ip: { get_attribute: [score_host, ip] }
-                                db_ip: { get_attribute: [postgresql_host, ip] }
-                                db_user: { get_input: postgresql_db_user }
-                                db_name: { get_input: postgresql_db_name }
-                                db_pass: { get_input: postgresql_db_pass }
+                        DB_IP: { get_attribute: [postgresql_host, ip] }
+                        DB_USER: { get_input: postgresql_db_user }
+                        DB_NAME: { get_input: postgresql_db_name }
+                        DB_PATH: { get_input: postgresql_db_pass }
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }

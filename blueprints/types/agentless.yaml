@@ -94,22 +94,12 @@ node_types:
         interfaces:
             cloudify.interfaces.lifecycle:
                 create:
-                    implementation: fabric.fabric_plugin.tasks.run_task
+                    implementation: fabric.fabric_plugin.tasks.run_script
                     inputs:
-                        tasks_file:
-                            default: scripts/score/install_score.py
-                        task_name:
-                            default: install
-                        task_properties:
-                            default:
-                             config: {}
+                        script_path:
+                            default: scripts/score/install_score.sh
                 start:
-                    implementation: fabric.fabric_plugin.tasks.run_task
+                    implementation: fabric.fabric_plugin.tasks.run_script
                     inputs:
-                        tasks_file:
-                            default: scripts/score/configure.py
-                        task_name:
-                            default: configure
-                        task_properties:
-                            default:
-                             config: {}
+                        script_path:
+                            default: scripts/score/configure.sh
