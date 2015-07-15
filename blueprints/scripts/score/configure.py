@@ -59,13 +59,6 @@ def configure(config):
     script.append('echo export SCORE_DB=%s >> ~/.bashrc' % db_url)
     script.append('echo export SCORE_LOGGING_LEVEL=INFO >> ~/.bashrc')
     script.append('sudo -u ubuntu source /home/ubuntu/.bashrc')
-    script.append('cd /home/ubuntu/score-service/score-api-server/')
-    script.append('sudo -u ubuntu score-manage db upgrade')
-    path_to_initial_sql = ('/home/ubuntu/score-service/'
-                           'score-api-server/initial.sql')
-    script.append("""
-PGPASSWORD="%s" psql -U%s -h%s -d %s < %s
-""" % (db_pass, db_user, db_ip, db_name, path_to_initial_sql))
     # create init file
     script.append("""
 sudo cp /home/ubuntu/score_api_server.conf /etc/init/score_api_server.conf
