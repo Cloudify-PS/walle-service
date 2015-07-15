@@ -83,8 +83,8 @@ class Login(restful.Resource):
                                                get('service_version'),
                                                service_type)
                 instance = request_json.get('instance')
-                service = request_json.get('service')
                 org_name = request_json.get('org_name')
+                service = request_json.get('service')
                 vca = _login_user_to_service(user, host,
                                              password, service_type,
                                              service_version,
@@ -119,10 +119,13 @@ def _login_user_to_service(user, host, password, service_type,
             result = vca.login_to_instance(instance, password)
         elif _is_subscription(service_type):
             if not service:
-                services = vca.services.get_Service()
-                if not services:
-                    return None
-                service = services[0].serviceId
+                if org_name:
+                    service = org_name
+                else:
+                    services = vca.services.get_Service()
+                    if not services:
+                        return None
+                    service = services[0].serviceId
             if not org_name:
                 org_name = vca.get_vdc_references(service)[0].name
             result = vca.login_to_org(service, org_name)
