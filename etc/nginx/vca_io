@@ -12,6 +12,10 @@ server {
 		proxy_pass http://127.0.0.1:8001;
 	}
 
+	location /status {
+		proxy_pass http://127.0.0.1:8001;
+	}
+
 	location /blueprints {
 		proxy_pass http://127.0.0.1:8001;
 	}
@@ -42,7 +46,7 @@ server {
 	ssl_certificate_key    /etc/nginx/server.key;
 
 	root /home/ubuntu/score-service/www;
-	index index.html index.htm;    
+	index index.html index.htm;
 
 	server_name score.vca.io;
 
@@ -50,22 +54,26 @@ server {
 		proxy_pass http://127.0.0.1:8001;
 	}
 
+	location /status {
+		proxy_pass http://127.0.0.1:8001;
+	}
+
 	location /blueprints {
 		proxy_pass http://127.0.0.1:8001;
 	}
-    
+
 	location /deployments {
 		proxy_pass http://127.0.0.1:8001;
 	}
-    
+
 	location /executions {
 		proxy_pass http://127.0.0.1:8001;
 	}
-    
+
 	location /events {
 		proxy_pass http://127.0.0.1:8001;
-	}    
-    
+	}
+
 	location / {
 		try_files $uri $uri/ =404;
 	}
