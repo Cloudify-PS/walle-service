@@ -66,8 +66,10 @@ class TestBase(testtools.TestCase):
         fake_vca.services = mock.MagicMock()
         fake_vca.services.get_Service = mock.MagicMock(return_value=False)
         self.assertFalse(login._login_user_to_service(1, 2, 3, 'subscription',
-                                                      5, 6, None, 8))
+                                                      5, 6, None, None))
 
+        self.assertTrue(login._login_user_to_service(1, 2, 3, 'subscription',
+                                                      5, 6, None, 8))
         fake_vca.login_to_org = mock.MagicMock(return_value=False)
         self.assertFalse(login._login_user_to_service(1, 2, 3, 'subscription',
                                                       5, 6, 7, 8))
