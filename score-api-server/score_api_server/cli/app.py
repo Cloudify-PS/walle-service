@@ -44,7 +44,7 @@ def check_authorization():
               vcloud_org_url, vcloud_org_url,
               version=vcloud_version)
     result = vcs.login(token=vcloud_token)
-    if result: 765084e7-8c3b-4e61-8f01-a9112423a9fb
+    if result:
         logger.info("Organization authorized successfully.")
         g.org_id = vcs.organization.id[vcs.organization.id.rfind(':') + 1:]
         logger.debug("Org-ID: %s.", g.org_id)
