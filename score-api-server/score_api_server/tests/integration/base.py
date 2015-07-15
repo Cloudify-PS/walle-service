@@ -41,8 +41,8 @@ class BaseScoreAPIClient(testtools.TestCase):
         pass
 
     def execute_post_request_with_route(self, route,
-                                       params=None,
-                                       data=None):
+                                        params=None,
+                                        data=None):
         pass
 
     def try_auth(self, headers=None):
@@ -79,8 +79,8 @@ class RealScoreAPIClient(BaseScoreAPIClient):
 
     @testtools.skip(reason_for_skipping)
     def execute_post_request_with_route(self, route,
-                                       params=None,
-                                       data=None):
+                                        params=None,
+                                        data=None):
         pass
 
     @testtools.skip(reason_for_skipping)
@@ -150,12 +150,12 @@ class FakeScoreAPIClient(BaseScoreAPIClient):
                                data=data)
 
     def execute_post_request_with_route(self, route,
-                                       params=None, data=None):
+                                        params=None, data=None):
         self.do_common_setup()
         return self.client.post(route,
-                               headers=self.headers,
-                               query_string=params,
-                               data=data)
+                                headers=self.headers,
+                                query_string=params,
+                                data=data)
 
     def make_upload_blueprint(self):
         # TODO(???) make blueprint path configurable
