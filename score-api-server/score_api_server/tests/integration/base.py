@@ -40,6 +40,11 @@ class BaseScoreAPIClient(testtools.TestCase):
                                        data=None):
         pass
 
+    def execute_post_request_with_route(self, route,
+                                       params=None,
+                                       data=None):
+        pass
+
     def try_auth(self, headers=None):
         pass
 
@@ -68,6 +73,12 @@ class RealScoreAPIClient(BaseScoreAPIClient):
 
     @testtools.skip(reason_for_skipping)
     def execute_put_request_with_route(self, route,
+                                       params=None,
+                                       data=None):
+        pass
+
+    @testtools.skip(reason_for_skipping)
+    def execute_post_request_with_route(self, route,
                                        params=None,
                                        data=None):
         pass
@@ -134,6 +145,14 @@ class FakeScoreAPIClient(BaseScoreAPIClient):
                                        params=None, data=None):
         self.do_common_setup()
         return self.client.put(route,
+                               headers=self.headers,
+                               query_string=params,
+                               data=data)
+
+    def execute_post_request_with_route(self, route,
+                                       params=None, data=None):
+        self.do_common_setup()
+        return self.client.post(route,
                                headers=self.headers,
                                query_string=params,
                                data=data)
