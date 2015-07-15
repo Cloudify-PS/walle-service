@@ -1,4 +1,4 @@
--e git+https://github.com/cloudify-cosmo/cloudify-rest-client@master#egg=cloudify-rest-client==3.3a2
+-e git+https://github.com/cloudify-cosmo/cloudify-rest-client@3.2#egg=cloudify-rest-client==3.2
 -e git+https://github.com/cloudify-cosmo/tosca-vcloud-plugin@master#egg=tosca-vcloud-plugin==1.3a2
 -r dev-requirements.txt
 pyyaml==3.10
