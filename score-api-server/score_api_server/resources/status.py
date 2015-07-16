@@ -36,5 +36,7 @@ class Status(restful.Resource):
                     "manager_status": manager_status["status"]}
         except (Exception, exceptions.CloudifyClientError) as e:
             logger.error(str(e))
-            return make_response(str(e), 400 if not isinstance(
-                e, exceptions.CloudifyClientError) else e.status_code)
+            return make_response(util.remove_org_from_exceptions(e),
+                                 400 if not isinstance(
+                                     e, exceptions.CloudifyClientError)
+                                 else e.status_code)

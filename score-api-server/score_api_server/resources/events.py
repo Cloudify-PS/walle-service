@@ -64,4 +64,5 @@ class Events(restful.Resource):
                 return []
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
-            return make_response(str(e), e.status_code)
+            return make_response(util.remove_org_from_exceptions(e),
+                                 e.status_code)

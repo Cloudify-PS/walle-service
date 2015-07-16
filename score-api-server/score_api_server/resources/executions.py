@@ -67,7 +67,8 @@ class Executions(restful.Resource):
                 return result
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
-            return make_response(str(e), e.status_code)
+            return make_response(util.remove_org_from_exceptions(e),
+                                 e.status_code)
 
     @swagger.operation(
         responseClass=responses.Execution,
@@ -126,7 +127,7 @@ class Executions(restful.Resource):
                 exceptions.DeploymentEnvironmentCreationPendingError) as e:
             # should we wait for deployment environment creation workflow?
             logger.error(str(e))
-            return make_response(str(e), 403)
+            return make_response(util.remove_org_from_exceptions(e), 403)
 
     @swagger.operation(
         responseClass=responses.Execution,
@@ -156,4 +157,5 @@ class Executions(restful.Resource):
             return result
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
-            return make_response(str(e), e.status_code)
+            return make_response(util.remove_org_from_exceptions(e),
+                                 e.status_code)

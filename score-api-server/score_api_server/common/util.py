@@ -26,6 +26,10 @@ def remove_org_prefix(obj):
     return obj_copy
 
 
+def remove_org_from_exceptions(exception):
+    return str(exception).replace("{}_".format(g.org_id), "")
+
+
 def get_logging_level():
     logging_mapping = {
         "DEBUG": logging.DEBUG,
