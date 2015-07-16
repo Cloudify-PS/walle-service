@@ -1,11 +1,12 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
-import testtools
 import flask
-import mock
 import json
-from score_api_server.resources import login
+import mock
+import testtools
+
 import score_api_server
+from score_api_server.resources import login
 
 
 class TestBase(testtools.TestCase):

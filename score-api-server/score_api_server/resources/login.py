@@ -89,14 +89,13 @@ class Login(restful.Resource):
                                              password, service_type,
                                              service_version,
                                              instance, service, org_name)
-                logger.debug("Done. Exiting Login.get method.")
                 reply = {}
                 if vca:
                     reply["x_vcloud_authorization"] = vca.vcloud_session.token
                     reply["x_vcloud_org_url"] = vca.vcloud_session.org_url
                     reply["x_vcloud_version"] = vca.version
+                    logger.debug("Done. Exiting Login.get method.")
                     return reply
-
             logger.error("Unauthorized. Aborting.")
             return make_response("Unauthorized.", 401)
         except Exception as e:
