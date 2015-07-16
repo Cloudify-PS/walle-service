@@ -71,14 +71,14 @@ def check_authorization():
 
 
 def _can_skip_auth(path):
-    name = request.path.split('/')[1].lower()
+    name = path.split('/')[1].lower()
     if name == 'api':
-        app.logger.info("Skipping authorizations with request headers,"
-                        " show api specification.")
+        logger.info("Skipping authorizations with request headers,"
+                    " show api specification.")
         return True
     elif name == 'login':
-        app.logger.info("Skipping authorizations with request headers,"
-                        " using user:password authorization.")
+        logger.info("Skipping authorizations with request headers,"
+                    " using user:password authorization.")
         return True
     return False
 

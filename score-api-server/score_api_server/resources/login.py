@@ -14,7 +14,7 @@ class Login(restful.Resource):
     @swagger.operation(
         responseClass=responses.Login,
         nickname="login",
-        notes="Returns information for authentification in vCloud.",
+        notes="Returns information for authorization in vCloud.",
         parameters=[{'name': 'user',
                      'description': 'User login.',
                      'required': True,
@@ -22,7 +22,7 @@ class Login(restful.Resource):
                      'dataType': 'string',
                      'paramType': 'query'},
                     {'name': 'host',
-                     'description': 'vCloud Air authentification host.',
+                     'description': 'vCloud Air authorization host.',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
@@ -69,31 +69,33 @@ class Login(restful.Resource):
                      'paramType': 'query'}],
         consumes=['application/json']
     )
-    def get(self):
+    def post(self):
         logger.debug("Entering Login.get method.")
         try:
-            logger.info("Seeking login parameters.")
+            logger.info("Seeking for login parameters.")
             request_json = request.json
-            user = request_json.get('user')
-            host = request_json.get('host')
-            password = request_json.get('password')
-            service_type = request_json.get('service_type')
-            service_version = request_json.get('service_version')
-            instance = request_json.get('instance')
-            service = request_json.get('service')
-            org_name = request_json.get('org_name')
-            vca = _login_user_to_service(user, host,
-                                         password, service_type,
-                                         service_version,
-                                         instance, service, org_name)
-            logger.debug("Done. Exiting Login.get method.")
-            reply = {}
-            if vca:
-                reply["x_vcloud_authorization"] = vca.vcloud_session.token
-                reply["x_vcloud_org_url"] = vca.vcloud_session.org_url
-                reply["x_vcloud_version"] = vca.version
-                return reply
-
+            if request_json:
+                user = request_json.get('user')
+                password = request_json.get('password')
+                service_type = request_json.get('service_type', 'ondemand')
+                host = _set_host(request_json.get('host'), service_type)
+                service_version = _set_version(request_json.
+                                               get('service_version'),
+                                               service_type)
+                instance = request_json.get('instance')
+                org_name = request_json.get('org_name')
+                service = request_json.get('service')
+                vca = _login_user_to_service(user, host,
+                                             password, service_type,
+                                             service_version,
+                                             instance, service, org_name)
+                reply = {}
+                if vca:
+                    reply["x_vcloud_authorization"] = vca.vcloud_session.token
+                    reply["x_vcloud_org_url"] = vca.vcloud_session.org_url
+                    reply["x_vcloud_version"] = vca.version
+                    logger.debug("Done. Exiting Login.get method.")
+                    return reply
             logger.error("Unauthorized. Aborting.")
             return make_response("Unauthorized.", 401)
         except Exception as e:
@@ -108,10 +110,59 @@ def _login_user_to_service(user, host, password, service_type,
     vca = VCA(host, user, service_type, service_version)
     result = vca.login(password=password)
     if result:
-        if 'ondemand' == service_type and instance:
+        if _is_ondemand(service_type):
+            if not instance:
+                if not vca.instances:
+                    return None
+                instance = vca.instances[0]['id']
             result = vca.login_to_instance(instance, password)
-        elif 'subscription' == service_type and service:
+        elif _is_subscription(service_type):
+            if not service:
+                if org_name:
+                    service = org_name
+                else:
+                    services = vca.services.get_Service()
+                    if not services:
+                        return None
+                    service = services[0].serviceId
+            if not org_name:
+                org_name = vca.get_vdc_references(service)[0].name
             result = vca.login_to_org(service, org_name)
-            if result:
-                return vca
+        if result:
+            return vca
     return None
+
+
+def _set_version(service_version, service_type):
+    if not service_version:
+        if _is_ondemand(service_type):
+            service_version = '5.7'
+        else:
+            service_version = '5.6'
+    return service_version
+
+
+def _set_host(host, service_type):
+    if host:
+        return _add_prefix(host)
+    if _is_ondemand(service_type):
+        return "https://iam.vchs.vmware.com"
+    else:
+        return "https://vchs.vmware.com"
+
+
+def _add_prefix(host):
+    if not (host.startswith('https://') or host.startswith('http://')):
+        host = 'https://' + host
+    return host
+
+
+def _is_ondemand(service_type):
+    return _compare(service_type, 'ondemand')
+
+
+def _is_subscription(service_type):
+    return _compare(service_type, 'subscription')
+
+
+_compare = lambda service_type, string: service_type.lower().strip() == string
