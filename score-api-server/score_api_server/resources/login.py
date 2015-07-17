@@ -2,7 +2,7 @@
 from flask import request, make_response
 from score_api_server.resources import responses
 from flask.ext import restful
-
+from werkzeug.exceptions import BadRequest
 from score_api_server.common import util
 from pyvcloud.vcloudair import VCA
 from flask_restful_swagger import swagger
@@ -97,6 +97,9 @@ class Login(restful.Resource):
                     logger.debug("Done. Exiting Login.get method.")
                     return reply
             logger.error("Unauthorized. Aborting.")
+            return make_response("Unauthorized.", 401)
+        except BadRequest as e:
+            logger.exception(e)
             return make_response("Unauthorized.", 401)
         except Exception as e:
             logger.exception(e)
