@@ -19,52 +19,50 @@ parser.add_argument('deployment_id', type=str, help='Deployment ID')
 class Executions(restful.Resource):
 
     @swagger.operation(
+        responseClass='List[{0}]'.format(responses.Execution.__name__),
+        nickname="list",
+        notes="Returns a list of executions for the optionally provided "
+              "deployment id."
+    )
+    def get(self):
+        logger.debug("Entering Execution.get method.")
+        args = parser.parse_args()
+        try:
+            deployment_id = args['deployment_id']
+            if deployment_id:
+                    deployment_id = util.add_org_prefix(deployment_id)
+                    logger.info("Listing all executions for deployment %s .",
+                                deployment_id)
+            else:
+                    logger.info("Listing all executions")
+            executions = g.cc.executions.list(deployment_id=deployment_id)
+            return executions
+        except exceptions.CloudifyClientError as e:
+            return make_response(str(e), e.status_code)
+
+
+class ExecutionsId(restful.Resource):
+
+    @swagger.operation(
         responseClass=responses.Execution,
-        nickname="getByDeploymentIdOrGetAll",
-        notes="Returns the executions by execution "
-              "id or list all by deployment id.",
-        parameters=[
-            {
-                'name': 'execution_id',
-                'description': 'Execution ID',
-                'required': False,
-                'allowMultiple': False,
-                'dataType': 'string',
-                'defaultValue': None,
-                'paramType': 'query'
-            },
-            {
-                'name': 'deployment_id',
-                'description': 'Deployment ID',
-                'required': True,
-                'allowMultiple': False,
-                'dataType': 'string',
-                'parameterType': 'query'
-            }
-        ]
+        nickname="getById",
+        notes="Returns the execution state by its id.",
+        parameters=[{'name': 'execution_id',
+                     'description': 'Execution ID',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'defaultValue': None,
+                     'paramType': 'path'}]
     )
     def get(self, execution_id=None):
-        logger.debug("Entering Execution.get method.")
         try:
-            if not execution_id:
-                args = parser.parse_args()
-                deployment_id = util.add_org_prefix(
-                    args['deployment_id'])
-                g.cc.deployments.get(deployment_id)
-                logger.info(
-                    "Listing all executions for deployment %s .",
-                    deployment_id)
-                executions = (
-                    g.cc.executions.list(deployment_id=deployment_id))
-                logger.debug("Done. Exiting Execution.get methods.")
-                return executions
-            else:
-                logger.info(
-                    "Seeking for executions by execution %s.",
-                    execution_id)
-                result = g.cc.executions.get(execution_id)
-                logger.debug("Done. Exiting ExecutionsId.get method.")
-                return result
+            logger.info(
+                "Seeking for executions by execution %s.",
+                execution_id)
+            result = g.cc.executions.get(execution_id)
+            logger.debug("Done. Exiting ExecutionsId.get method.")
+            return result
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
             return util.make_response_from_exception(e)
