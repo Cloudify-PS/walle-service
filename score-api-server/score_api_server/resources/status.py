@@ -3,7 +3,7 @@
 import score_api_server
 from score_api_server.resources import responses
 
-from flask import g, make_response
+from flask import g
 from flask.ext import restful
 from flask_restful_swagger import swagger
 
@@ -36,7 +36,6 @@ class Status(restful.Resource):
                     "manager_status": manager_status["status"]}
         except (Exception, exceptions.CloudifyClientError) as e:
             logger.error(str(e))
-            return make_response(util.remove_org_from_exceptions(e),
-                                 400 if not isinstance(
-                                     e, exceptions.CloudifyClientError)
-                                 else e.status_code)
+            status = (400 if not isinstance(e, exceptions.CloudifyClientError)
+                      else e.status_code)
+            return util.make_response_from_exception(e, status)

@@ -3,7 +3,7 @@
 import copy
 import logging
 
-from flask import g
+from flask import g, make_response
 
 from score_api_server.common import cfg
 
@@ -26,8 +26,13 @@ def remove_org_prefix(obj):
     return obj_copy
 
 
-def remove_org_from_exceptions(exception):
-    return str(exception).replace("{}_".format(g.org_id), "")
+def make_response_from_exception(exception, code=None):
+    def remove_org(e):
+        return str(e).replace("{}_".format(g.org_id), "")
+
+    status = code if code else exception.status_code
+    return make_response(remove_org(exception),
+                         status)
 
 
 def get_logging_level():

@@ -1,6 +1,6 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
-from flask import request, g, make_response
+from flask import request, g
 from flask.ext import restful
 from flask.ext.restful import reqparse
 from flask_restful_swagger import swagger
@@ -67,8 +67,7 @@ class Executions(restful.Resource):
                 return result
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
-            return make_response(util.remove_org_from_exceptions(e),
-                                 e.status_code)
+            return util.make_response_from_exception(e)
 
     @swagger.operation(
         responseClass=responses.Execution,
@@ -127,7 +126,7 @@ class Executions(restful.Resource):
                 exceptions.DeploymentEnvironmentCreationPendingError) as e:
             # should we wait for deployment environment creation workflow?
             logger.error(str(e))
-            return make_response(util.remove_org_from_exceptions(e), 403)
+            return util.make_response_from_exception(e, 403)
 
     @swagger.operation(
         responseClass=responses.Execution,
@@ -157,5 +156,4 @@ class Executions(restful.Resource):
             return result
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
-            return make_response(util.remove_org_from_exceptions(e),
-                                 e.status_code)
+            return util.make_response_from_exception(e)

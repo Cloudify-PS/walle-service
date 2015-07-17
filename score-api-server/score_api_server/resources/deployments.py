@@ -34,8 +34,7 @@ class Deployments(restful.Resource):
             logger.debug("Done. Exiting Deployments.get method.")
             return result
         except exceptions.CloudifyClientError as e:
-            return make_response(util.remove_org_from_exceptions(e),
-                                 e.status_code)
+            return util.make_response_from_exception(e)
 
 
 class DeploymentsId(restful.Resource):
@@ -88,8 +87,7 @@ class DeploymentsId(restful.Resource):
             return util.remove_org_prefix(result)
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
-            return make_response(util.remove_org_from_exceptions(e),
-                                 e.status_code)
+            return util.make_response_from_exception(e)
 
     @swagger.operation(
         responseClass=responses.Deployment,
@@ -118,8 +116,7 @@ class DeploymentsId(restful.Resource):
             return result
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
-            return make_response(util.remove_org_from_exceptions(e),
-                                 e.status_code)
+            return util.make_response_from_exception(e)
 
     @swagger.operation(
         responseClass=responses.Deployment,
@@ -171,5 +168,4 @@ class DeploymentsId(restful.Resource):
                 logger.error(str(e))
                 logger.error("Decreasing quota.")
                 self.update_quota(-1)
-                return make_response(util.remove_org_from_exceptions(e),
-                                     e.status_code)
+                return util.make_response_from_exception(e)
