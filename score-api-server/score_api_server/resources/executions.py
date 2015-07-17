@@ -36,7 +36,9 @@ class Executions(restful.Resource):
             else:
                     logger.info("Listing all executions")
             executions = g.cc.executions.list(deployment_id=deployment_id)
-            return executions
+            filtered = [util.remove_org_prefix(e) for e in executions
+                        if e['deployment_id'] == deployment_id]
+            return filtered
         except exceptions.CloudifyClientError as e:
             return make_response(str(e), e.status_code)
 
@@ -62,7 +64,7 @@ class ExecutionsId(restful.Resource):
                 execution_id)
             result = g.cc.executions.get(execution_id)
             logger.debug("Done. Exiting ExecutionsId.get method.")
-            return result
+            return util.remove_org_prefix(result)
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
             return util.make_response_from_exception(e)
@@ -118,7 +120,7 @@ class ExecutionsId(restful.Resource):
                         workflow_id, deployment_id)
             result = g.cc.executions.start(deployment_id, workflow_id)
             logger.debug("Done. Exiting Executions.post method.")
-            return result
+            return util.remove_org_prefix(result)
         except (exceptions.CloudifyClientError,
                 exceptions.DeploymentEnvironmentCreationInProgressError,
                 exceptions.DeploymentEnvironmentCreationPendingError) as e:
@@ -151,7 +153,7 @@ class ExecutionsId(restful.Resource):
             self.get(execution_id=execution_id)
             result = g.cc.executions.cancel(execution_id, force)
             logger.debug("Done. Exiting Executions.put method.")
-            return result
+            return util.remove_org_prefix(result)
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
             return util.make_response_from_exception(e)
