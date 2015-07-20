@@ -37,7 +37,7 @@ class Executions(restful.Resource):
                     logger.info("Listing all executions")
             executions = g.cc.executions.list(deployment_id=deployment_id)
             filtered = [util.remove_org_prefix(e) for e in executions
-                        if e['deployment_id'] == deployment_id]
+                        if g.org_id in e['deployment_id']]
             return filtered
         except exceptions.CloudifyClientError as e:
             return make_response(str(e), e.status_code)
