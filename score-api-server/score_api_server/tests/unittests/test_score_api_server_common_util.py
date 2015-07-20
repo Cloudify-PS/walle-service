@@ -22,3 +22,16 @@ class CommonUtilTest(testtools.TestCase):
                 util.add_org_prefix("magic"),
                 "some_id_magic"
             )
+
+    def test_make_response_from_exception(self):
+        with self.app.app_context():
+            flask.g.org_id = "some_id"
+            text = "Error"
+            e = Exception(util.add_org_prefix(text))
+
+            resp = util.make_response_from_exception(e, 401)
+            self.assertEqual(resp.data, text)
+
+            e.status_code = 404
+            resp = util.make_response_from_exception(e)
+            self.assertEqual(resp.data, text)

@@ -1,7 +1,7 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
 from flask.ext import restful
-from flask import request, g, make_response
+from flask import request, g
 from flask_restful_swagger import swagger
 
 from score_api_server.common import util
@@ -64,4 +64,4 @@ class Events(restful.Resource):
                 return []
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
-            return make_response(str(e), e.status_code)
+            return util.make_response_from_exception(e)
