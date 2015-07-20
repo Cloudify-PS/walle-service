@@ -24,7 +24,7 @@ CONF = cfg.CONF
 app.config['SQLALCHEMY_DATABASE_URI'] = CONF.server.db_uri
 util.setup_logging_for_app(app)
 logger = util.setup_logging(__name__)
-
+app.url_map.strict_slashes = False
 
 # note: assume vcs.organization.id is unique across the service
 
