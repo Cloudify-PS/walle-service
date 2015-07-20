@@ -14,6 +14,7 @@ class TestBase(testtools.TestCase):
         super(TestBase, self).setUp()
         self.app = flask.Flask(__name__)
         self.executions = executions.Executions()
+        self.executions_id = executions.ExecutionsId()
         self.test_id = "some_id"
 
     def setup_context(self):
@@ -26,13 +27,14 @@ class TestBase(testtools.TestCase):
     def test_list_executions(self):
         with self.app.app_context():
             self.setup_context()
-            flask.g.cc.executions.list = lambda deployment_id: deployment_id
-            deployment = 123
+            flask.g.cc.executions.list = lambda deployment_id: [{'deployment_id': deployment_id},
+                                                                {'deployment_id': 'test'}]
+            deployment = '123'
             with self.app.test_request_context('/executions?deployment_id={}'.
                                                format(deployment)):
-                deployment_id = self.executions.get()
-                self.assertIn(self.prefix_deployment(deployment),
-                              deployment_id)
+                deployment_list = self.executions.get()
+                self.assertTrue(len(deployment_list), 1)
+                self.assertEqual(deployment_list[0]['deployment_id'], deployment)
 
     def test_start_executions(self):
         with self.app.app_context():
@@ -47,7 +49,7 @@ class TestBase(testtools.TestCase):
                                                data=json.dumps(data),
                                                content_type='application/'
                                                'json'):
-                deployment_tuple = self.executions.post()
+                deployment_tuple = self.executions_id.post()
                 self.assertIn(self.prefix_deployment(deployment),
                               deployment_tuple)
                 self.assertIn(workflow, deployment_tuple)
@@ -65,6 +67,6 @@ class TestBase(testtools.TestCase):
                                                data=json.dumps(data),
                                                content_type='application/'
                                                'json'):
-                execution_tuple = self.executions.put()
+                execution_tuple = self.executions_id.put()
                 self.assertIn(execution, execution_tuple)
                 self.assertIn(force, execution_tuple)
