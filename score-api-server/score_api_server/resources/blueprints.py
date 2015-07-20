@@ -77,15 +77,17 @@ class BlueprintsId(restful.Resource):
     @swagger.operation(
         responseClass=responses.BlueprintState,
         nickname="upload",
-        notes="Uploads a tar gzipped blueprint archive to the server.",
+        notes="Uploads the tar.gz archive of the folder which contains "
+              "blueprint file. "
+              "Request body must be contains only gzipped archive.",
         parameters=[{'name': 'blueprint_id',
                      'description': 'Blueprint ID',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'body'},
-                    {'name': 'blueprint_path',
-                     'description': 'URL of a blueprint tar gzipped file',
+                     'paramType': 'path'},
+                    {'name': 'application_file_name',
+                     'description': 'Name of blueprint tar gzipped file',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
