@@ -36,18 +36,15 @@ class Executions(restful.Resource):
         args = parser.parse_args()
         try:
             deployment_id = args['deployment_id']
-            if deployment_id:
-                    deployment_id = util.add_org_prefix(deployment_id)
-                    logger.info("Listing all executions for deployment %s .",
-                                deployment_id)
-            else:
-                    logger.info("Listing all executions")
+            deployment_id = util.add_org_prefix(deployment_id)
+            logger.info("Listing all executions for deployment %s .",
+                        deployment_id)
             executions = g.cc.executions.list(deployment_id=deployment_id)
             filtered = [util.remove_org_prefix(e) for e in executions
                         if g.org_id in e['deployment_id']]
             return filtered
         except exceptions.CloudifyClientError as e:
-            return make_response(str(e), e.status_code)
+            return util.make_response_from_exception(e)
 
 
 class ExecutionsId(restful.Resource):
@@ -65,6 +62,7 @@ class ExecutionsId(restful.Resource):
                      'paramType': 'path'}]
     )
     def get(self, execution_id=None):
+        logger.debug("Entering ExecutionsId.get method.")
         try:
             logger.info(
                 "Seeking for executions by execution %s.",
@@ -133,7 +131,12 @@ class ExecutionsId(restful.Resource):
                 exceptions.DeploymentEnvironmentCreationPendingError) as e:
             # should we wait for deployment environment creation workflow?
             logger.error(str(e))
-            return util.make_response_from_exception(e, 403)
+            response_code = (
+                403 if isinstance(e, (
+                    exceptions.DeploymentEnvironmentCreationInProgressError,
+                    exceptions.DeploymentEnvironmentCreationPendingError))
+                else e.status_code)
+            return util.make_response_from_exception(e, response_code)
 
     @swagger.operation(
         responseClass=responses.Execution,

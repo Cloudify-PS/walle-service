@@ -12,3 +12,20 @@ class FakeBlueprint(dict):
 
     def __setitem__(self, key, value):
         self.__dict__[key] = value
+
+
+class FakeDeployment(dict):
+    def __init__(self, data):
+        self.update(data)
+
+    @property
+    def id(self):
+        return self.get('id')
+
+    @property
+    def deployment_id(self):
+        return self.get('deployment_id')
+
+    @property
+    def blueprint_id(self):
+        return self.get('blueprint_id')

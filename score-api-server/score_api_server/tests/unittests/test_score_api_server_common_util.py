@@ -3,25 +3,10 @@
 import testtools
 import flask
 
-from score_api_server.common import util
 from flask import g
 
-
-class FakeObj(dict):
-    def __init__(self, data):
-        self.update(data)
-
-    @property
-    def id(self):
-        return self.get('id')
-
-    @property
-    def deployment_id(self):
-        return self.get('deployment_id')
-
-    @property
-    def blueprint_id(self):
-        return self.get('blueprint_id')
+from score_api_server.common import util
+from score_api_server.tests.fakes import fake_objects
 
 
 class CommonUtilTest(testtools.TestCase):
@@ -73,9 +58,8 @@ class CommonUtilTest(testtools.TestCase):
             self.assertEqual(res['blueprint_id'], blueprint_string)
             self.assertEqual(res['deployment_id'], deployment_string)
 
-            obj = FakeObj(test_dict)
+            obj = fake_objects.FakeDeployment(test_dict)
             res = util.remove_org_prefix(obj)
             self.assertEqual(res.id, id_string)
             self.assertEqual(res.blueprint_id, blueprint_string)
             self.assertEqual(res.deployment_id, deployment_string)
->>>>>>> SCOR-101 Update unittests for utils
