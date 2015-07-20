@@ -85,13 +85,13 @@ class BlueprintsId(restful.Resource):
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'body'},
+                     'paramType': 'path'},
                     {'name': 'application_file_name',
                      'description': 'Name of blueprint tar gzipped file',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'body'}],
+                     'paramType': 'query'}],
         consumes=[
             "application/octet-stream"
         ]

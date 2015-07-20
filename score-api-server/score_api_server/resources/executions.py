@@ -39,7 +39,7 @@ class Executions(restful.Resource):
                 'required': True,
                 'allowMultiple': False,
                 'dataType': 'string',
-                'parameterType': 'path'
+                'parameterType': 'query'
             }
         ]
     )
