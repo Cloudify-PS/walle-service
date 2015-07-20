@@ -27,14 +27,16 @@ class TestBase(testtools.TestCase):
     def test_list_executions(self):
         with self.app.app_context():
             self.setup_context()
-            flask.g.cc.executions.list = lambda deployment_id: [{'deployment_id': deployment_id},
-                                                                {'deployment_id': 'test'}]
+            flask.g.cc.executions.list = (lambda deployment_id:
+                                          [{'deployment_id': deployment_id},
+                                           {'deployment_id': 'test'}])
             deployment = '123'
             with self.app.test_request_context('/executions?deployment_id={}'.
                                                format(deployment)):
                 deployment_list = self.executions.get()
                 self.assertTrue(len(deployment_list), 1)
-                self.assertEqual(deployment_list[0]['deployment_id'], deployment)
+                self.assertEqual(deployment_list[0]['deployment_id'],
+                                 deployment)
 
     def test_start_executions(self):
         with self.app.app_context():

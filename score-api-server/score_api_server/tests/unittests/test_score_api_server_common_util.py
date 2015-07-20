@@ -7,7 +7,7 @@ from score_api_server.common import util
 from flask import g
 
 
-class FakeObj:
+class FakeObj(object):
     def __init__(self, id_string, blueprint_string, deployment_string):
         self.id_string = id_string
         self.blueprint_string = blueprint_string
@@ -26,7 +26,7 @@ class FakeObj:
         return self.deployment_string
 
 
-class FakeObjSmall:
+class FakeObjSmall(object):
     def __init__(self, id_string):
         self.id_string = id_string
 
