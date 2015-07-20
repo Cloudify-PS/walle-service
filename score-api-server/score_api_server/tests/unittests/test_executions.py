@@ -41,8 +41,9 @@ class TestBase(testtools.TestCase):
     def test_start_executions(self):
         with self.app.app_context():
             self.setup_context()
-            flask.g.cc.executions.start = lambda a, b: (a, b)
-            deployment = 1
+            flask.g.cc.executions.start = lambda a, b: {'deployment_id': a,
+                                                        'workflow_id': b}
+            deployment = '1'
             workflow = "install"
             data = {
                 'deployment_id': deployment,
@@ -51,15 +52,15 @@ class TestBase(testtools.TestCase):
                                                data=json.dumps(data),
                                                content_type='application/'
                                                'json'):
-                deployment_tuple = self.executions_id.post()
-                self.assertIn(self.prefix_deployment(deployment),
-                              deployment_tuple)
-                self.assertIn(workflow, deployment_tuple)
+                deployment = self.executions_id.post()
+                self.assertEqual(deployment, data)
 
     def test_cancel_executions(self):
         with self.app.app_context():
             self.setup_context()
-            flask.g.cc.executions.cancel = lambda a, b: (a, b)
+            flask.g.cc.executions.get = lambda _: {}
+            flask.g.cc.executions.cancel = lambda a, b: {'execution_id': a,
+                                                         'force': b}
             execution = 1
             force = False
             data = {
@@ -69,6 +70,5 @@ class TestBase(testtools.TestCase):
                                                data=json.dumps(data),
                                                content_type='application/'
                                                'json'):
-                execution_tuple = self.executions_id.put()
-                self.assertIn(execution, execution_tuple)
-                self.assertIn(force, execution_tuple)
+                execution = self.executions_id.put()
+                self.assertEqual(execution, data)

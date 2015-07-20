@@ -15,21 +15,15 @@ def add_org_prefix(name):
 
 
 def remove_org_prefix(obj):
-    def replace(string):
-        return string.replace("{}_".format(g.org_id), "", 1)
-
+    if not isinstance(obj, dict):
+        raise ValueError("Object must be instance of dict")
     obj_copy = copy.deepcopy(obj)
     for attr in ('id', 'blueprint_id', 'deployment_id'):
-        if isinstance(obj_copy, dict):
-            try:
-                obj_copy[attr] = replace(obj_copy[attr])
-            except KeyError:
-                pass
-        else:
-            try:
-                setattr(obj_copy, attr, replace(getattr(obj_copy, attr)))
-            except AttributeError:
-                pass
+        try:
+            obj_copy[attr] = obj_copy[attr].replace(
+                "{}_".format(g.org_id), "", 1)
+        except KeyError:
+            pass
     return obj_copy
 
 

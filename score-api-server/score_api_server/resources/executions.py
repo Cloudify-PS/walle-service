@@ -22,7 +22,14 @@ class Executions(restful.Resource):
         responseClass='List[{0}]'.format(responses.Execution.__name__),
         nickname="list",
         notes="Returns a list of executions for the optionally provided "
-              "deployment id."
+              "deployment id.",
+        parameters=[{'name': 'deployment_id',
+                     'description': 'Deployment ID',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'defaultValue': None,
+                     'paramType': 'query'}]
     )
     def get(self):
         logger.debug("Entering Execution.get method.")

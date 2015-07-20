@@ -1,7 +1,7 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
 
-class FakeBlueprint(object):
+class FakeBlueprint(dict):
     def __init__(self, obj_id, obj_blueprint_id, obj_deployment_id):
         self.id = obj_id
         self.blueprint_id = obj_blueprint_id
