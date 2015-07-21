@@ -71,6 +71,7 @@ class Login(restful.Resource):
     )
     def post(self):
         logger.debug("Entering Login.get method.")
+        message = "Empty request body or Content-Type not 'application/json'"
         try:
             logger.info("Seeking for login parameters.")
             request_json = request.json
@@ -78,26 +79,33 @@ class Login(restful.Resource):
                 user = request_json.get('user')
                 password = request_json.get('password')
                 service_type = request_json.get('service_type', 'ondemand')
-                host = _set_host(request_json.get('host'), service_type)
-                service_version = _set_version(request_json.
-                                               get('service_version'),
-                                               service_type)
-                instance = request_json.get('instance')
-                org_name = request_json.get('org_name')
-                service = request_json.get('service')
-                vca = _login_user_to_service(user, host,
-                                             password, service_type,
-                                             service_version,
-                                             instance, service, org_name)
-                reply = {}
-                if vca:
-                    reply["x_vcloud_authorization"] = vca.vcloud_session.token
-                    reply["x_vcloud_org_url"] = vca.vcloud_session.org_url
-                    reply["x_vcloud_version"] = vca.version
-                    logger.debug("Done. Exiting Login.get method.")
-                    return reply
-            logger.error("Unauthorized. Aborting.")
-            return make_response("Unauthorized.", 401)
+                if not user:
+                    message = "'user' is empty"
+                elif not password:
+                    message = "'password' is empty"
+                if user and password:
+                    host = _set_host(request_json.get('host'), service_type)
+                    service_version = _set_version(request_json.
+                                                   get('service_version'),
+                                                   service_type)
+                    instance = request_json.get('instance')
+                    org_name = request_json.get('org_name')
+                    service = request_json.get('service')
+                    vca = _login_user_to_service(user, host,
+                                                 password, service_type,
+                                                 service_version,
+                                                 instance, service, org_name)
+                    reply = {}
+                    if vca:
+                        reply["x_vcloud_authorization"] = \
+                                                    vca.vcloud_session.token
+                        reply["x_vcloud_org_url"] = vca.vcloud_session.org_url
+                        reply["x_vcloud_version"] = vca.version
+                        logger.debug("Done. Exiting Login.get method.")
+                        return reply
+                    message = "Can't login to vCloud service"
+            logger.error("Unauthorized. {}. Aborting.".format(message))
+            return make_response("Unauthorized. {}.".format(message), 401)
         except BadRequest as e:
             logger.exception(e)
             return make_response("Unauthorized. Bad request.", 401)
