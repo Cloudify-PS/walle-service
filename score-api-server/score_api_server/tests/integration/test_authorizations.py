@@ -23,9 +23,9 @@ class TestScoreAuthorizationHooks(base.IntegrationBaseTestCase):
                 "x-vcloud-org-url": "URL",
                 "x-vcloud-version": "some_version"
             })
-        self.assertEqual(404, response.status_code)
-        self.assertIn("404 NOT FOUND", response.status)
-        self.assertIn("was not found", response.data)
+        self.assertEqual(403, response.status_code)
+        self.assertIn("FORBIDDEN", response.status)
+        self.assertIn("were not defined.", response.data)
 
     def test_authorize_with_existing_limits(self):
         response = self.execute_get_request_with_route("/")
