@@ -68,8 +68,8 @@ class BlueprintsId(restful.Resource):
         try:
             logger.info("Seeking for blueprint: %s.",
                         blueprint_id)
-            return g.cc.blueprints.get(
-                util.add_org_prefix(blueprint_id))
+            return util.remove_org_prefix(g.cc.blueprints.get(
+                util.add_org_prefix(blueprint_id)))
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
             return util.make_response_from_exception(e)
@@ -150,7 +150,7 @@ class BlueprintsId(restful.Resource):
             blueprint = g.cc.blueprints.delete(
                 util.add_org_prefix(blueprint_id))
             logger.debug("Done. Exiting Blueprints.delete method.")
-            return blueprint
+            return util.remove_org_prefix(blueprint)
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
             return util.make_response_from_exception(e)
