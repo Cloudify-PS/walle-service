@@ -98,7 +98,7 @@ class Login(restful.Resource):
                     reply = {}
                     if vca:
                         reply["x_vcloud_authorization"] = \
-                                                    vca.vcloud_session.token
+                            vca.vcloud_session.token
                         reply["x_vcloud_org_url"] = vca.vcloud_session.org_url
                         reply["x_vcloud_version"] = vca.version
                         logger.debug("Done. Exiting Login.get method.")
