@@ -64,12 +64,25 @@ class ExecutionsId(restful.Resource):
     def get(self, execution_id=None):
         logger.debug("Entering ExecutionsId.get method.")
         try:
-            logger.info(
-                "Seeking for executions by execution %s.",
-                execution_id)
-            result = g.cc.executions.get(execution_id)
-            logger.debug("Done. Exiting ExecutionsId.get method.")
-            return util.remove_org_prefix(result)
+            if not execution_id:
+                args = parser.parse_args()
+                deployment_id = util.add_org_prefix(
+                    args['deployment_id'])
+                g.cc.deployments.get(deployment_id)
+                logger.info(
+                    "Listing all executions for deployment %s .",
+                    deployment_id)
+                executions = (
+                    g.cc.executions.list(deployment_id=deployment_id))
+                logger.debug("Done. Exiting Execution.get methods.")
+                return executions
+            else:
+                logger.info(
+                    "Seeking for executions by execution %s.",
+                    execution_id)
+                result = g.cc.executions.get(execution_id)
+                logger.debug("Done. Exiting ExecutionsId.get method.")
+                return util.remove_org_prefix(result)
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
             return util.make_response_from_exception(e)

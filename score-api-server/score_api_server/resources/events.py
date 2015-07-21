@@ -59,7 +59,7 @@ class Events(restful.Resource):
             if len(result) == 2:
                 r = result[0]
                 r.append(result[1])
-                return r
+                return util.remove_org_prefix(r)
             else:
                 return []
         except exceptions.CloudifyClientError as e:
