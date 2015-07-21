@@ -46,7 +46,7 @@ class CommonUtilTest(testtools.TestCase):
             deployment_string = 'deployment'
             g.org_id = '123'
 
-            self.assertRaises(ValueError, util.remove_org_prefix, None)
+            self.assertEqual(None, util.remove_org_prefix(None))
 
             test_dict = {'id': util.add_org_prefix(id_string),
                          'blueprint_id': util.add_org_prefix(blueprint_string),
