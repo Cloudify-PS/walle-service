@@ -20,8 +20,9 @@ def setup_resources(api):
     api.add_resource(deployments.Deployments, '/deployments')
     api.add_resource(deployments.DeploymentsId,
                      '/deployments/<string:deployment_id>')
-    api.add_resource(executions.Executions, '/executions',
-                     methods=["GET", "POST", "PUT"])
+    api.add_resource(executions.Executions, '/executions')
+    api.add_resource(executions.ExecutionsId,
+                     '/executions/<string:execution_id>')
     api.add_resource(events.Events, '/events')
     api.add_resource(status.Status, '/status')
     api.add_resource(login.Login, '/login')
