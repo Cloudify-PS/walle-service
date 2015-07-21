@@ -100,11 +100,11 @@ class Login(restful.Resource):
             return make_response("Unauthorized.", 401)
         except BadRequest as e:
             logger.exception(e)
-            return make_response("Unauthorized.", 401)
+            return make_response("Unauthorized. Bad request.", 401)
         except Exception as e:
             logger.exception(e)
             http_response_code = e.message
-            return make_response("Connection error: {}.".format(e),
+            return make_response("vCloud connection error: {}.".format(e),
                                  http_response_code)
 
 
