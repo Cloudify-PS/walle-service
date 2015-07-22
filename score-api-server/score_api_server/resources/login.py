@@ -6,6 +6,7 @@ from werkzeug.exceptions import BadRequest
 from score_api_server.common import util
 from pyvcloud.vcloudair import VCA
 from flask_restful_swagger import swagger
+from score_api_server.resources import requests_schema
 
 logger = util.setup_logging(__name__)
 
@@ -20,53 +21,53 @@ class Login(restful.Resource):
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'query'},
+                     'paramType': 'body'},
                     {'name': 'host',
                      'description': 'vCloud Air authorization host.',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'query'},
+                     'paramType': 'body'},
                     {'name': 'password',
                      'description': 'User password.',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'query'},
+                     'paramType': 'body'},
                     {'name': 'service_type',
                      'description': 'Type of service "subscription"'
                                     ' or "ondemand".',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'query'},
+                     'paramType': 'body'},
                     {'name': 'service_version',
                      'description': 'API version of service one of'
                                     ' 5.6 or 5.7. Default 5.6.',
                      'required': False,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'query'},
+                     'paramType': 'body'},
                     {'name': 'instance',
                      'description': 'Instance ID. Required for'
                                     ' ondemand service.',
                      'required': False,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'query'},
+                     'paramType': 'body'},
                     {'name': 'service',
                      'description': 'Service name. Required'
                                     ' for subscription service.',
                      'required': False,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'query'},
+                     'paramType': 'body'},
                     {'name': 'org_name',
                      'description': 'Organisation name.',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'query'}],
+                     'paramType': 'body'}],
         consumes=['application/json']
     )
     def post(self):
