@@ -43,9 +43,7 @@ end script
 sudo cp ~/score_api_server.conf /etc/init/score_api_server.conf
 sudo chown root:root /etc/init/score_api_server.conf
 
-cd /tmp
 source ~/score.rc; score-manage db upgrade -d score-service/score-api-server/migrations/
-cd ~
 
 sudo initctl start score_api_server
 
