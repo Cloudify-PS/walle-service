@@ -2,8 +2,11 @@
 
 import copy
 import logging
+from functools import wraps
+from jsonschema import ValidationError, validate
+from werkzeug.exceptions import BadRequest
 
-from flask import g, make_response
+from flask import g, request, make_response
 
 from score_api_server.common import cfg
 
@@ -64,3 +67,24 @@ def setup_logging(name):
     logger.addHandler(log_file_handler)
     logger.setLevel(get_logging_level())
     return logger
+
+
+def validate_json(schema):
+    def wrapper(fn):
+        @wraps(fn)
+        def decorated(*args, **kwargs):
+            try:
+                json = request.get_json(force=True)
+                validate(json, schema)
+                return fn(args[0], json, **kwargs)
+            except BadRequest as e:
+                setup_logging(__name__).exception(e)
+                return make_response("Unauthorized."
+                                     " Can't parse input json file", 401)
+            except ValidationError as e:
+                setup_logging(__name__).exception(e)
+                return make_response("Unauthorized."
+                                     " Validation error: {}.".format(e),
+                                     401)
+        return decorated
+    return wrapper
