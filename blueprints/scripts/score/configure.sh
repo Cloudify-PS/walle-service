@@ -51,7 +51,11 @@ sudo initctl start score_api_server
 
 wget -c ${SCORE_NGINX_CONFIGURATION_URL} -O score-nginx-configration.tar.gz 2>&1
 mkdir score-nginx-configuration
-tar -xvf score-nginx-configration.tar.gz --strip 1 -C score-nginx-configration 2>&1
-cd score-nginx-configuration
+tar -xvf score-nginx-configration.tar.gz -C score-nginx-configuration 2>&1
+cd score-nginx-configuration/
+
+mv www ~/www
+sudo cp etc/keys/* /ect/nginx
+sudo cp etc/nginx/vca_io /etc/nginx/sites-enabled/
 
 sudo service nginx restart
