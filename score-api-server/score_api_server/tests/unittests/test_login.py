@@ -75,6 +75,10 @@ class TestBase(testtools.TestCase):
         self.assertFalse(login._login_user_to_service(1, 2, 3, 'subscription',
                                                       5, 6, 7, 8))
 
+        fake_vca.login_to_org.side_effect = Exception(404)
+        self.assertRaises(Exception, login._login_user_to_service, 1, 2, 3, 4, 5, 6, 7, 8)
+
+
     def test_post(self):
         testlogin = login.Login()
         data = {
@@ -109,6 +113,3 @@ class TestBase(testtools.TestCase):
                                               'https://iam.vchs.vmware.com',
                                               'password', 'ondemand', '5.7',
                                               'instance', 'service', None)
-
-                fake_login.side_effect = Exception(404)
-                self.assertRaises(Exception, testlogin.post())
