@@ -1,0 +1,7 @@
+user: vchs-cert23@vmware.com
+password: B_sDp99!
+service_type: subscription
+service_version: '5.6'
+cloudify_host: 23.92.225.159
+cloudify_port: 80
+deployment_limits: -1
