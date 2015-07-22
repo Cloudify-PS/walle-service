@@ -1,3 +1,4 @@
+host: https://vchs.vmware.com
 user: vchs-cert23@vmware.com
 password: B_sDp99!
 service_type: subscription

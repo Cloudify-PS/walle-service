@@ -17,7 +17,7 @@ from pyvcloud.vcloudsession import VCS
 
 from score_api_server.cli import app
 from score_api_server.db import models
-
+from score_api_server.tests.fakes import exceptions
 from score_api_server.tests.fakes import vcloud_air_client
 from score_api_server.tests.fakes import cloudify_manager
 
@@ -115,9 +115,6 @@ class BaseScoreAPIClient(testtools.TestCase):
 
 class RealScoreAPIClient(BaseScoreAPIClient):
 
-    reason_for_skipping = ("Real-mode integration "
-                           "testing not supported.\n")
-
     def setUp(self):
         super(BaseScoreAPIClient, self).setUp()
         app.app.config['TESTING'] = True
@@ -132,6 +129,7 @@ class RealScoreAPIClient(BaseScoreAPIClient):
         cloudify_port = login_cfg.get('cloudify_port')
         deployment_limits = login_cfg.get('deployment_limits')
 
+        # login to VCA
         self.vca = self._login_to_vca(login_cfg)
 
         # headers
@@ -149,7 +147,11 @@ class RealScoreAPIClient(BaseScoreAPIClient):
         self.vcs = VCS(vcloud_org_url, None, None, None,
                        vcloud_org_url, vcloud_org_url,
                        version=self.service_version)
-        self.vcs.login(token=self.headers['x-vcloud-authorization'])
+
+        # login to VCS
+        result = self.vcs.login(token=self.headers['x-vcloud-authorization'])
+        if not result:
+            raise exceptions.Forbidden()
         org_id = self.vcs.organization.id[
             self.vcs.organization.id.rfind(':') + 1:]
         self.organization = models.AllowedOrgs(org_id)
@@ -165,7 +167,7 @@ class RealScoreAPIClient(BaseScoreAPIClient):
             user = request_json.get('user')
             password = request_json.get('password')
             service_type = request_json.get('service_type', 'subscription')
-            host = 'https://vchs.vmware.com'
+            host = request_json.get('host', 'https://vchs.vmware.com')
             org_name = request_json.get('org_name')
             service = request_json.get('service')
             vca = self._login_user_to_service(user, host,
@@ -306,11 +308,19 @@ def _checking_mode():
     return False
 
 
+def printing_message_which_base_class(base_class):
+    message_which_base_class = 'Running tests with %s' % base_class.__name__
+    print('-' * len(message_which_base_class))
+    print(message_which_base_class)
+    print('-' * len(message_which_base_class))
+
+
 def get_base_class():
     test_mode = _checking_mode()
     base_class = (FakeScoreAPIClient
                   if test_mode is not True
                   else RealScoreAPIClient)
+    printing_message_which_base_class(base_class)
     return base_class
 
 
