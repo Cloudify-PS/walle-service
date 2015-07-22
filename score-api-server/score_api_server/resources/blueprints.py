@@ -11,6 +11,8 @@ from flask import request, g, make_response
 from flask_restful_swagger import swagger
 
 from cloudify_rest_client import exceptions
+from dsl_parser import parser
+from dsl_parser import exceptions as dsl_exceptions
 
 from score_api_server.common import util
 from score_api_server.resources import responses
@@ -51,6 +53,45 @@ class Blueprints(restful.Resource):
 
 # TODO(???): download blueprint
 class BlueprintsId(restful.Resource):
+
+    def validate_blueprint_on_security_breaches(
+            self, bluerpint_name, blueprint_directory):
+        logger.debug(
+            "Entering BlueprintsId.validate_blueprint_"
+            "on_security_breaches method.")
+        logger.info("Staring validating checks for blueprint: {0}. "
+                    "Blueprint directory: {1}.".format(
+            bluerpint_name, blueprint_directory))
+        blueprint_path = os.path.join(blueprint_directory,
+                                      bluerpint_name)
+
+        try:
+            logger.info("Running basic blueprints validation.")
+
+            blueprint_plan = parser.parse_from_path(blueprint_path)
+            logger.debug("Blueprint plan: %s" % str(blueprint_plan))
+            logger.info("Success on basic blueprints validation.")
+
+            logger.debug(
+                "Done. Exiting BlueprintsId.validate_blueprint_"
+                "on_security_breaches method.")
+        except (Exception,
+                dsl_exceptions.DSLParsingException,
+                dsl_exceptions.MissingRequiredInputError,
+                dsl_exceptions.UnknownInputError,
+                dsl_exceptions.FunctionEvaluationError,
+                dsl_exceptions.DSLParsingLogicException,
+                dsl_exceptions.DSLParsingFormatException) as e:
+            logger.exception(str(e))
+            logger.debug(
+                "Done. Exiting BlueprintsId.validate_blueprint_"
+                "on_security_breaches method.")
+            return make_response("Blueprint is not valid. Reason: %s."
+                                 % str(e), 403)
+
+        logger.debug(
+            "Done. Exiting BlueprintsId.validate_blueprint_"
+            "on_security_breaches method.")
 
     @swagger.operation(
         responseClass=responses.BlueprintState,
@@ -97,9 +138,9 @@ class BlueprintsId(restful.Resource):
         ]
     )
     def put(self, blueprint_id):
-        logger.debug("Entering Blueprints.put method.")
-        tempdir = tempfile.mkdtemp()
         try:
+            logger.debug("Entering Blueprints.put method.")
+            tempdir = tempfile.mkdtemp()
             archive_file_name = os.path.join(
                 tempdir,
                 util.add_org_prefix(blueprint_id) + '.tar.gz')
@@ -114,21 +155,25 @@ class BlueprintsId(restful.Resource):
                 if not file.endswith('.tar.gz'):
                     directory = file
                     break
+            self.validate_blueprint_on_security_breaches(
+                request.args['application_file_name'],
+                os.path.join(tempdir, directory))
+
             logger.info("Uploading blueprint to Cloudify manager.")
             blueprint = g.cc.blueprints.upload(
                 os.path.join(tempdir, directory,
                              request.args['application_file_name']),
                 util.add_org_prefix(blueprint_id))
             logger.debug("Done. Exiting Blueprints.put method.")
+            shutil.rmtree(tempdir, True)
             return util.remove_org_prefix(blueprint)
         except (Exception, exceptions.CloudifyClientError) as e:
             logger.error(str(e))
             status = (400 if not isinstance(e, exceptions.CloudifyClientError)
                       else e.status_code)
-            return util.make_response_from_exception(e, status)
-
-        finally:
+            logger.debug("Done. Exiting Blueprints.put method.")
             shutil.rmtree(tempdir, True)
+            return util.make_response_from_exception(e, status)
 
     @swagger.operation(
         responseClass=responses.BlueprintState,
