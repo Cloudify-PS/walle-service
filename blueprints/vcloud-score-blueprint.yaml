@@ -469,8 +469,6 @@ node_templates:
                 create:
                     inputs:
                         SCORE_PACKAGE_URL: { get_input: score_package_url }
-                        SCORE_NGINX_CONFIGURATION_URL: { get_input: score_nginx_configuration_url }
-
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
@@ -482,6 +480,7 @@ node_templates:
                         DB_USER: { get_input: postgresql_db_user }
                         DB_NAME: { get_input: postgresql_db_name }
                         DB_PASS: { get_input: postgresql_db_pass }
+                        SCORE_NGINX_CONFIGURATION_URL: { get_input: score_nginx_configuration_url }
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
