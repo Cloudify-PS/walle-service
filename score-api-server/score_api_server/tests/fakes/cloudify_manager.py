@@ -32,12 +32,11 @@ class BlueprintsManager(object):
     def get(self, blueprint_id):
         _bp = None
         try:
-            org_id, bp_obj_id = blueprint_id.split("_")
+            _, bp_obj_id = blueprint_id.split("_")
         except Exception:
             bp_obj_id = blueprint_id
-
         for key, bp_values in BP_DB.items():
-            if bp_obj_id == bp_values.id:
+            if bp_obj_id == bp_values.blueprint_id.split("_")[1]:
                 _bp = bp_values
                 return _bp
         if not _bp:

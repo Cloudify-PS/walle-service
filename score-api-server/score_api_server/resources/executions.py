@@ -1,6 +1,6 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
-from flask import request, g, make_response
+from flask import request, g
 from flask.ext import restful
 from flask.ext.restful import reqparse
 from flask_restful_swagger import swagger
@@ -19,55 +19,60 @@ parser.add_argument('deployment_id', type=str, help='Deployment ID')
 class Executions(restful.Resource):
 
     @swagger.operation(
+        responseClass='List[{0}]'.format(responses.Execution.__name__),
+        nickname="list",
+        notes="Returns a list of executions for the optionally provided "
+              "deployment id.",
+        parameters=[{'name': 'deployment_id',
+                     'description': 'Deployment ID',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'defaultValue': None,
+                     'paramType': 'query'}]
+    )
+    def get(self):
+        logger.debug("Entering Execution.get method.")
+        args = parser.parse_args()
+        try:
+            deployment_id = args['deployment_id']
+            deployment_id = util.add_org_prefix(deployment_id)
+            logger.info("Listing all executions for deployment %s .",
+                        deployment_id)
+            executions = g.cc.executions.list(deployment_id=deployment_id)
+            filtered = [util.remove_org_prefix(e) for e in executions
+                        if g.org_id in e['deployment_id']]
+            return filtered
+        except exceptions.CloudifyClientError as e:
+            return util.make_response_from_exception(e)
+
+
+class ExecutionsId(restful.Resource):
+
+    @swagger.operation(
         responseClass=responses.Execution,
-        nickname="getByDeploymentIdOrGetAll",
-        notes="Returns the executions by execution "
-              "id or list all by deployment id.",
-        parameters=[
-            {
-                'name': 'execution_id',
-                'description': 'Execution ID',
-                'required': False,
-                'allowMultiple': False,
-                'dataType': 'string',
-                'defaultValue': None,
-                'paramType': 'query'
-            },
-            {
-                'name': 'deployment_id',
-                'description': 'Deployment ID',
-                'required': True,
-                'allowMultiple': False,
-                'dataType': 'string',
-                'parameterType': 'query'
-            }
-        ]
+        nickname="getById",
+        notes="Returns the execution state by its id.",
+        parameters=[{'name': 'execution_id',
+                     'description': 'Execution ID',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'defaultValue': None,
+                     'paramType': 'path'}]
     )
     def get(self, execution_id=None):
-        logger.debug("Entering Execution.get method.")
+        logger.debug("Entering ExecutionsId.get method.")
         try:
-            if not execution_id:
-                args = parser.parse_args()
-                deployment_id = util.add_org_prefix(
-                    args['deployment_id'])
-                g.cc.deployments.get(deployment_id)
-                logger.info(
-                    "Listing all executions for deployment %s .",
-                    deployment_id)
-                executions = (
-                    g.cc.executions.list(deployment_id=deployment_id))
-                logger.debug("Done. Exiting Execution.get methods.")
-                return executions
-            else:
-                logger.info(
-                    "Seeking for executions by execution %s.",
-                    execution_id)
-                result = g.cc.executions.get(execution_id)
-                logger.debug("Done. Exiting ExecutionsId.get method.")
-                return result
+            logger.info(
+                "Seeking for executions by execution %s.",
+                execution_id)
+            result = g.cc.executions.get(execution_id)
+            logger.debug("Done. Exiting ExecutionsId.get method.")
+            return util.remove_org_prefix(result)
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
-            return make_response(str(e), e.status_code)
+            return util.make_response_from_exception(e)
 
     @swagger.operation(
         responseClass=responses.Execution,
@@ -120,13 +125,18 @@ class Executions(restful.Resource):
                         workflow_id, deployment_id)
             result = g.cc.executions.start(deployment_id, workflow_id)
             logger.debug("Done. Exiting Executions.post method.")
-            return result
+            return util.remove_org_prefix(result)
         except (exceptions.CloudifyClientError,
                 exceptions.DeploymentEnvironmentCreationInProgressError,
                 exceptions.DeploymentEnvironmentCreationPendingError) as e:
             # should we wait for deployment environment creation workflow?
             logger.error(str(e))
-            return make_response(str(e), 403)
+            response_code = (
+                403 if isinstance(e, (
+                    exceptions.DeploymentEnvironmentCreationInProgressError,
+                    exceptions.DeploymentEnvironmentCreationPendingError))
+                else e.status_code)
+            return util.make_response_from_exception(e, response_code)
 
     @swagger.operation(
         responseClass=responses.Execution,
@@ -153,7 +163,7 @@ class Executions(restful.Resource):
             self.get(execution_id=execution_id)
             result = g.cc.executions.cancel(execution_id, force)
             logger.debug("Done. Exiting Executions.put method.")
-            return result
+            return util.remove_org_prefix(result)
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
-            return make_response(str(e), e.status_code)
+            return util.make_response_from_exception(e)

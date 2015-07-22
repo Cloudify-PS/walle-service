@@ -18,15 +18,25 @@ def add_org_prefix(name):
 
 
 def remove_org_prefix(obj):
+    if not isinstance(obj, dict):
+        raise ValueError("Object must be instance of dict")
     obj_copy = copy.deepcopy(obj)
-    if isinstance(obj, dict):
-        replaced_id = obj['id'].replace("{}_".format(g.org_id), "", 1)
-    else:
-        replaced_id = obj.id.replace("{}_".format(g.org_id), "", 1)
-    obj_copy['id'] = replaced_id
-    obj_copy['blueprint_id'] = replaced_id
-    obj_copy['deployment_id'] = replaced_id
+    for attr in ('id', 'blueprint_id', 'deployment_id'):
+        try:
+            obj_copy[attr] = obj_copy[attr].replace(
+                "{}_".format(g.org_id), "", 1)
+        except KeyError:
+            pass
     return obj_copy
+
+
+def make_response_from_exception(exception, code=None):
+    def remove_org(e):
+        return str(e).replace("{}_".format(g.org_id), "")
+
+    status = code if code else exception.status_code
+    return make_response(remove_org(exception),
+                         status)
 
 
 def get_logging_level():

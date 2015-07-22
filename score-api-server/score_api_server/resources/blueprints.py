@@ -46,7 +46,7 @@ class Blueprints(restful.Resource):
             logger.debug("Done. Exiting Blueprints.get method.")
             return result
         except exceptions.CloudifyClientError as e:
-            return make_response(str(e), e.status_code)
+            return util.make_response_from_exception(e)
 
 
 # TODO(???): download blueprint
@@ -72,20 +72,22 @@ class BlueprintsId(restful.Resource):
                 util.add_org_prefix(blueprint_id))
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
-            return make_response(str(e), e.status_code)
+            return util.make_response_from_exception(e)
 
     @swagger.operation(
         responseClass=responses.BlueprintState,
         nickname="upload",
-        notes="Uploads a tar gzipped blueprint archive to the server.",
+        notes="Uploads the tar.gz archive of the folder which contains "
+              "blueprint file. "
+              "Request body must be contains only gzipped archive.",
         parameters=[{'name': 'blueprint_id',
                      'description': 'Blueprint ID',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'body'},
-                    {'name': 'blueprint_path',
-                     'description': 'URL of a blueprint tar gzipped file',
+                     'paramType': 'path'},
+                    {'name': 'application_file_name',
+                     'description': 'Name of blueprint tar gzipped file',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
@@ -121,8 +123,10 @@ class BlueprintsId(restful.Resource):
             return util.remove_org_prefix(blueprint)
         except (Exception, exceptions.CloudifyClientError) as e:
             logger.error(str(e))
-            return make_response(str(e), 400 if not isinstance(
-                e, exceptions.CloudifyClientError) else e.status_code)
+            status = (400 if not isinstance(e, exceptions.CloudifyClientError)
+                      else e.status_code)
+            return util.make_response_from_exception(e, status)
+
         finally:
             shutil.rmtree(tempdir, True)
 
@@ -149,7 +153,7 @@ class BlueprintsId(restful.Resource):
             return blueprint
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
-            return make_response(str(e), e.status_code)
+            return util.make_response_from_exception(e)
 
     @staticmethod
     def _save_file_locally(archive_file_name):

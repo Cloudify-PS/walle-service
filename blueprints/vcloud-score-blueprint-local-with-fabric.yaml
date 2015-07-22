@@ -36,20 +36,6 @@ inputs:
         type: string
         default: ''
 
-    user_github_key:
-        type: string
-        default: id_rsa
-        description: >
-            Please write name your github private key which located in
-            manager node in docker container in `~/.ssh/`
-
-    score_branch:
-        type: string
-        default: master
-        description: >
-            Please write branch which has a stable version of score service.
-            If this field is omitted, it will be installed from master.
-
     postgresql_db_name:
         type: string
         default: 'score'
@@ -132,8 +118,6 @@ node_templates:
                         task_properties:
                             config:
                                 score_package_url: { get_input: score_package_url }
-                                user_github_key: { get_input: user_github_key }
-                                score_branch: { get_input: score_branch }
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
