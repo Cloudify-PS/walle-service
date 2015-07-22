@@ -50,7 +50,11 @@ class CommonUtilTest(testtools.TestCase):
             self.assertEqual("", util.remove_org_prefix(""))
             self.assertEqual([], util.remove_org_prefix([]))
             self.assertRaises(ValueError, util.remove_org_prefix, "Sample string")
+            self.assertRaises(ValueError, util.remove_org_prefix, [1,2,3])
             self.assertRaises(ValueError, util.remove_org_prefix, 123)
+
+            test_dict = {"v1": 1, "v2": "text"}
+            self.assertEqual(test_dict, util.remove_org_prefix(test_dict))
 
             test_dict = {'id': util.add_org_prefix(id_string),
                          'blueprint_id': util.add_org_prefix(blueprint_string),
