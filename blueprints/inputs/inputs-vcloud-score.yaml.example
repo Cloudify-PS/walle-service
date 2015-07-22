@@ -12,6 +12,6 @@ vcloud_instance: instance
 manager_server_ip: manager_IP_address
 private_key_path: /opt/id_rsa_vmware
 user_public_key: ssh-rsa-key
-user_github_key: some_user_private_github_key_name
 score_package_url: URL_to_`score`_package_if_exists
 score_ip_address: some_ip
+score_nginx_configuration: URL_to_score_nginx_configuration

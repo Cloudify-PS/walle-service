@@ -1,4 +1,5 @@
--e git+https://github.com/cloudify-cosmo/cloudify-dsl-parser@3.2#egg=cloudify-dsl-parser==3.2
--e git+https://github.com/cloudify-cosmo/cloudify-plugins-common@3.2#egg=cloudify-plugins-common==3.2
--e git+https://github.com/cloudify-cosmo/cloudify-script-plugin@1.2#egg=cloudify-script-plugin==1.2
+cloudify-dsl-parser==3.2
+cloudify-plugins-common==3.2
+cloudify-script-plugin==1.2
 -e git+https://github.com/cloudify-cosmo/cloudify-cli@3.2#egg=cloudify-cli==3.2
+
