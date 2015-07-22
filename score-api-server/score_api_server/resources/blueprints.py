@@ -60,8 +60,8 @@ class BlueprintsId(restful.Resource):
             "Entering BlueprintsId.validate_blueprint_"
             "on_security_breaches method.")
         logger.info("Staring validating checks for blueprint: {0}. "
-                    "Blueprint directory: {1}.".format(
-            bluerpint_name, blueprint_directory))
+                    "Blueprint directory: {1}."
+                    .format(bluerpint_name, blueprint_directory))
         blueprint_path = os.path.join(blueprint_directory,
                                       bluerpint_name)
 
@@ -70,6 +70,20 @@ class BlueprintsId(restful.Resource):
 
             blueprint_plan = parser.parse_from_path(blueprint_path)
             logger.debug("Blueprint plan: %s" % str(blueprint_plan))
+
+            logger.info("Running groups, policy types and policy "
+                        "triggers validation.")
+            groups, p_types, p_triggers = (blueprint_plan['groups'],
+                                           blueprint_plan['policy_types'],
+                                           blueprint_plan['policy_triggers'])
+            if groups or p_triggers or p_types:
+                raise Exception(
+                    "Blueprint is invalid due to presence of groups, "
+                    "policy types and policy triggers. Groups: {0}."
+                    " Policy types: {1}. Policy triggers: {2}.".format(
+                        groups, p_types, p_triggers)
+                )
+
             logger.info("Success on basic blueprints validation.")
 
             logger.debug(
@@ -86,8 +100,7 @@ class BlueprintsId(restful.Resource):
             logger.debug(
                 "Done. Exiting BlueprintsId.validate_blueprint_"
                 "on_security_breaches method.")
-            return make_response("Blueprint is not valid. Reason: %s."
-                                 % str(e), 403)
+            raise exceptions.CloudifyClientError(str(e), status_code=403)
 
         logger.debug(
             "Done. Exiting BlueprintsId.validate_blueprint_"
@@ -171,7 +184,7 @@ class BlueprintsId(restful.Resource):
             logger.error(str(e))
             status = (400 if not isinstance(e, exceptions.CloudifyClientError)
                       else e.status_code)
-            logger.debug("Done. Exiting Blueprints.put method.")
+            logger.debug("Done. Error. Exiting Blueprints.put method.")
             shutil.rmtree(tempdir, True)
             return util.make_response_from_exception(e, status)
 

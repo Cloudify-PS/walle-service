@@ -1,0 +1,35 @@
+tosca_definitions_version: cloudify_dsl_1_0
+
+imports:
+
+    - types/score-types.yaml
+
+inputs:
+
+    servers_user:
+        default: ubuntu
+        type: string
+        description: >
+            Default admin user in os template
+
+    private_key_path:
+        default: /home/ubuntu/.ssh/id_rsa
+        type: string
+        description: >
+            Please upload key to manager server before use key
+
+    host_string:
+        default: localhost
+        type: string
+
+    port:
+        default: 22
+        type: string
+
+node_templates:
+
+    host:
+        type: cloudify.nodes.Compute
+        properties:
+          ip: { get_input: host_string }
+          install_agent: false
