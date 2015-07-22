@@ -481,7 +481,7 @@ node_templates:
                         DB_IP: { get_attribute: [postgresql_host, ip] }
                         DB_USER: { get_input: postgresql_db_user }
                         DB_NAME: { get_input: postgresql_db_name }
-                        DB_PATH: { get_input: postgresql_db_pass }
+                        DB_PASS: { get_input: postgresql_db_pass }
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
