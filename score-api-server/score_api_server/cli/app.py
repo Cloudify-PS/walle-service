@@ -66,8 +66,8 @@ def check_authorization():
                                  "Please contact administrator."
                                  % g.org_id, 403)
     else:
-        logger.error(str(vcs.response.status))
-        return make_response(str(vcs.response.status),
+        logger.error(str(vcs.response.status_code))
+        return make_response(str(vcs.response.reason),
                              vcs.response.status_code)
 
 
