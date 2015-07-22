@@ -55,7 +55,7 @@ tar -xvf score-nginx-configration.tar.gz -C score-nginx-configuration 2>&1
 cd score-nginx-configuration/
 
 mv www ~/www
-sudo cp etc/keys/* /etс/nginx
+sudo cp etc/keys/* /etc/nginx
 sudo cp etc/nginx/vca_io /etc/nginx/sites-enabled/
 
 sudo service nginx restart
