@@ -76,8 +76,8 @@ class TestBase(testtools.TestCase):
                                                       5, 6, 7, 8))
 
         fake_vca.login_to_org.side_effect = Exception(404)
-        self.assertRaises(Exception, login._login_user_to_service, 1, 2, 3, 4, 5, 6, 7, 8)
-
+        self.assertRaises(Exception, login._login_user_to_service,
+                          1, 2, 3, 4, 5, 6, 7, 8)
 
     def test_post(self):
         testlogin = login.Login()
