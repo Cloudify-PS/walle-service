@@ -1,8 +1,10 @@
-# This Dockerfile will be used as test environment box for running `CFY local` blueprint testing
+# This Dockerfile will be used as test environment box for running `CFY LOCAL` blueprint testing
 
 FROM ubuntu:trusty
 
 ADD . /score-service
+
+RUN cd /; rm -fr score-service/.venv score-service/.git score-service/score-api-server/.tox
 
 RUN apt-get update
 
@@ -22,6 +24,10 @@ RUN virtualenv /venv
 
 RUN . /venv/bin/activate; pip install -r /score-service/score-api-server/cfy-requirements.txt
 
+RUN cd /;tar -czf score-service.tar.gz score-service
+
+RUN cd /; tar -czf score-nginx-configuration.tar.gz score-service/etc score-service/www
+
 RUN ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa
 
 RUN cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
@@ -40,5 +46,16 @@ RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so
 ENV NOTVISIBLE "in users profile"
 RUN echo "export VISIBLE=now" >> /etc/profile
 
-EXPOSE 22
-CMD ["/usr/sbin/sshd", "-D"]
+RUN service ssh restart
+
+# Setting up inputs file for local locablueprint execution including Score blueprint
+
+RUN cd /; touch inputs-cfy-local.yaml
+
+RUN cd /; echo -e "servers_user: root\n" >> inputs-cfy-local.yaml
+
+RUN cd /; echo -e "private_key_path: /root/.ssh/id_rsa\n" >> inputs-cfy-local.yaml
+
+RUN cd /; echo -e "servers_user: root\n" >> inputs-cfy-local.yaml
+
+RUN cd /; echo -e "host_string: localhost\n" >> inputs-cfy-local.yaml
