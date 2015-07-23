@@ -49,8 +49,9 @@ class CommonUtilTest(testtools.TestCase):
             self.assertEqual(None, util.remove_org_prefix(None))
             self.assertEqual("", util.remove_org_prefix(""))
             self.assertEqual([], util.remove_org_prefix([]))
-            self.assertRaises(ValueError, util.remove_org_prefix, "Sample string")
-            self.assertRaises(ValueError, util.remove_org_prefix, [1,2,3])
+            self.assertRaises(ValueError, util.remove_org_prefix,
+                              "Sample string")
+            self.assertRaises(ValueError, util.remove_org_prefix, [1, 2, 3])
             self.assertRaises(ValueError, util.remove_org_prefix, 123)
 
             test_dict = {"v1": 1, "v2": "text"}
