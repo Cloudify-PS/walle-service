@@ -117,7 +117,6 @@ class RealScoreAPIClient(BaseScoreAPIClient):
 
     def setUp(self):
         super(BaseScoreAPIClient, self).setUp()
-        app.app.config['TESTING'] = True
 
         current_dir = os.path.dirname(os.path.realpath(__file__))
         path_to_login_json = (current_dir +
@@ -138,9 +137,6 @@ class RealScoreAPIClient(BaseScoreAPIClient):
             'x-vcloud-org-url': self.vca.vcloud_session.org_url,
             'x-vcloud-version': self.service_version,
         }
-
-        if self.vca:
-            self.client = app.app.test_client()
 
         vcloud_org_url = self.vca.vcloud_session.org_url
 
@@ -222,9 +218,6 @@ class RealScoreAPIClient(BaseScoreAPIClient):
 class FakeScoreAPIClient(BaseScoreAPIClient):
 
     def setUp(self):
-        app.app.config['TESTING'] = True
-        self.client = app.app.test_client()
-
         # monkey-patching VCS class to
         # disable vCloud Air logging
         self.safe_vcs = app.VCS
@@ -327,6 +320,9 @@ def get_base_class():
 class IntegrationBaseTestCase(get_base_class()):
 
     def setUp(self):
+        app.app.config['TESTING'] = True
+        self.client = app.app.test_client()
+
         self.db_fd, self.db_fpath = tempfile.mkstemp()
         app.app.config['SQLALCHEMY_DATABASE_URI'] = (
             "sqlite:///%s.db" % self.db_fpath)
