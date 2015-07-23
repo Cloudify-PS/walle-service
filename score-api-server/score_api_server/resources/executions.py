@@ -36,9 +36,12 @@ class Executions(restful.Resource):
         args = parser.parse_args()
         try:
             deployment_id = args['deployment_id']
-            deployment_id = util.add_org_prefix(deployment_id)
-            logger.info("Listing all executions for deployment %s .",
-                        deployment_id)
+            if deployment_id:
+                    deployment_id = util.add_org_prefix(deployment_id)
+                    logger.info("Listing all executions for deployment %s .",
+                                deployment_id)
+            else:
+                    logger.info("Listing all executions")
             executions = g.cc.executions.list(deployment_id=deployment_id)
             filtered = [util.remove_org_prefix(e) for e in executions
                         if g.org_id in e['deployment_id']]

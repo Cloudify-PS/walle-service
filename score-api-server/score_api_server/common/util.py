@@ -14,12 +14,9 @@ CONF = cfg.CONF
 
 
 def add_org_prefix(name):
-    if name:
-        if not isinstance(name, basestring):
-            raise ValueError("Name must be instance of basestring")
-        return "{}_{}".format(g.org_id, name)
-    else:
-        return name
+    if not isinstance(name, basestring) or not name:
+        raise ValueError("Name must be nonempty instance of basestring")
+    return "{}_{}".format(g.org_id, name)
 
 
 def remove_org_prefix(obj):
