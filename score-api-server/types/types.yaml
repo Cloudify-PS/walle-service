@@ -36,7 +36,7 @@ node_types:
         default: ''
     interfaces:
       cloudify.interfaces.worker_installer:
-        install:{}
+        install: {}
         start: {}
         stop: {}
         uninstall: {}
