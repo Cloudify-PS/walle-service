@@ -12,4 +12,5 @@ Flask-SQLAlchemy
 Flask-Migrate
 oslo.utils
 PrettyTable>=0.7,<0.8
+functools32
 jsonschema
