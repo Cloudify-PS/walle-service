@@ -14,3 +14,14 @@ class Forbidden(Exception):
     def __str__(self):
         formatted_string = "%s (HTTP %s)" % (self.message, self.http_status)
         return formatted_string
+
+
+class Unauthorized(Exception):
+    """HTTP 401 - Unauthorized: bad credentials.
+    """
+    http_status = 401
+    message = "Unauthorized"
+
+    def __str__(self):
+        formatted_string = "%s (HTTP %s)" % (self.message, self.http_status)
+        return formatted_string

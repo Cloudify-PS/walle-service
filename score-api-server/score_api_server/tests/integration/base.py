@@ -130,7 +130,15 @@ class RealScoreAPIClient(BaseScoreAPIClient):
         deployment_limits = login_cfg.get('deployment_limits')
 
         # login to VCA
-        self.vca = self._login_to_vca(login_cfg)
+        attempt = 3
+        while attempt:
+            self.vca = self._login_to_vca(login_cfg)
+            if self.vca:
+                break
+            attempt -= 1
+
+        if not self.vca:
+            raise exceptions.Unauthorized()
 
         # headers
         self.headers = {
