@@ -38,20 +38,10 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
         self.assertIn("OK", response.status)
         self.assertIsNotNone(json.loads(response.data))
 
-    def test_upload_with_get(self):
-        response_upload = self.make_upload_blueprint()
-        data = json.loads(response_upload.data)
-        blueprint_id = data['blueprint_id']
-        response_get = self.execute_get_request_with_route(
-            "/blueprints/%s" % blueprint_id)
-        self.assertNotEqual(404, response_get.status_code)
-        self.assertEqual(200, response_get.status_code)
-        self.assertIsNotNone(json.loads(response_get.data))
-
     def test_upload_with_get_and_delete(self):
         response_upload = self.make_upload_blueprint()
         data = json.loads(response_upload.data)
-        blueprint_id = data['blueprint_id']
+        blueprint_id = data['id']
         response_get = self.execute_get_request_with_route(
             "/blueprints/%s" % blueprint_id)
         response_delete = self.execute_delete_request_with_route(

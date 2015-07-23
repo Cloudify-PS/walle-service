@@ -21,8 +21,7 @@ class Blueprint(dict):
 
     def to_dict(self):
         return {
-            "id": self.id,
-            "blueprint_id": self.blueprint_id,
+            "id": self.blueprint_id,
             "deployment_id": self.deployment_id
         }
 
