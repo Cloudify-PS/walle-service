@@ -48,6 +48,7 @@ class Blueprints(restful.Resource):
             logger.debug("Done. Exiting Blueprints.get method.")
             return result
         except exceptions.CloudifyClientError as e:
+            logger.exception(str(e))
             return util.make_response_from_exception(e)
 
 
@@ -125,7 +126,7 @@ class BlueprintsId(restful.Resource):
             return g.cc.blueprints.get(
                 util.add_org_prefix(blueprint_id))
         except exceptions.CloudifyClientError as e:
-            logger.error(str(e))
+            logger.exception(str(e))
             return util.make_response_from_exception(e)
 
     @swagger.operation(
@@ -181,7 +182,7 @@ class BlueprintsId(restful.Resource):
             shutil.rmtree(tempdir, True)
             return util.remove_org_prefix(blueprint)
         except (Exception, exceptions.CloudifyClientError) as e:
-            logger.error(str(e))
+            logger.exception(str(e))
             status = (400 if not isinstance(e, exceptions.CloudifyClientError)
                       else e.status_code)
             logger.debug("Done. Error. Exiting Blueprints.put method.")
@@ -210,7 +211,7 @@ class BlueprintsId(restful.Resource):
             logger.debug("Done. Exiting Blueprints.delete method.")
             return blueprint
         except exceptions.CloudifyClientError as e:
-            logger.error(str(e))
+            logger.exception(str(e))
             return util.make_response_from_exception(e)
 
     @staticmethod

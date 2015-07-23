@@ -51,9 +51,8 @@ class BaseScoreAPIClient(testtools.TestCase):
     def try_auth(self, headers=None):
         pass
 
-    def make_upload_blueprint(self):
-        # TODO(???) make blueprint path configurable
-        blueprint_filename = "vcloud-postgresql-blueprint.yaml"
+    def make_upload_blueprint(
+            self, blueprint_filename="vcloud-blueprint-for-tests.yaml"):
         current_dir = os.path.dirname(os.path.realpath(__file__))
         blueprints_dir = current_dir + '/../../../../blueprints/'
         blueprint_path = blueprints_dir + blueprint_filename
