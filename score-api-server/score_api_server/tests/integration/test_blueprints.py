@@ -72,4 +72,5 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
         response = self.execute_get_request_with_route("/blueprints")
         blueprints_content = json.loads(response.data)
         for blueprint in blueprints_content:
-            self.execute_delete_request_with_route("/blueprints/%s" % blueprint['id'])
+            self.execute_delete_request_with_route(
+                "/blueprints/%s" % blueprint['id'])
