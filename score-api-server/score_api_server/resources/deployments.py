@@ -113,7 +113,7 @@ class DeploymentsId(restful.Resource):
             result = g.cc.deployments.delete(cfy_dp_id)
             self.update_quota(-1)
             logger.debug("Done. Exiting Deployments.delete method.")
-            return result
+            return util.remove_org_prefix(result)
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
             return util.make_response_from_exception(e)
@@ -161,7 +161,7 @@ class DeploymentsId(restful.Resource):
                     util.add_org_prefix(deployment_id),
                     inputs=inputs)
                 logger.debug("Done. Exiting Deployments.put method.")
-                return deployment
+                return util.remove_org_prefix(deployment)
             except(exceptions.CloudifyClientError,
                    exceptions.MissingRequiredDeploymentInputError,
                    exceptions.UnknownDeploymentInputError) as e:

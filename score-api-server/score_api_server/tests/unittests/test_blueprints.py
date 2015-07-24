@@ -50,7 +50,7 @@ class TestBase(testtools.TestCase):
             fake_bp = fake_objects.FakeBlueprint(fake_id, fake_id, fake_id)
             flask.g.cc.blueprints.get = mock.MagicMock(return_value=fake_bp)
             bp = self.bluprient_id.get(blueprint_id=self.bp_id)
-        self.assertEqual(fake_id, bp.id)
+        self.assertEqual(self.bp_id, bp.id)
 
     def test_get_all_blueprints(self):
         with self.app.app_context():
@@ -68,7 +68,7 @@ class TestBase(testtools.TestCase):
             flask.g.cc = mock.MagicMock()
             fake_id = flask.g.org_id + '_' + self.bp_id
             fake_bp = fake_objects.FakeBlueprint(fake_id, fake_id, fake_id)
-            flask.g.cc.blueprints.delete = mock.MagicMock(
-                return_value=fake_bp)
+            flask.g.cc.blueprints.get = mock.MagicMock(return_value=None)
+            flask.g.cc.blueprints.delete = mock.MagicMock(return_value=fake_bp)
             bp = self.bluprient_id.delete(blueprint_id=self.bp_id)
-        self.assertEqual(fake_id, bp.id)
+            self.assertEqual(self.bp_id, bp.id)

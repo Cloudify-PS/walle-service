@@ -18,6 +18,8 @@ def add_org_prefix(name):
 
 
 def remove_org_prefix(obj):
+    if not obj:
+        return obj
     if not isinstance(obj, dict):
         raise ValueError("Object must be instance of dict")
     obj_copy = copy.deepcopy(obj)
