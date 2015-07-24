@@ -19,12 +19,6 @@ class FakeBlueprint(dict):
     def blueprint_id(self):
         return self.get('blueprint_id')
 
-    # def __getitem__(self, item):
-    #     return self.__dict__[item]
-
-    # def __setitem__(self, key, value):
-    #     self.__dict__[key] = value
-
 
 class FakeDeployment(dict):
     def __init__(self, data):
