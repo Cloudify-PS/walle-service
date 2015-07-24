@@ -101,7 +101,9 @@ class BlueprintsId(restful.Resource):
             logger.debug(
                 "Done. Exiting BlueprintsId.validate_blueprint_"
                 "on_security_breaches method.")
-            raise exceptions.CloudifyClientError(str(e), status_code=403)
+            raise exceptions.CloudifyClientError(
+                "{0}. Blueprint {1}.".format(str(e), bluerpint_name),
+                status_code=403)
 
         logger.debug(
             "Done. Exiting BlueprintsId.validate_blueprint_"

@@ -6,7 +6,7 @@
 tosca_definitions_version: cloudify_dsl_1_0
 
 imports:
-  - http://23.92.243.116:8000/types.yaml
+  - http://23.92.245.227:8000/types.yaml
   - http://www.getcloudify.org/spec/fabric-plugin/1.2/plugin.yaml
   - types/agentless.yaml
 
