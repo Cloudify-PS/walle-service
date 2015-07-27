@@ -1,0 +1,16 @@
+###########################################################
+# This Blueprint is for integration tests ONLY
+###########################################################
+
+tosca_definitions_version: cloudify_dsl_1_0
+
+imports:
+  - http://23.92.245.227:8000/types.yaml
+  - ../../types/agentless.yaml
+
+
+node_types:
+
+    # base server type for installation without agent
+    dumb-type:
+        derived_from: cloudify.nodes.Compute

@@ -45,12 +45,20 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
         self.assertIsNotNone(json.loads(response.data),
                              response.data)
 
-    def test_upload_invalid_blueprint(self):
+    def _upload_invalid_blueprint(self, name, expected_code=403,
+                                  expected_message_part="invalid"):
         response = self.make_upload_blueprint(
-            blueprint_filename="vcloud-invalid-blueprint-for-tests.yaml")
-        self.assertEqual(403, response.status_code,
-                         response.data)
-        self.assertIn("invalid", response.data)
+            blueprint_filename=name)
+        self.assertEqual(403, expected_code, response.data)
+        self.assertIn(expected_message_part, response.data)
+
+    def test_upload_invalid_blueprint(self):
+        self._upload_invalid_blueprint(
+            "vcloud-invalid-blueprint-for-tests.yaml")
+
+    def test_upload_blueprint_with_relative_import(self):
+        self._upload_invalid_blueprint(
+            "vcloud-invalid-blueprint-with_relative-import.yaml")
 
     def test_upload_with_get_and_delete(self):
         response_upload = self.make_upload_blueprint()
