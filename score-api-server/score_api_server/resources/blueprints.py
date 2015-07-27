@@ -88,6 +88,7 @@ class BlueprintsId(restful.Resource):
             )
 
     def validate_imports(self, blueprint_path):
+        logger.debug("Entering Blueprints.validate_imports method.")
         with open(blueprint_path) as bp:
             imports = yaml.load(bp.read())['imports']
             for _import in imports:
@@ -96,10 +97,12 @@ class BlueprintsId(restful.Resource):
                         "Invalid types import - {0}".format(
                             _import)
                     )
+            logger.info("Blueprint imports pre-validation when well.")
+        logger.debug("Exiting Blueprints.validate_imports method.")
 
     def validate_plugins(self, blueprint_plan):
         logger.debug("Entering Blueprints.validate_plugins method.")
-        logger.info("Running blueprint plugins validation checks.")
+        logger.info("Running deployment/workflow plugins validation.")
         from score_api_server.db import models
 
         def _validate_plugins_with_type(plugins, _type):
@@ -126,6 +129,63 @@ class BlueprintsId(restful.Resource):
         logger.info("Validation finished succesfuly.")
         logger.debug("Exiting Blueprints.validate_plugins method.")
 
+    def validate_nodes_for_install_agent_flag(self, blueprint_plan):
+        logger.debug("Entering Blueprint."
+                     "validate_nodes_for_install_agent_flag method.")
+
+        logger.info("Running install_agent flag validation.")
+        for node_properties in [node['properties']
+                                for node in blueprint_plan['nodes']]:
+            if node_properties.get('install_agent'):
+                raise exceptions.CloudifyClientError(
+                    "Agent installation install allowed "
+                    "for any of blueprint nodes")
+
+        logger.debug("Exiting Blueprint."
+                     "validate_nodes_for_install_agent_flag method.")
+
+    def validate_plugins_to_install_property(self, blueprint_plan):
+        logger.debug("Entering Blueprint."
+                     "validate_plugins_to_install property method.")
+
+        logger.info("Running plugins_to_install properly validation.")
+        for node in blueprint_plan['nodes']:
+            if node.get('plugins_to_install'):
+                raise exceptions.CloudifyClientError(
+                    "Plugin installation for nodes is not allowed"
+                )
+
+        logger.debug("Exiting Blueprint."
+                     "validate_plugins_to_install property method.")
+
+    def validate_plugin_nodes_fabric_operations(self, blueprint_plan):
+        logger.debug(
+            "Entering Blueprints.validate_plugin_nodes_"
+            "fabric_operations method.")
+
+        logger.info("Staring fabric operations validation.")
+        invalid_fabric_operations = [
+            "fabric_plugin.tasks.run_commands",
+            "fabric_plugin.tasks.run_task",
+            "fabric_plugin.tasks.run_module_task",
+        ]
+        for node in blueprint_plan['nodes']:
+            for operation, operation_opts in node['operations'].items():
+                if (operation_opts['operation'] in
+                        invalid_fabric_operations):
+                    raise exceptions.CloudifyClientError(
+                        "Node {0} lifecycle {1} operation {2} is not allowed. "
+                        "Forbidden operations {3}".format(
+                            node['name'],
+                            operation,
+                            operation_opts['operation'],
+                            "\n".join(invalid_fabric_operations))
+                    )
+
+        logger.debug(
+            "Exiting Blueprints.validate_plugin_nodes_"
+            "fabric_operations method.")
+
     def validate_blueprint_on_security_breaches(
             self, bluerpint_name, blueprint_directory):
         logger.debug(
@@ -145,10 +205,11 @@ class BlueprintsId(restful.Resource):
             blueprint_plan = parser.parse_from_path(blueprint_path)
             logger.debug("Blueprint plan: %s" % str(blueprint_plan))
 
+            self.validate_nodes_for_install_agent_flag(blueprint_plan)
             self.validation_groups_policies(blueprint_plan)
-
-            logger.info("Running deployment/workflow plugins validation.")
             self.validate_plugins(blueprint_plan)
+            self.validate_plugins_to_install_property(blueprint_plan)
+            self.validate_plugin_nodes_fabric_operations(blueprint_plan)
 
             logger.info("Success on basic blueprints validation.")
 
