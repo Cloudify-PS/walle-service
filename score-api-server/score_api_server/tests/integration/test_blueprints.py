@@ -58,7 +58,8 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
 
     def test_upload_blueprint_with_relative_import(self):
         self._upload_invalid_blueprint(
-            "vcloud-invalid-blueprint-with_relative-import.yaml")
+            "vcloud-invalid-blueprint-with-relative-import.yaml",
+            expected_message_part="Unable to access types definition file")
 
     def test_upload_with_get_and_delete(self):
         response_upload = self.make_upload_blueprint()

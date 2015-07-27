@@ -55,6 +55,23 @@ class Blueprints(restful.Resource):
 # TODO(???): download blueprint
 class BlueprintsId(restful.Resource):
 
+    def filter_validation_exception(self, e):
+        if str(e).startswith("Failed on import"):
+            root_message = "Invalid types import - {0}. ".format(
+                e.failed_import)
+            if not e.failed_import.startswith("http"):
+                return (
+                    root_message +
+                    "Unable to access types definition file."
+                    "Please note that relative paths is not allowed.")
+            else:
+                return (
+                    root_message +
+                    "Unable to access remote types definition file."
+                )
+        else:
+            return e.message
+
     def validate_blueprint_on_security_breaches(
             self, bluerpint_name, blueprint_directory):
         logger.debug(
@@ -102,7 +119,9 @@ class BlueprintsId(restful.Resource):
                 "Done. Exiting BlueprintsId.validate_blueprint_"
                 "on_security_breaches method.")
             raise exceptions.CloudifyClientError(
-                "{0}. Blueprint {1}.".format(str(e), bluerpint_name),
+                "{0}. Blueprint: {1}.".format(
+                    self.filter_validation_exception(e),
+                    bluerpint_name),
                 status_code=403)
 
         logger.debug(

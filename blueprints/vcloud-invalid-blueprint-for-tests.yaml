@@ -1,6 +1,5 @@
 ###########################################################
-# This Blueprint installs the PostgreSQL application
-# on a local machine.
+# This Blueprint is for integration tests ONLY
 ###########################################################
 
 tosca_definitions_version: cloudify_dsl_1_0
@@ -10,49 +9,6 @@ imports:
   - http://www.getcloudify.org/spec/fabric-plugin/1.2/plugin.yaml
   - types/agentless.yaml
 
-inputs:
-
-    servers_user:
-        default: ubuntu
-        type: string
-        description: >
-            Default admin user in os template
-
-    private_key_path:
-        default: ~/.ssh/ubuntu-private.key
-        type: string
-        description: >
-            Please upload key to manager server before use key
-
-    host_string:
-        default: localhost
-        type: string
-
-    port:
-        default: 22
-        type: string
-
-node_templates:
-
-  host:
-    type: cloudify.nodes.Compute
-    properties:
-      ip: { get_input: host_string }
-      install_agent: false
-
-  posgresql:
-    type: agentless.nodes.PostgreSqlDatabase
-    properties:
-      port: 5432
-    relationships:
-      - type: cloudify.relationships.contained_in
-        target: host
-    interfaces:
-        cloudify.interfaces.lifecycle:
-            create:
-                inputs:
-                    fabric_env:
-                        user: { get_input: servers_user }
-                        key_filename: { get_input: private_key_path }
-                        host_string: { get_input: host_string }
-                        port: { get_input: port }
+node_types:
+    dumb-type:
+        derived_from: cloudify.nodes.Compute
