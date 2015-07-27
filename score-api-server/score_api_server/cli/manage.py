@@ -17,6 +17,8 @@ manager = Manager(flask_app)
 
 OrgIDCommands = Manager(usage="Performs action related to Org-IDs")
 OrgIDLimitsCommands = Manager(usage="Performs action related to Org-ID limits")
+ApprovedPluginsCommands = Manager(usage="Performs actions related to approved "
+                                        "deployment and workflow plugins.")
 
 
 @OrgIDCommands.option("--org-id", dest="org_id",
@@ -166,6 +168,57 @@ def delete(**kwargs):
         print("OK")
 
 
+@ApprovedPluginsCommands.option(
+    "--name", dest="name", help="Approved plugin name.")
+@ApprovedPluginsCommands.option("--source", dest="source",
+                                help="Approved plugin source")
+@ApprovedPluginsCommands.option("--type", dest="type",
+                                help="Approved plugin type. "
+                                "`deployment_plugin` or `workflow_plugins`")
+@ApprovedPluginsCommands.option(
+    "--from-file", dest="from_file",
+    help="Full path to approved plugins description, "
+         "expected to be a YAML file")
+@ApprovedPluginsCommands.option("--db-uri", dest="db_uri", default=None)
+def add(**kwargs):
+
+    db_uri = kwargs.get("db_uri")
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+    _name, _source, _type = (kwargs.get("name"),
+                             kwargs.get("source"),
+                             kwargs.get("type"))
+    if not any([_name, _type]):
+        _plugins = (models.ApprovedPlugins.
+                    register_from_file(kwargs.get("from_file")))
+        print_utils.print_list(_plugins, ['name', 'source', 'plugin_type'])
+    else:
+        print_utils.print_dict(
+            models.ApprovedPlugins(_name, _source, _type).to_dict())
+
+
+@ApprovedPluginsCommands.option("--db-uri", dest="db_uri", default=None)
+def list(**kwargs):
+    db_uri = kwargs.get("db_uri")
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+    plugins = models.ApprovedPlugins.list()
+    print_utils.print_list(
+        plugins, ['name', 'source', 'plugin_type'])
+
+
+@ApprovedPluginsCommands.option("--db-uri", dest="db_uri", default=None)
+@ApprovedPluginsCommands.option("--name", dest="name",
+                                help="Approved plugin name")
+def delete(**kwargs):
+    db_uri = kwargs.get("db_uri")
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+    name = kwargs.get("name")
+    models.ApprovedPlugins.find_by(name=name).delete()
+
+
+manager.add_command('approved-plugins', ApprovedPluginsCommands)
 manager.add_command('org-ids', OrgIDCommands)
 manager.add_command('org-id-limits', OrgIDLimitsCommands)
 manager.add_command('db', MigrateCommand)

@@ -61,6 +61,13 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
             "vcloud-invalid-blueprint-with-relative-import.yaml",
             expected_message_part="Unable to access types definition file")
 
+    def test_upload_blueprint_with_unapproved_plugins(self):
+        self.drop_approved_plugins()
+        self._upload_invalid_blueprint(
+            "vcloud-blueprint-for-tests.yaml", 403,
+            expected_message_part="is not approved. Blueprint: ")
+        self.recreate_approved_plugins()
+
     def test_upload_with_get_and_delete(self):
         response_upload = self.make_upload_blueprint()
         self.assertEqual(200, response_upload.status_code,
@@ -76,10 +83,3 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
             "/blueprints/%s" % blueprint_id)
         self.assertEqual(200, response_delete.status_code,
                          response_upload.data)
-
-    def test_delete_all_blueprints(self):
-        response = self.execute_get_request_with_route("/blueprints")
-        blueprints_content = json.loads(response.data)
-        for blueprint in blueprints_content:
-            self.execute_delete_request_with_route(
-                "/blueprints/%s" % blueprint['id'])

@@ -24,16 +24,16 @@ class BaseDatabaseModel(object):
 
     def save(self):
         try:
-            app.db.session.add(self)
-            app.db.session.commit()
+            db.session.add(self)
+            db.session.commit()
         except Exception as e:
             logger.error(str(e))
             raise e
 
     def delete(self):
         try:
-            app.db.session.delete(self)
-            app.db.session.commit()
+            db.session.delete(self)
+            db.session.commit()
         except Exception as e:
             logger.error(str(e))
             raise e

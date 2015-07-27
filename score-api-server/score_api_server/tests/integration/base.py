@@ -328,13 +328,28 @@ class IntegrationBaseTestCase(get_base_class()):
         app.app.config['SQLALCHEMY_DATABASE_URI'] = (
             "sqlite:///%s.db" % self.db_fpath)
 
-        current_dir = os.path.dirname(os.path.realpath(__file__))
+        self.current_dir = os.path.dirname(os.path.realpath(__file__))
         with app.app.app_context():
-            migrate_dir = current_dir + '/../../../migrations/'
+            migrate_dir = self.current_dir + '/../../../migrations/'
             upgrade(directory=migrate_dir)
-            app.db.create_all()
+            models.base.db.create_all()
+
+        approved_plugins = (self.current_dir +
+                            '/../../../../approved_plugins/'
+                            'approved_plugins_description.yaml')
+        models.ApprovedPlugins.register_from_file(approved_plugins)
 
         super(IntegrationBaseTestCase, self).setUp()
+
+    def recreate_approved_plugins(self):
+        approved_plugins = (self.current_dir +
+                            '/../../../../approved_plugins/'
+                            'approved_plugins_description.yaml')
+        models.ApprovedPlugins.register_from_file(approved_plugins)
+
+    def drop_approved_plugins(self):
+        for plugin in models.ApprovedPlugins.list():
+            plugin.delete()
 
     def tearDown(self):
 

@@ -1,5 +1,7 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
+import yaml
+
 from score_api_server.db import base
 
 
@@ -64,4 +66,67 @@ class OrgIDToCloudifyAssociationWithLimits(base.BaseDatabaseModel,
             "updated_at": self.updated_at,
             "cloudify_host": self.cloudify_host,
             "cloudify_port": self.cloudify_port
+        }
+
+
+class ApprovedPlugins(base.BaseDatabaseModel,
+                      base.db.Model):
+
+    __tablename__ = 'approved_plugins'
+
+    id = base.db.Column(base.db.String(), primary_key=True)
+    name = base.db.Column(base.db.String(), unique=True)
+    source = base.db.Column(base.db.String(), unique=True)
+    plugin_type = base.db.Column(base.db.String())
+
+    def __init__(self, name, source, plugin_type):
+        """Creates an approved plugin entity for blueprints
+           security validation
+        :param name: approved plugin name
+        :type name: basestring
+        :param source: approved plugin source
+        :type source: basestring
+        :param type: approved plugin type
+        :type type: basestring
+        """
+        self.name = name
+        self.source = (None if not source
+                       and source != ''
+                       else source)
+        self.plugin_type = plugin_type
+        super(ApprovedPlugins, self).__init__()
+        self.save()
+
+    @classmethod
+    def _register_plugin(cls, list_of_plugins, _type):
+        _plugins = []
+        for plugin in list_of_plugins:
+            _name = plugin.keys()[0]
+            _source = plugin[_name]['source']
+            _type = _type
+            _plugins.append(cls(
+                _name, _source, _type))
+        return _plugins
+
+    @classmethod
+    def register_from_file(cls, from_file):
+        _plugins = []
+        with open(from_file) as f:
+            a_p = yaml.load(f.read())
+            d_ps, w_ps = (a_p.get("deployment_plugins"),
+                          a_p.get("workflow_plugins"))
+
+            _plugins.extend(
+                cls._register_plugin(d_ps, "deployment_plugins"))
+            _plugins.extend(
+                cls._register_plugin(w_ps, "workflow_plugins"))
+
+            return _plugins
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "source": self.source,
+            "plugin_type": self.plugin_type
         }

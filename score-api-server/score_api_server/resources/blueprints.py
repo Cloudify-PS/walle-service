@@ -72,6 +72,47 @@ class BlueprintsId(restful.Resource):
         else:
             return e.message
 
+    def validation_groups_policies(self, blueprint_plan):
+        logger.info("Running groups, policy types and policy "
+                    "triggers validation.")
+        groups, p_types, p_triggers = (blueprint_plan['groups'],
+                                       blueprint_plan['policy_types'],
+                                       blueprint_plan['policy_triggers'])
+        if groups or p_triggers or p_types:
+            raise Exception(
+                "Blueprint is invalid due to presence of groups, "
+                "policy types and policy triggers. Groups: {0}."
+                " Policy types: {1}. Policy triggers: {2}.".format(
+                    groups, p_types, p_triggers)
+            )
+
+    def validate_plugins(self, blueprint_plan):
+        logger.debug("Entering Blueprints.validate_plugins method.")
+        logger.info("Running blueprint plugins validation checks.")
+        from score_api_server.db import models
+
+        def _validate_plugins_with_type(plugins, _type):
+            for plugin in plugins:
+                name, source = plugin['name'], plugin['source']
+
+                if not models.ApprovedPlugins.find_by(
+                        name=name,
+                        source=source if source else '',
+                        plugin_type=_type):
+
+                    raise exceptions.CloudifyClientError(
+                        "Forbidden. Blueprint plugin {0} with source {1} "
+                        "is not approved".format(name, source))
+
+        deployment_plugins = blueprint_plan['deployment_plugins_to_install']
+        workflow_plugins = blueprint_plan['workflow_plugins_to_install']
+
+        _validate_plugins_with_type(deployment_plugins, "deployment_plugins")
+        _validate_plugins_with_type(workflow_plugins, "workflow_plugins")
+
+        logger.info("Validation finished succesfuly.")
+        logger.debug("Exiting Blueprints.validate_plugins method.")
+
     def validate_blueprint_on_security_breaches(
             self, bluerpint_name, blueprint_directory):
         logger.debug(
@@ -89,18 +130,10 @@ class BlueprintsId(restful.Resource):
             blueprint_plan = parser.parse_from_path(blueprint_path)
             logger.debug("Blueprint plan: %s" % str(blueprint_plan))
 
-            logger.info("Running groups, policy types and policy "
-                        "triggers validation.")
-            groups, p_types, p_triggers = (blueprint_plan['groups'],
-                                           blueprint_plan['policy_types'],
-                                           blueprint_plan['policy_triggers'])
-            if groups or p_triggers or p_types:
-                raise Exception(
-                    "Blueprint is invalid due to presence of groups, "
-                    "policy types and policy triggers. Groups: {0}."
-                    " Policy types: {1}. Policy triggers: {2}.".format(
-                        groups, p_types, p_triggers)
-                )
+            self.validation_groups_policies(blueprint_plan)
+
+            logger.info("Running deployment/workflow plugins validation.")
+            self.validate_plugins(blueprint_plan)
 
             logger.info("Success on basic blueprints validation.")
 
