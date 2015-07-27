@@ -99,17 +99,11 @@ class BaseScoreAPIClient(testtools.TestCase):
             query_params[
                 'application_file_name'] = urllib.quote(
                 application_file_name)
-        try:
-            self.execute_get_request_with_route(
-                '/blueprints/{0}'.format(blueprint_id))
-            self.execute_delete_request_with_route(
-                '/blueprints/{0}'.format(blueprint_id))
-        finally:
-            with open(tar_file, 'rb') as f:
-                return self.execute_put_request_with_route(
-                    '/blueprints/{0}'.format(blueprint_id),
-                    params=query_params,
-                    data=f.read())
+        with open(tar_file, 'rb') as f:
+            return self.execute_put_request_with_route(
+                '/blueprints/{0}'.format(blueprint_id),
+                params=query_params,
+                data=f.read())
 
 
 class RealScoreAPIClient(BaseScoreAPIClient):
