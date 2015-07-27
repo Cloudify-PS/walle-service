@@ -93,12 +93,14 @@ class BlueprintsId(restful.Resource):
 
         def _validate_plugins_with_type(plugins, _type):
             for plugin in plugins:
-                name, source = plugin['name'], plugin['source']
+                name, source, install_arguments = (plugin['name'],
+                                                   plugin['source'],
+                                                   plugin['install_arguments'])
 
                 if not models.ApprovedPlugins.find_by(
                         name=name,
                         source=source if source else '',
-                        plugin_type=_type):
+                        plugin_type=_type) or install_arguments:
 
                     raise exceptions.CloudifyClientError(
                         "Forbidden. Blueprint plugin {0} with source {1} "
