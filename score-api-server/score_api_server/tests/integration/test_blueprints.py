@@ -13,6 +13,12 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
         self.bp_id = str(uuid.uuid4()) + "some_bp_name"
 
     def tearDown(self):
+        for blueprint in json.loads(
+                self.execute_get_request_with_route(
+                "/blueprints").data):
+            self.execute_delete_request_with_route(
+                "/blueprints/%s" %
+                blueprint['id'])
         super(TestBlueprintsReSTResources, self).tearDown()
 
     def test_list_blueprints(self):
@@ -67,6 +73,12 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
             "vcloud-blueprint-for-tests.yaml", 403,
             expected_message_part="is not approved. Blueprint: ")
         self.recreate_approved_plugins()
+
+    def test_upload_blueprint_with_file_uri(self):
+        self._upload_invalid_blueprint(
+            "vcloud-invalid-blueprint-with-file-uri-import.yaml",
+            403, expected_message_part="Invalid types import - "
+                                       "file://filesomewhere. ")
 
     def test_upload_with_get_and_delete(self):
         response_upload = self.make_upload_blueprint()

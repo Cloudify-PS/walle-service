@@ -1,6 +1,7 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
 import os
+import yaml
 import tempfile
 import tarfile
 import shutil
@@ -86,6 +87,16 @@ class BlueprintsId(restful.Resource):
                     groups, p_types, p_triggers)
             )
 
+    def validate_imports(self, blueprint_path):
+        with open(blueprint_path) as bp:
+            imports = yaml.load(bp.read())['imports']
+            for _import in imports:
+                if _import.startswith("file:"):
+                    raise exceptions.CloudifyClientError(
+                        "Invalid types import - {0}".format(
+                            _import)
+                    )
+
     def validate_plugins(self, blueprint_plan):
         logger.debug("Entering Blueprints.validate_plugins method.")
         logger.info("Running blueprint plugins validation checks.")
@@ -128,6 +139,8 @@ class BlueprintsId(restful.Resource):
 
         try:
             logger.info("Running basic blueprints validation.")
+
+            self.validate_imports(blueprint_path)
 
             blueprint_plan = parser.parse_from_path(blueprint_path)
             logger.debug("Blueprint plan: %s" % str(blueprint_plan))
