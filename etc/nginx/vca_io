@@ -4,7 +4,7 @@ server {
 	listen 80 default_server;
 	listen [::]:80 default_server ipv6only=on;
 
-	root /home/ubuntu/score-service/www;
+	root /home/ubuntu/www;
 	index index.html index.htm;
 
 	server_name vca.io;
@@ -50,7 +50,7 @@ server {
  	ssl_certificate    /etc/nginx/server.crt;
 	ssl_certificate_key    /etc/nginx/server.key;
 
-	root /home/ubuntu/score-service/www;
+	root /home/ubuntu/www;
 	index index.html index.htm;
 
 	server_name score.vca.io;
