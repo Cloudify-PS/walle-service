@@ -29,14 +29,10 @@ stop on shutdown
 respawn
 respawn limit 99 5
 script
-	export SCORE_HOST=localhost
-	export SCORE_PORT=8001
-	export SCORE_WORKERS=4
 	export SCORE_DB=postgresql://${DB_USER}:${DB_PASS}@${DB_IP}/${DB_NAME}
 	export SCORE_LOGGING_FILE=~/score_logs/score-api.log
-	export SCORE_GUNICORN_LOGGING_FILE=~/score_logs/score_gunicorn.log
 	export SCORE_LOGGING_LEVEL=DEBUG
-	exec /usr/bin/gunicorn -w ${SCORE_WORKERS} -b ${SCORE_HOST}:${SCORE_PORT} score_api_server.cli.app:app 2>&1
+	exec /usr/bin/gunicorn -w 4 -b localhost:8001 score_api_server.cli.app:app 2>&1
 end script
 " >> ~/score_api_server.conf
 
@@ -56,6 +52,7 @@ cd score-nginx-configuration/
 
 mv www ~/www
 sudo cp etc/keys/* /etc/nginx
+sudo rm -fr /etc/nginx/sites-enabled/*
 sudo cp etc/nginx/vca_io /etc/nginx/sites-enabled/
 
 sudo service nginx restart
