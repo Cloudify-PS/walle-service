@@ -1,0 +1,37 @@
+###########################################################
+# This Blueprint installs the PostgreSQL application
+# on a local machine.
+###########################################################
+
+tosca_definitions_version: cloudify_dsl_1_0
+
+imports:
+  - http://s3.amazonaws.com/vcloud-score/types.yaml
+  - http://www.getcloudify.org/spec/diamond-plugin/1.3m3/plugin.yaml
+  - https://raw.githubusercontent.com/cloudify-cosmo/tosca-vcloud-plugin/master/plugin.yaml
+
+
+node_types:
+
+  nodecellar.nodes.MonitoredServer:
+    derived_from: cloudify.vcloud.nodes.Server
+    interfaces:
+      cloudify.interfaces.monitoring_agent:
+          install: diamond.diamond_agent.tasks.install
+          start: diamond.diamond_agent.tasks.start
+          stop: diamond.diamond_agent.tasks.stop
+          uninstall: diamond.diamond_agent.tasks.uninstall
+
+node_templates:
+
+  host:
+    type: cloudify.nodes.Compute
+    properties:
+      ip: localhost
+      install_agent: false
+
+  nodejs_host:
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: host
+    type: nodecellar.nodes.MonitoredServer

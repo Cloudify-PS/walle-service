@@ -4,8 +4,10 @@ import uuid
 import datetime
 
 from score_api_server.cli import app
+from score_api_server.common import util
 
 db = app.db
+logger = util.setup_logging(__name__)
 
 
 def utcnow():
@@ -22,18 +24,18 @@ class BaseDatabaseModel(object):
 
     def save(self):
         try:
-            app.db.session.add(self)
-            app.db.session.commit()
+            db.session.add(self)
+            db.session.commit()
         except Exception as e:
-            app.app.logger.error(str(e))
+            logger.error(str(e))
             raise e
 
     def delete(self):
         try:
-            app.db.session.delete(self)
-            app.db.session.commit()
+            db.session.delete(self)
+            db.session.commit()
         except Exception as e:
-            app.app.logger.error(str(e))
+            logger.error(str(e))
             raise e
 
     def update(self, **values):
@@ -45,7 +47,7 @@ class BaseDatabaseModel(object):
             self.save()
             return self.find_by(id=self.id)
         except Exception as e:
-            app.app.logger.error(str(e))
+            logger.error(str(e))
             raise e
 
     @classmethod
@@ -53,7 +55,7 @@ class BaseDatabaseModel(object):
         try:
             return cls.query.all()
         except Exception as e:
-            app.app.logger.error(str(e))
+            logger.error(str(e))
             raise e
 
     @classmethod

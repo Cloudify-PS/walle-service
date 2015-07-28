@@ -1,0 +1,16 @@
+##################################################################################
+# Approved plugins definition
+##################################################################################
+
+deployment_plugins:
+
+    - fabric:
+        source: https://github.com/cloudify-cosmo/cloudify-fabric-plugin/archive/1.2.zip
+
+    - vcloud:
+        source: https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/master.zip
+
+workflow_plugins:
+
+    - default_workflows:
+        source: ''

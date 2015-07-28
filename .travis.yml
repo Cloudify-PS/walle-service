@@ -30,3 +30,7 @@ install:
 script:
 
     - tox -c score-api-server/tox.ini -e $TOX_ENV
+
+after_script:
+
+    - cat /tmp/score-api.log

@@ -63,7 +63,6 @@ def setup_logging_for_app(app):
 
 
 def setup_logging(name):
-    import logging
     log_file_handler = common_log_setup()
     logger = logging.getLogger(name)
     logger.addHandler(log_file_handler)

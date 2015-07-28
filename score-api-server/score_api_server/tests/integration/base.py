@@ -51,9 +51,8 @@ class BaseScoreAPIClient(testtools.TestCase):
     def try_auth(self, headers=None):
         pass
 
-    def make_upload_blueprint(self):
-        # TODO(???) make blueprint path configurable
-        blueprint_filename = "vcloud-postgresql-blueprint.yaml"
+    def make_upload_blueprint(
+            self, blueprint_filename="vcloud-blueprint-for-tests.yaml"):
         current_dir = os.path.dirname(os.path.realpath(__file__))
         blueprints_dir = current_dir + '/../../../../blueprints/'
         blueprint_path = blueprints_dir + blueprint_filename
@@ -100,17 +99,11 @@ class BaseScoreAPIClient(testtools.TestCase):
             query_params[
                 'application_file_name'] = urllib.quote(
                 application_file_name)
-        try:
-            self.execute_get_request_with_route(
-                '/blueprints/{0}'.format(blueprint_id))
-            self.execute_delete_request_with_route(
-                '/blueprints/{0}'.format(blueprint_id))
-        finally:
-            with open(tar_file, 'rb') as f:
-                return self.execute_put_request_with_route(
-                    '/blueprints/{0}'.format(blueprint_id),
-                    params=query_params,
-                    data=f.read())
+        with open(tar_file, 'rb') as f:
+            return self.execute_put_request_with_route(
+                '/blueprints/{0}'.format(blueprint_id),
+                params=query_params,
+                data=f.read())
 
 
 class RealScoreAPIClient(BaseScoreAPIClient):
@@ -335,13 +328,28 @@ class IntegrationBaseTestCase(get_base_class()):
         app.app.config['SQLALCHEMY_DATABASE_URI'] = (
             "sqlite:///%s.db" % self.db_fpath)
 
-        current_dir = os.path.dirname(os.path.realpath(__file__))
+        self.current_dir = os.path.dirname(os.path.realpath(__file__))
         with app.app.app_context():
-            migrate_dir = current_dir + '/../../../migrations/'
+            migrate_dir = self.current_dir + '/../../../migrations/'
             upgrade(directory=migrate_dir)
-            app.db.create_all()
+            models.base.db.create_all()
+
+        approved_plugins = (self.current_dir +
+                            '/../../../../approved_plugins/'
+                            'approved_plugins_description.yaml')
+        models.ApprovedPlugins.register_from_file(approved_plugins)
 
         super(IntegrationBaseTestCase, self).setUp()
+
+    def recreate_approved_plugins(self):
+        approved_plugins = (self.current_dir +
+                            '/../../../../approved_plugins/'
+                            'approved_plugins_description.yaml')
+        models.ApprovedPlugins.register_from_file(approved_plugins)
+
+    def drop_approved_plugins(self):
+        for plugin in models.ApprovedPlugins.list():
+            plugin.delete()
 
     def tearDown(self):
 

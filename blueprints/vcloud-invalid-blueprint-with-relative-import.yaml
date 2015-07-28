@@ -1,0 +1,13 @@
+###########################################################
+# This Blueprint is for integration tests ONLY
+###########################################################
+
+tosca_definitions_version: cloudify_dsl_1_0
+
+imports:
+  - http://s3.amazonaws.com/vcloud-score/types.yaml
+  - ../../types/agentless.yaml
+
+node_types:
+    dumb-type:
+        derived_from: cloudify.nodes.Compute

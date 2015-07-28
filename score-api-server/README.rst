@@ -220,6 +220,31 @@ Here's an example of you can use this tool::
         | updated_at            | 2015-07-03 12:10:32.524507           |
         +-----------------------+--------------------------------------+
 
+    $ score-manage approved-plugins add --name fabric --source https://github.com/cloudify-cosmo/cloudify-fabric-plugin/archive/1.2.zip --type deployment_plugins --db-uri sqlite:////tmp/score.db
+
+
+        +-------------+--------------------------------------------------------------------------+
+        | Property    | Value                                                                    |
+        +-------------+--------------------------------------------------------------------------+
+        | id          | 7714c1dc-ab2c-4819-a011-58ce31cfb398                                     |
+        | name        | fabric                                                                   |
+        | plugin_type | deployment_plugins                                                       |
+        | source      | https://github.com/cloudify-cosmo/cloudify-fabric-plugin/archive/1.2.zip |
+        +-------------+--------------------------------------------------------------------------+
+
+
+    $ score-manage approved-plugins list --db-uri sqlite:////tmp/score.db
+
+
+        +--------+--------------------------------------------------------------------------+--------------------+
+        | Name   | Source                                                                   | Plugin Type        |
+        +--------+--------------------------------------------------------------------------+--------------------+
+        | fabric | https://github.com/cloudify-cosmo/cloudify-fabric-plugin/archive/1.2.zip | deployment_plugins |
+        +--------+--------------------------------------------------------------------------+--------------------+
+
+
+    $ score-manage approved-plugins delete --name --db-uri sqlite:////tmp/score.db
+
 
 =======
 Testing

@@ -44,5 +44,8 @@ Commands::
 .. code-block:: bash
 
     cd /; python -m SimpleHTTPServer 8000 >/dev/null 2>&1 &
+
     source /venv/bin/activate
+
     cd /; cfy local init -p score-service/blueprints/vcloud-score-blueprint-local-with-fabric.yaml -i inputs-cfy-local.yaml
+

@@ -6,6 +6,7 @@ requests==2.4.3
 PyYAML==3.10
 pyvcloud>=13rc13
 cloudify-rest-client==3.2
+cloudify-dsl-parser==3.2
 oslo.config
 psycopg2
 Flask-SQLAlchemy
