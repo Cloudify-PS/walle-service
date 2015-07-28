@@ -95,3 +95,9 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
             "/blueprints/%s" % blueprint_id)
         self.assertEqual(200, response_delete.status_code,
                          response_upload.data)
+
+    def test_upload_blueprint_with_buitin_tasks(self):
+        self._upload_invalid_blueprint(
+            "vcloud-blueprint-invalid-with-builtins.yaml", 403,
+            expected_message_part='Forbidden workflow '
+                                  'diamond_agent.tasks.')

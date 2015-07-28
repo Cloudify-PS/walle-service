@@ -186,6 +186,49 @@ class BlueprintsId(restful.Resource):
             "Exiting Blueprints.validate_plugin_nodes_"
             "fabric_operations method.")
 
+    def validate_builtin_workflows_are_not_used(self, blueprint_plan):
+        invalid_builtins_workflows_patterns = [
+            "worker_installer.tasks.",
+            "plugin_installer.tasks.",
+            "windows_agent_installer.tasks.",
+            "windows_plugin_installer.tasks.",
+            "script_runner.tasks.",
+            "diamond_agent.tasks.",
+        ]
+        special_cases = [
+            "cloudify.plugins.workflows.install",
+            "cloudify.plugins.workflows.uninstall",
+        ]
+        logger.debug(
+            "Entering Blueprints.validate_builtin_"
+            "workflows_are_not_used method.")
+
+        logger.info("Starting built-in workflows validation.")
+        for node in blueprint_plan['nodes']:
+            node_operations = [opt['operation'] for opt in
+                               node['operations'].values()
+                               if opt['operation'] != '']
+            for inv_builtin in invalid_builtins_workflows_patterns:
+                for operation in node_operations:
+                    if inv_builtin in operation:
+                        raise exceptions.CloudifyClientError(
+                            "Blueprint node {0} is invalid."
+                            "Forbidden workflow {1} was used as "
+                            "one of node operations".format(node['name'],
+                                                            operation)
+                        )
+
+        for __operation in [workflow['operation']
+                            for name, workflow in
+                            blueprint_plan['workflows'].items()]:
+            if __operation not in special_cases:
+                raise exceptions.CloudifyClientError(
+                    "Forbidden workflow {0} was used".format(__operation)
+                )
+        logger.debug(
+            "Exiting Blueprints.validate_builtin_"
+            "workflows_are_not_used method.")
+
     def validate_blueprint_on_security_breaches(
             self, bluerpint_name, blueprint_directory):
         logger.debug(
@@ -205,6 +248,7 @@ class BlueprintsId(restful.Resource):
             blueprint_plan = parser.parse_from_path(blueprint_path)
             logger.debug("Blueprint plan: %s" % str(blueprint_plan))
 
+            self.validate_builtin_workflows_are_not_used(blueprint_plan)
             self.validate_nodes_for_install_agent_flag(blueprint_plan)
             self.validation_groups_policies(blueprint_plan)
             self.validate_plugins(blueprint_plan)
