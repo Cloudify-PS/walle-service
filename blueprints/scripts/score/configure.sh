@@ -30,9 +30,7 @@ respawn
 respawn limit 99 5
 script
 	export SCORE_DB=postgresql://${DB_USER}:${DB_PASS}@${DB_IP}/${DB_NAME}
-	export SCORE_LOGGING_FILE=~/score_logs/score-api.log
-	export SCORE_LOGGING_LEVEL=DEBUG
-	exec /usr/bin/gunicorn -w 4 -b localhost:8001 score_api_server.cli.app:app 2>&1
+	exec /usr/bin/gunicorn -w 4 -b localhost:8001 score_api_server.cli.app:app --log-level=error --error-logfile=/var/log/gunicorn_score.log
 end script
 " >> ~/score_api_server.conf
 
