@@ -14,6 +14,8 @@ CONF = cfg.CONF
 
 
 def add_org_prefix(name):
+    if not isinstance(name, basestring) or not name:
+        raise ValueError("Name must be nonempty instance of basestring.")
     return "{}_{}".format(g.org_id, name)
 
 
@@ -89,3 +91,9 @@ def validate_json(schema):
                                      401)
         return decorated
     return wrapper
+
+
+def add_prefix_to_deployment(deployment_id):
+    if deployment_id:
+        return add_org_prefix(deployment_id)
+    return deployment_id

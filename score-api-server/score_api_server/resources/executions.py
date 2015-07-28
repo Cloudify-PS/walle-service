@@ -33,11 +33,11 @@ class Executions(restful.Resource):
     )
     def get(self):
         logger.debug("Entering Execution.get method.")
-        args = parser.parse_args()
+        parsed = parser.parse_args()
         try:
-            deployment_id = args['deployment_id']
-            deployment_id = util.add_org_prefix(deployment_id)
-            logger.info("Listing all executions for deployment %s .",
+            deployment_id = util.add_prefix_to_deployment(
+                parsed['deployment_id'])
+            logger.info("Listing executions for deployment %s .",
                         deployment_id)
             executions = g.cc.executions.list(deployment_id=deployment_id)
             filtered = [util.remove_org_prefix(e) for e in executions
