@@ -39,12 +39,12 @@ class Executions(restful.Resource):
                             deployment_id)
             else:
                 logger.info("Listing all executions")
-                return deployment_id
+            return deployment_id
 
         logger.debug("Entering Execution.get method.")
-        args = parser.parse_args()
+        parsed = parser.parse_args()
         try:
-            deployment_id = _add_prefix_to_deployment(args['deployment_id'])
+            deployment_id = _add_prefix_to_deployment(parsed['deployment_id'])
             executions = g.cc.executions.list(deployment_id=deployment_id)
             filtered = [util.remove_org_prefix(e) for e in executions
                         if g.org_id in e['deployment_id']]
