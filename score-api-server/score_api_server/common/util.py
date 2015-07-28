@@ -90,3 +90,9 @@ def validate_json(schema):
                                      401)
         return decorated
     return wrapper
+
+
+def add_prefix_to_deployment(deployment_id):
+    if deployment_id:
+        return add_org_prefix(deployment_id)
+    return deployment_id
