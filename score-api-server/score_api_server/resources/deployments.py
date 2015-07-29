@@ -6,6 +6,7 @@ import json
 from cloudify_rest_client import exceptions
 
 from flask.ext import restful
+from flask.ext.restful import reqparse
 from flask import request, g, make_response
 from flask_restful_swagger import swagger
 
@@ -13,6 +14,9 @@ from score_api_server.common import util
 from score_api_server.resources import responses
 
 logger = util.setup_logging(__name__)
+parser = reqparse.RequestParser()
+parser.add_argument('ignore_live_nodes', type=bool,
+                    default=False, help='Ignore Live nodes')
 
 
 class Deployments(restful.Resource):
@@ -98,11 +102,19 @@ class DeploymentsId(restful.Resource):
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
+                     'paramType': 'path'},
+                    {'name': 'ignore_live_nodes',
+                     'description': 'Ignore Live nodes',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'boolean',
                      'paramType': 'query'}]
     )
     def delete(self, deployment_id):
         logger.debug("Entering Deployments.delete method.")
+        parsed = parser.parse_args()
         try:
+            ignore_live_nodes = parsed['ignore_live_nodes']
             cfy_dp_id = util.add_org_prefix(deployment_id)
 
             # necessary to validate that deployment exists
@@ -110,7 +122,8 @@ class DeploymentsId(restful.Resource):
                         deployment_id)
             self.get(deployment_id=cfy_dp_id)
             logger.info("Deleting deployment %s.", deployment_id)
-            result = g.cc.deployments.delete(cfy_dp_id)
+            result = g.cc.deployments.delete(
+                cfy_dp_id, ignore_live_nodes=ignore_live_nodes)
             self.update_quota(-1)
             logger.debug("Done. Exiting Deployments.delete method.")
             return util.remove_org_prefix(result)
