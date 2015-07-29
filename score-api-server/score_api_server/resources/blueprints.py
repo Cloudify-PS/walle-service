@@ -158,6 +158,46 @@ class BlueprintsId(restful.Resource):
         logger.debug("Exiting Blueprint."
                      "validate_plugins_to_install property method.")
 
+    def validate_plugin_nodes_fabric_env(self, blueprint_plan):
+        logger.debug(
+            "Entering Blueprints.validate_plugin_nodes_"
+            "fabric_env method.")
+
+        logger.info("Staring fabric env validation.")
+
+        for node in blueprint_plan['nodes']:
+            for operation, operation_opts in node['operations'].items():
+                inputs = operation_opts.get('inputs', {})
+                if 'fabric_env' not in inputs:
+                    continue
+                fabric_env = inputs['fabric_env']
+                agent = fabric_env.get('forward_agent', False)
+                if agent:
+                    raise exceptions.CloudifyClientError(
+                        "Node {0} lifecycle {1} operation {2}: "
+                        "Invalid fabric env - forward_agent is not "
+                        "allowed",
+                            node['name'],
+                            operation,
+                            operation_opts['operation']
+                    )
+
+                key_file = fabric_env.get('key_filename')
+                if key_file:
+                    raise exceptions.CloudifyClientError(
+                        "Node {0} lifecycle {1} operation {2}: "
+                        "Invalid fabric env - key_file is not "
+                        "allowed",
+                            node['name'],
+                            operation,
+                            operation_opts['operation']
+                    )
+
+
+        logger.debug(
+            "Exiting Blueprints.validate_plugin_nodes_"
+            "fabric_env method.")
+
     def validate_plugin_nodes_fabric_operations(self, blueprint_plan):
         logger.debug(
             "Entering Blueprints.validate_plugin_nodes_"
@@ -254,6 +294,7 @@ class BlueprintsId(restful.Resource):
             self.validate_plugins(blueprint_plan)
             self.validate_plugins_to_install_property(blueprint_plan)
             self.validate_plugin_nodes_fabric_operations(blueprint_plan)
+            self.validate_plugin_nodes_fabric_env(blueprint_plan)
 
             logger.info("Success on basic blueprints validation.")
 

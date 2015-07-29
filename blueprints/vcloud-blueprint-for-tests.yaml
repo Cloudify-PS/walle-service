@@ -19,11 +19,36 @@ inputs:
         description: >
             Default admin user in os template
 
-    private_key_path:
-        default: ~/.ssh/ubuntu-private.key
+    private_key:
+        default: >
+            MIIEogIBAAKCAQEAuBh4/JK5X6E2ee3dTsmfyYGaPiU/OiHCBwq/+1GLBUZZSNef
+            XliL4KZfQScpdSbR6cV2I+ZkvHu19uZXklRiqGKTTbILLtdj/RIyMAdV79vjALi1
+            91lnl5qcCyE5ajvgP9ZNYlG6fXaSP7nHLOQA/KgNpPXg2TLaff9ypOBOLWyEQRES
+            YVQdd64Og9rMK21thDHncI0+yS2T8aJS982Fpcj2bkNvhsyZ8VTd5QGN9dpGENIm
+            dAjNdOPy/poT0lJE9R9v7JT0qvgUVeQtse5GbQWE97zaXcQ9NQcIGP3ba05wHcWS
+            Tj8a4tSnIoo8gtctePGG2xwGNCd080eZoYXsIwIDAQABAoIBAHGCnW7WpTgite0+
+            ThubVEux/sHcw3x7fiBLb45te/OXqcuxL9HDdRPiYY9Rr01Nz1Z961c9YtWYzdzb
+            sBlIsMA0b7ETW7PZGQzcoFde3o0Tnoc+XOyTkr02loqCRN2M57tUzsgVrpBXgNuM
+            GBREzZr7n9YbyTUDFxdjX3Pr3ihA2Gacb07qlDUUCxptn2UgoxZ8yDZOeOTqXUqd
+            CQzU41h3aORPa4c+j9ZFmE7quqmJBugjiaNvg5zy38DvJUsQ4q07pq668r5gNh5N
+            2L4ta5yvvDC68ulZtXbGgwRjidhgW9cCnnzoQmjFudPW+4O8tDqrwFFZVofhHxh0
+            92ODOfkCgYEA8y9g8FGlFuc+hyYK3OZmKSBqc/eQWfLuGoMo/SIxuJjWNqxUf+uH
+            uxgBIc7A/HlUQdUJFZyoDscxx/nHk+hol2K28tXgbxSszW17HZcDGVdQEuZfa+Y3
+            qWeCDDBf43DYNINzEiltAcjMv25H5FxZ2CE0botwYeELe7s1g4sSxhUCgYEAwcv2
+            rr7NeNDWg1PzNdU7AwqJIIZlK54t+aM4DY6D3ykl2l+j8My3AV7gjoOxZRtEYx13
+            83VvNTUj0uWo8gw5Jg+NVBdPMXqG7SJtuBB9ZpUlWgquMFkmF/izU9X5rqRyfmFL
+            yDXBn91E1vz9HFw8eTxYY+2DxM3P4z0Mu+cb71cCgYA7v7pLkWPEetBsGDa3C4yy
+            Mhq1n2/CCePic7NQbmRU/Ig1KqYgP9g7aaxtiAT2g0DmY9c1jiXka6CZh483kfSQ
+            rVpR06au5B+I4YtMO9wxD7jGy/9J3WhzoNDc+c21bfZRALL3FWKI+7MCna/gNaiF
+            Z7MgLfZQtiBCKD7/sN3N+QKBgDg18eIzo6N0Z5QGCJhHtesm5ilR8gxZwBoVdo+w
+            E53p8HnLneCdcENsgpOzrQOXihl5la4/FLeJJ0/nnz49v2HDxwlqDWVblcE4aDyo
+            Q8c6YXAhgu6xHPR9BX6+pMI8Hp17mSCEPxogcvQswzmzozLDBxxM6xhtXewabBQg
+            b6DXAoGAEJHNluzryi2GT0047PawqWNevqEPxq9TGuUJIMjzrmu071rvMODdcbKH
+            b8fhETo8FNh8SuLjMHBse9G0nRc9MUys2Ev/gAisUoLN1OxmfBE+/U4PMxfPC5R+
+            7gnBir0WNaXBM+EQyZ0y0+kQ9boc2rB4GO+3lPWvMp0aNWnOhn0=
         type: string
         description: >
-            Please upload key to manager server before use key
+            Private part of your key
 
     host_string:
         default: localhost
@@ -54,6 +79,6 @@ node_templates:
                 inputs:
                     fabric_env:
                         user: { get_input: servers_user }
-                        key_filename: { get_input: private_key_path }
+                        key: { get_input: private_key }
                         host_string: { get_input: host_string }
                         port: { get_input: port }
