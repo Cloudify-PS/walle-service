@@ -1,8 +1,11 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
+import json
 import os
 import tempfile
 import testtools
+import time
+import uuid
 import urllib
 import shutil
 import tarfile
@@ -56,7 +59,8 @@ class BaseScoreAPIClient(testtools.TestCase):
         current_dir = os.path.dirname(os.path.realpath(__file__))
         blueprints_dir = current_dir + '/../../../../blueprints/'
         blueprint_path = blueprints_dir + blueprint_filename
-        response = self.upload_blueprint(blueprint_path, blueprint_filename)
+        bp_id = str(uuid.uuid4()) + '_' + blueprint_filename
+        response = self.upload_blueprint(blueprint_path, bp_id)
         return response
 
     def upload_blueprint(self, blueprint_path, blueprint_id):
@@ -105,6 +109,12 @@ class BaseScoreAPIClient(testtools.TestCase):
                 params=query_params,
                 data=f.read())
 
+    def make_deployment(self, blueprint_id):
+        pass
+
+    def make_execution(self, deployment_id, workflow_id):
+        pass
+
 
 class RealScoreAPIClient(BaseScoreAPIClient):
 
@@ -149,9 +159,9 @@ class RealScoreAPIClient(BaseScoreAPIClient):
         result = self.vcs.login(token=self.headers['x-vcloud-authorization'])
         if not result:
             raise exceptions.Forbidden()
-        org_id = self.vcs.organization.id[
+        self.org_id = self.vcs.organization.id[
             self.vcs.organization.id.rfind(':') + 1:]
-        self.organization = models.AllowedOrgs(org_id)
+        self.organization = models.AllowedOrgs(self.org_id)
         self.model_limits = models.OrgIDToCloudifyAssociationWithLimits(
             self.organization.org_id, cloudify_host, cloudify_port,
             deployment_limits=deployment_limits)
@@ -201,22 +211,73 @@ class RealScoreAPIClient(BaseScoreAPIClient):
         self.model_limits.delete()
         return self.client.get('/', headers=self.headers)
 
-    def execute_get_request_with_route(self, route):
-        return self.client.get(route, headers=self.headers)
+    def execute_get_request_with_route(self, route, params=None):
+        return self.client.get(route, headers=self.headers,
+                               query_string=params)
 
-    def execute_delete_request_with_route(self, route):
-        return self.client.delete(route, headers=self.headers)
+    def execute_delete_request_with_route(self, route, params=None):
+        return self.client.delete(route, headers=self.headers,
+                                  query_string=params)
 
-    def execute_put_request_with_route(self, route, params=None, data=None):
+    def execute_put_request_with_route(self, route, params=None, data=None,
+                                       content_type=None):
         return self.client.put(route, headers=self.headers,
-                               query_string=params, data=data)
+                               query_string=params, data=data,
+                               content_type=content_type)
 
-    def execute_post_request_with_route(self, route, params=None, data=None):
+    def execute_post_request_with_route(self, route, params=None, data=None,
+                                        content_type=None):
         return self.client.post(route, headers=self.headers,
-                                query_string=params, data=data)
+                                query_string=params, data=data,
+                                content_type=content_type)
+
+    def make_deployment(self, blueprint_id):
+        deployment_id = 'postgresql_test_deployment'
+        response = self._start_deployment(blueprint_id, deployment_id)
+        return response
+
+    def _start_deployment(self, blueprint_id, deployment_id):
+        content_type = 'application/json'
+        data = {'blueprint_id': blueprint_id}
+        return self.execute_put_request_with_route(
+            '/deployments/%s' % deployment_id, data=json.dumps(data),
+            content_type=content_type)
+
+    def make_execution(self, deployment_id, workflow_id):
+        params_deployment_id = {'deployment_id': deployment_id}
+        attempt = 15
+        print('Wait until execution will be available(attempts) \n'
+              'attempts: %s' % attempt)
+        while attempt:
+            response = self.execute_get_request_with_route(
+                "/executions", params=params_deployment_id)
+            status = json.loads(response.data)[0]['status']
+            if 'terminated' in status:
+                return self._start_execution(deployment_id, workflow_id)
+            time.sleep(10)
+            attempt -= 1
+            print('attempts: %s' % attempt)
+        raise exceptions.Forbidden()
+
+    def _start_execution(self, deployment_id, workflow_id,
+                         allow_custom_parameters=False,
+                         parameters=None, force=False):
+        content_type = 'application/json'
+        data = {
+            'deployment_id': deployment_id,
+            'workflow_id': workflow_id,
+            'parameters': parameters,
+            'allow_custom_parameters': str(allow_custom_parameters).lower(),
+            'force': str(force).lower()
+        }
+        return self.execute_post_request_with_route(
+            '/executions', data=json.dumps(data),
+            content_type=content_type)
 
 
 class FakeScoreAPIClient(BaseScoreAPIClient):
+
+    reason_for_skipping = "This test-methods not supported.\n"
 
     def setUp(self):
         # monkey-patching VCS class to
@@ -254,29 +315,37 @@ class FakeScoreAPIClient(BaseScoreAPIClient):
     def try_auth(self, headers=None):
         return self.client.get('/', headers=headers)
 
-    def execute_get_request_with_route(self, route):
+    def execute_get_request_with_route(self, route, params=None):
         self.do_common_setup()
-        return self.client.get(route, headers=self.headers)
+        return self.client.get(route, headers=self.headers,
+                               query_string=params)
 
-    def execute_delete_request_with_route(self, route):
+    def execute_delete_request_with_route(self, route, params=None):
         self.do_common_setup()
-        return self.client.delete(route, headers=self.headers)
+        return self.client.delete(route, headers=self.headers,
+                                  query_string=params)
 
-    def execute_put_request_with_route(self, route,
-                                       params=None, data=None):
+    def execute_put_request_with_route(self, route, params=None, data=None,
+                                       content_type=None):
         self.do_common_setup()
-        return self.client.put(route,
-                               headers=self.headers,
-                               query_string=params,
-                               data=data)
+        return self.client.put(route, headers=self.headers,
+                               query_string=params, data=data,
+                               content_type=content_type)
 
-    def execute_post_request_with_route(self, route,
-                                        params=None, data=None):
+    def execute_post_request_with_route(self, route, params=None, data=None,
+                                        content_type=None):
         self.do_common_setup()
-        return self.client.post(route,
-                                headers=self.headers,
-                                query_string=params,
-                                data=data)
+        return self.client.post(route, headers=self.headers,
+                                query_string=params, data=data,
+                                content_type=content_type)
+
+    @testtools.skip(reason_for_skipping)
+    def make_deployment(self, blueprint_id):
+        pass
+
+    @testtools.skip(reason_for_skipping)
+    def make_execution(self, deployment_id, workflow_id):
+        pass
 
     def tearDown(self):
         app.VCS = self.safe_vcs
@@ -291,15 +360,23 @@ def _lookup_mode_value(message):
     return found_string.split(' ')[1]
 
 
+def _checking_commit_message(commit):
+    for parent in commit.parents:
+        if (RUN_INTEGRATION_TESTS in parent.message and
+                _lookup_mode_value(parent.message) == 'True'):
+            return True
+    return False
+
+
 def _checking_mode():
     current_dir = os.path.dirname(os.path.realpath(__file__))
     git_dir = current_dir + '/../../../..'
     git_repo = git.repo.Repo(git_dir)
-    message = git_repo.commit().message
-    if (RUN_INTEGRATION_TESTS in message and
-            _lookup_mode_value(message) == 'True'):
+    commit = git_repo.commit()
+    if (RUN_INTEGRATION_TESTS in commit.message and
+            _lookup_mode_value(commit.message) == 'True'):
         return True
-    return False
+    return _checking_commit_message(commit)
 
 
 def printing_message_which_base_class(base_class):

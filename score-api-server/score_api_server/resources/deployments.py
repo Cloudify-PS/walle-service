@@ -160,7 +160,9 @@ class DeploymentsId(restful.Resource):
     def put(self, deployment_id):
         logger.debug("Entering Deployments.put method.")
         blueprint_id = request.json.get('blueprint_id')
-        inputs = json.loads(request.json.get('inputs'))
+        inputs = request.json.get('inputs')
+        if inputs:
+            inputs = json.loads(inputs)
         if self.can_do_deployment():
             try:
                 logger.info("Updating quota for Org-ID %s.",
