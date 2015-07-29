@@ -165,7 +165,7 @@ class ExecutionsId(restful.Resource):
         logger.debug("Entering Execution.put method.")
         try:
             force = False
-            json  = request.get_json(force=True, silent=True)
+            json = request.get_json(force=True, silent=True)
             if json:
                 force = json.get('force', False)
             self.get(execution_id=execution_id)
