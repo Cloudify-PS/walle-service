@@ -15,7 +15,8 @@ from score_api_server.resources import responses
 
 logger = util.setup_logging(__name__)
 parser = reqparse.RequestParser()
-parser.add_argument('ignore_live_nodes', type=bool, help='Ignore Live nodes')
+parser.add_argument('ignore_live_nodes', type=bool,
+                    default=False, help='Ignore Live nodes')
 
 
 class Deployments(restful.Resource):
@@ -113,7 +114,7 @@ class DeploymentsId(restful.Resource):
         logger.debug("Entering Deployments.delete method.")
         parsed = parser.parse_args()
         try:
-            ignore_live_nodes = parsed.get('ignore_live_nodes', False)
+            ignore_live_nodes = parsed['ignore_live_nodes']
             cfy_dp_id = util.add_org_prefix(deployment_id)
 
             # necessary to validate that deployment exists
