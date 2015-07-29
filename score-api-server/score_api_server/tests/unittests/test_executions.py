@@ -52,7 +52,7 @@ class TestBase(testtools.TestCase):
                                                data=json.dumps(data),
                                                content_type='application/'
                                                'json'):
-                deployment = self.executions_id.post()
+                deployment = self.executions.post()
                 self.assertEqual(deployment, data)
 
     def test_cancel_executions(self):
