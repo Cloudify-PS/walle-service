@@ -46,34 +46,6 @@ class Executions(restful.Resource):
         except exceptions.CloudifyClientError as e:
             return util.make_response_from_exception(e)
 
-
-class ExecutionsId(restful.Resource):
-
-    @swagger.operation(
-        responseClass=responses.Execution,
-        nickname="getById",
-        notes="Returns the execution state by its id.",
-        parameters=[{'name': 'execution_id',
-                     'description': 'Execution ID',
-                     'required': False,
-                     'allowMultiple': False,
-                     'dataType': 'string',
-                     'defaultValue': None,
-                     'paramType': 'path'}]
-    )
-    def get(self, execution_id=None):
-        logger.debug("Entering ExecutionsId.get method.")
-        try:
-            logger.info(
-                "Seeking for executions by execution %s.",
-                execution_id)
-            result = g.cc.executions.get(execution_id)
-            logger.debug("Done. Exiting ExecutionsId.get method.")
-            return util.remove_org_prefix(result)
-        except exceptions.CloudifyClientError as e:
-            logger.error(str(e))
-            return util.make_response_from_exception(e)
-
     @swagger.operation(
         responseClass=responses.Execution,
         nickname="startExecution",
@@ -137,6 +109,34 @@ class ExecutionsId(restful.Resource):
                     exceptions.DeploymentEnvironmentCreationPendingError))
                 else e.status_code)
             return util.make_response_from_exception(e, response_code)
+
+
+class ExecutionsId(restful.Resource):
+
+    @swagger.operation(
+        responseClass=responses.Execution,
+        nickname="getById",
+        notes="Returns the execution state by its id.",
+        parameters=[{'name': 'execution_id',
+                     'description': 'Execution ID',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'defaultValue': None,
+                     'paramType': 'path'}]
+    )
+    def get(self, execution_id=None):
+        logger.debug("Entering ExecutionsId.get method.")
+        try:
+            logger.info(
+                "Seeking for executions by execution %s.",
+                execution_id)
+            result = g.cc.executions.get(execution_id)
+            logger.debug("Done. Exiting ExecutionsId.get method.")
+            return util.remove_org_prefix(result)
+        except exceptions.CloudifyClientError as e:
+            logger.error(str(e))
+            return util.make_response_from_exception(e)
 
     @swagger.operation(
         responseClass=responses.Execution,
