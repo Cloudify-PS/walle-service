@@ -41,13 +41,20 @@ class TestBase(testtools.TestCase):
     def test_start_executions(self):
         with self.app.app_context():
             self.setup_context()
-            flask.g.cc.executions.start = lambda a, b: {'deployment_id': a,
-                                                        'workflow_id': b}
+            flask.g.cc.executions.start = lambda a, b, c, \
+                d, e: {'deployment_id': a,
+                       'workflow_id': b,
+                       'parameters': c,
+                       'allow_custom_parameters': d,
+                       'force': e}
             deployment = '1'
             workflow = "install"
             data = {
                 'deployment_id': deployment,
-                'workflow_id': workflow}
+                'workflow_id': workflow,
+                'parameters': None,
+                'allow_custom_parameters': None,
+                'force': False}
             with self.app.test_request_context('/executions', method="POST",
                                                data=json.dumps(data),
                                                content_type='application/'
@@ -59,16 +66,14 @@ class TestBase(testtools.TestCase):
         with self.app.app_context():
             self.setup_context()
             flask.g.cc.executions.get = lambda _: {}
-            flask.g.cc.executions.cancel = lambda a, b: {'execution_id': a,
-                                                         'force': b}
+            flask.g.cc.executions.cancel = lambda _, a: {'force': a}
             execution = 1
             force = False
-            data = {
-                'execution_id': execution,
-                'force': force}
-            with self.app.test_request_context('/executions', method="PUT",
+            data = {'force': force}
+            with self.app.test_request_context('/executions/{}'.format(execution),
+                                               method="POST",
                                                data=json.dumps(data),
                                                content_type='application/'
                                                'json'):
-                execution = self.executions_id.put()
+                execution = self.executions_id.post()
                 self.assertEqual(execution, data)

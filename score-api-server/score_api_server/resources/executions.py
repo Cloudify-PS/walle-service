@@ -88,14 +88,21 @@ class Executions(restful.Resource):
     )
     def post(self):
         logger.debug("Entering Execution.post method.")
-        deployment_id = util.add_org_prefix(request.json.get('deployment_id'))
         try:
+            deployment_id = util.add_org_prefix(
+                request.json.get('deployment_id'))
             workflow_id = request.json.get('workflow_id')
+            parameters = request.json.get('parameters')
+            allow_custom_parameters = request.json.get(
+                'allow_custom_parameters')
+            force = request.json.get('force', False)
             logger.info("Looking for deployment %s .", deployment_id)
             g.cc.deployments.get(deployment_id)
             logger.info("Staring workflow %s for deployment %s.",
                         workflow_id, deployment_id)
-            result = g.cc.executions.start(deployment_id, workflow_id)
+            result = g.cc.executions.start(deployment_id, workflow_id,
+                                           parameters,
+                                           allow_custom_parameters, force)
             logger.debug("Done. Exiting Executions.post method.")
             return util.remove_org_prefix(result)
         except (exceptions.CloudifyClientError,
@@ -143,10 +150,9 @@ class ExecutionsId(restful.Resource):
         nickname="modify_state",
         notes="Modifies a running execution state (currently, only cancel"
               " and force-cancel are supported)",
-        parameters=[{'name': 'body',
-                     'description': 'json with an action key. '
-                                    'Legal values for action are: [cancel,'
-                                    ' force-cancel]',
+        parameters=[{'name': 'force',
+                     'description': 'if flag set to "true"'
+                     ' "force-cancel" will be used',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': requests_schema.ModifyExecutionRequest.__name__,  # NOQA
@@ -155,9 +161,8 @@ class ExecutionsId(restful.Resource):
             "application/json"
         ]
     )
-    def put(self):
+    def post(self, execution_id=None):
         logger.debug("Entering Execution.put method.")
-        execution_id = request.json.get('execution_id')
         try:
             force = request.json.get('force')
             self.get(execution_id=execution_id)
