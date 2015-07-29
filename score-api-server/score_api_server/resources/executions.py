@@ -46,34 +46,6 @@ class Executions(restful.Resource):
         except exceptions.CloudifyClientError as e:
             return util.make_response_from_exception(e)
 
-
-class ExecutionsId(restful.Resource):
-
-    @swagger.operation(
-        responseClass=responses.Execution,
-        nickname="getById",
-        notes="Returns the execution state by its id.",
-        parameters=[{'name': 'execution_id',
-                     'description': 'Execution ID',
-                     'required': False,
-                     'allowMultiple': False,
-                     'dataType': 'string',
-                     'defaultValue': None,
-                     'paramType': 'path'}]
-    )
-    def get(self, execution_id=None):
-        logger.debug("Entering ExecutionsId.get method.")
-        try:
-            logger.info(
-                "Seeking for executions by execution %s.",
-                execution_id)
-            result = g.cc.executions.get(execution_id)
-            logger.debug("Done. Exiting ExecutionsId.get method.")
-            return util.remove_org_prefix(result)
-        except exceptions.CloudifyClientError as e:
-            logger.error(str(e))
-            return util.make_response_from_exception(e)
-
     @swagger.operation(
         responseClass=responses.Execution,
         nickname="startExecution",
@@ -116,14 +88,21 @@ class ExecutionsId(restful.Resource):
     )
     def post(self):
         logger.debug("Entering Execution.post method.")
-        deployment_id = util.add_org_prefix(request.json.get('deployment_id'))
         try:
+            deployment_id = util.add_org_prefix(
+                request.json.get('deployment_id'))
             workflow_id = request.json.get('workflow_id')
+            parameters = request.json.get('parameters')
+            allow_custom_parameters = request.json.get(
+                'allow_custom_parameters')
+            force = request.json.get('force', False)
             logger.info("Looking for deployment %s .", deployment_id)
             g.cc.deployments.get(deployment_id)
             logger.info("Staring workflow %s for deployment %s.",
                         workflow_id, deployment_id)
-            result = g.cc.executions.start(deployment_id, workflow_id)
+            result = g.cc.executions.start(deployment_id, workflow_id,
+                                           parameters,
+                                           allow_custom_parameters, force)
             logger.debug("Done. Exiting Executions.post method.")
             return util.remove_org_prefix(result)
         except (exceptions.CloudifyClientError,
@@ -138,15 +117,42 @@ class ExecutionsId(restful.Resource):
                 else e.status_code)
             return util.make_response_from_exception(e, response_code)
 
+
+class ExecutionsId(restful.Resource):
+
+    @swagger.operation(
+        responseClass=responses.Execution,
+        nickname="getById",
+        notes="Returns the execution state by its id.",
+        parameters=[{'name': 'execution_id',
+                     'description': 'Execution ID',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'defaultValue': None,
+                     'paramType': 'path'}]
+    )
+    def get(self, execution_id=None):
+        logger.debug("Entering ExecutionsId.get method.")
+        try:
+            logger.info(
+                "Seeking for executions by execution %s.",
+                execution_id)
+            result = g.cc.executions.get(execution_id)
+            logger.debug("Done. Exiting ExecutionsId.get method.")
+            return util.remove_org_prefix(result)
+        except exceptions.CloudifyClientError as e:
+            logger.error(str(e))
+            return util.make_response_from_exception(e)
+
     @swagger.operation(
         responseClass=responses.Execution,
         nickname="modify_state",
         notes="Modifies a running execution state (currently, only cancel"
               " and force-cancel are supported)",
-        parameters=[{'name': 'body',
-                     'description': 'json with an action key. '
-                                    'Legal values for action are: [cancel,'
-                                    ' force-cancel]',
+        parameters=[{'name': 'force',
+                     'description': 'if flag set to "true"'
+                     ' "force-cancel" will be used',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': requests_schema.ModifyExecutionRequest.__name__,  # NOQA
@@ -155,11 +161,13 @@ class ExecutionsId(restful.Resource):
             "application/json"
         ]
     )
-    def put(self):
+    def post(self, execution_id=None):
         logger.debug("Entering Execution.put method.")
-        execution_id = request.json.get('execution_id')
         try:
-            force = request.json.get('force')
+            force = False
+            json = request.get_json(force=True, silent=True)
+            if json:
+                force = json.get('force', False)
             self.get(execution_id=execution_id)
             result = g.cc.executions.cancel(execution_id, force)
             logger.debug("Done. Exiting Executions.put method.")

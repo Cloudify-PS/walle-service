@@ -19,5 +19,5 @@ class ExecutionRequest(object):
 class ModifyExecutionRequest(object):
 
     resource_fields = {
-        'action': fields.String
+        'force': fields.Boolean
     }
