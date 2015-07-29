@@ -164,7 +164,11 @@ class ExecutionsId(restful.Resource):
     def post(self, execution_id=None):
         logger.debug("Entering Execution.put method.")
         try:
-            force = request.json.get('force')
+            json  = request.get_json(force=True, silent=True)
+            if json:
+                force = json.get('force', False)
+            else:
+                force = False
             self.get(execution_id=execution_id)
             result = g.cc.executions.cancel(execution_id, force)
             logger.debug("Done. Exiting Executions.put method.")
