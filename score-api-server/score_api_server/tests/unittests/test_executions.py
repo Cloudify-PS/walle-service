@@ -70,7 +70,8 @@ class TestBase(testtools.TestCase):
             execution = 1
             force = False
             data = {'force': force}
-            with self.app.test_request_context('/executions/{}'.format(execution),
+            with self.app.test_request_context('/executions/{}'.
+                                               format(execution),
                                                method="POST",
                                                data=json.dumps(data),
                                                content_type='application/'
