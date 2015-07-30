@@ -268,6 +268,50 @@ class BlueprintsId(restful.Resource):
             "Exiting Blueprints.validate_builtin_"
             "workflows_are_not_used method.")
 
+    def validate_operation_mappings(self, blueprint_plan):
+        # Checking operation in workflows
+        workflows = blueprint_plan['workflows']
+        for workflow in workflows.keys():
+            if 'operation' not in workflows[workflow]:
+                raise exceptions.CloudifyClientError(
+                    "Field 'operation' is missing under "
+                    "'workflows' in %s" % workflow)
+
+        # Checking operation in nodes
+        for node in blueprint_plan['nodes']:
+            operations = node['operations']
+            for workflow in operations.keys():
+                if 'operation' not in operations[workflow]:
+                    raise exceptions.CloudifyClientError(
+                        "Field 'operation' is missing under "
+                        "node %s under 'operations' in %s" % (
+                            node['name'], workflow))
+
+        # Checking operation in relationship from nodes
+        for node in blueprint_plan['nodes']:
+            if 'relationships' not in node:
+                continue
+            relationships = node['relationships']
+            for relationship in relationships:
+                # loop for source_operations
+                source_operations = relationship['source_operations']
+                for key in source_operations.keys():
+                    if 'operation' not in source_operations[key]:
+                        raise exceptions.CloudifyClientError(
+                            "Field 'operation' is missing under "
+                            "node %s under 'relationships' "
+                            "under 'source_operations' in %s" % (
+                                node['name'], key))
+                # loop for target_operations
+                target_operations = relationship['target_operations']
+                for key in target_operations.keys():
+                    if 'operation' not in target_operations[key]:
+                        raise exceptions.CloudifyClientError(
+                            "Field 'operation' is missing under "
+                            "node %s under 'relationships' "
+                            "under 'target_operations' in %s" % (
+                                node['name'], key))
+
     def validate_blueprint_on_security_breaches(
             self, bluerpint_name, blueprint_directory):
         logger.debug(
@@ -287,6 +331,7 @@ class BlueprintsId(restful.Resource):
             blueprint_plan = parser.parse_from_path(blueprint_path)
             logger.debug("Blueprint plan: %s" % str(blueprint_plan))
 
+            self.validate_operation_mappings(blueprint_plan)
             self.validate_builtin_workflows_are_not_used(blueprint_plan)
             self.validate_nodes_for_install_agent_flag(blueprint_plan)
             self.validation_groups_policies(blueprint_plan)
