@@ -1,6 +1,7 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
 import json
+import git
 import os
 import tempfile
 import testtools
@@ -14,12 +15,13 @@ import yaml
 from os.path import expanduser
 
 from flask.ext.migrate import upgrade
-import git
-from pyvcloud.vcloudair import VCA
+
 from pyvcloud.vcloudsession import VCS
 
 from score_api_server.cli import app
 from score_api_server.db import models
+
+from score_api_server.tests import common
 from score_api_server.tests.fakes import exceptions
 from score_api_server.tests.fakes import vcloud_air_client
 from score_api_server.tests.fakes import cloudify_manager
@@ -116,7 +118,7 @@ class BaseScoreAPIClient(testtools.TestCase):
         pass
 
 
-class RealScoreAPIClient(BaseScoreAPIClient):
+class RealScoreAPIClient(BaseScoreAPIClient, common.vCloudLogin):
 
     def setUp(self):
         super(BaseScoreAPIClient, self).setUp()
@@ -126,10 +128,11 @@ class RealScoreAPIClient(BaseScoreAPIClient):
                               '/../../../real-mode-tests-conf.yaml')
         with open(path_to_login_json, 'r') as stream:
             login_cfg = yaml.load(stream)
-        self.service_version = login_cfg.get('service_version')
+
         cloudify_host = login_cfg.get('cloudify_host')
         cloudify_port = login_cfg.get('cloudify_port')
         deployment_limits = login_cfg.get('deployment_limits')
+        self.service_version = login_cfg.get('service_version')
 
         # login to VCA
         attempt = 3
@@ -143,11 +146,7 @@ class RealScoreAPIClient(BaseScoreAPIClient):
             raise exceptions.Unauthorized()
 
         # headers
-        self.headers = {
-            'x-vcloud-authorization': self.vca.vcloud_session.token,
-            'x-vcloud-org-url': self.vca.vcloud_session.org_url,
-            'x-vcloud-version': self.service_version,
-        }
+        self.setup_headers()
 
         vcloud_org_url = self.vca.vcloud_session.org_url
 
@@ -167,42 +166,6 @@ class RealScoreAPIClient(BaseScoreAPIClient):
             deployment_limits=deployment_limits)
 
         self.addCleanup(self.vca.logout)
-
-    def _login_to_vca(self, login_json):
-        request_json = login_json
-        if request_json:
-            user = request_json.get('user')
-            password = request_json.get('password')
-            service_type = request_json.get('service_type', 'subscription')
-            host = request_json.get('host', 'https://vchs.vmware.com')
-            org_name = request_json.get('org_name')
-            service = request_json.get('service')
-            vca = self._login_user_to_service(user, host,
-                                              password, service_type,
-                                              self.service_version,
-                                              service, org_name)
-            return vca
-
-    def _login_user_to_service(self, user, host, password, service_type,
-                               service_version, service, org_name):
-        vca = VCA(host, user, service_type, service_version)
-        result = vca.login(password=password)
-        if result:
-            if service_type == 'subscription':
-                if not service:
-                    if org_name:
-                        service = org_name
-                    else:
-                        services = vca.services.get_Service()
-                        if not services:
-                            return None
-                        service = services[0].serviceId
-                if not org_name:
-                    org_name = vca.get_vdc_references(service)[0].name
-                result = vca.login_to_org(service, org_name)
-            if result:
-                return vca
-        return
 
     def try_auth(self, headers=None):
         if not headers:

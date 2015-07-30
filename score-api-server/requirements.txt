@@ -4,7 +4,7 @@ flask-restful==0.2.12
 flask-restful-swagger==0.12
 requests==2.4.3
 PyYAML==3.10
-pyvcloud>=13rc13
+pyvcloud>=14rc6
 cloudify-rest-client==3.2
 cloudify-dsl-parser==3.2
 oslo.config

@@ -178,7 +178,7 @@ Here's an example of you can use this tool::
     $ score-manage org-id-limits create --org-id 07c41213-608a-4970-aef6-4c8819f964ca \
         --cloudify-host 127.0.0.1 \
         --cloudify-port 80 \
-        --deployment-limits 100
+        --deployment-limits 100 \
         --db-uri sqlite:////tmp/score.db
 
         +-----------------------+--------------------------------------+
@@ -267,3 +267,15 @@ To run code style checks please do::
     $ tox -e travis-cfy-local-nodecellar-with-fabric -c score-api-server/tox.ini
 
     $ tox -e travis-cfy-local-postgresql-with-fabric -c score-api-server/tox.ini
+
+
+============================
+Post-Deployment verification
+============================
+
+To run post-deployment verification plaese do::
+.. code-block:: bash
+
+
+    $ export SCORE_URL=http://{score_ip}:{score_port}
+    $ tox -e post-deployment -c score-api-server/tox.ini
