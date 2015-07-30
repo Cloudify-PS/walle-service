@@ -43,7 +43,7 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
         self.assertEqual(404, response.status_code,
                          response.data)
 
-    def test_uploda_blueprint(self):
+    def test_upload_blueprint(self):
         response = self.make_upload_blueprint()
         self.assertEqual(200, response.status_code, response.data)
         self.assertIn("OK", response.status,
@@ -80,6 +80,18 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
             403, expected_message_part="Invalid types import - "
                                        "file://filesomewhere. ")
 
+    def test_upload_blueprint_fabric_forward_agent(self):
+        self._upload_invalid_blueprint(
+            "vcloud-invalid-blueprint-fabric-env-forward_agent.yaml",
+            403, expected_message_part="Invalid fabric env - "
+                                       "forward_agent is not allowed")
+
+    def test_upload_blueprint_fabric_key_filename(self):
+        self._upload_invalid_blueprint(
+            "vcloud-invalid-blueprint-fabric-env-key_filename.yaml",
+            403, expected_message_part="Invalid fabric env - "
+                                       "key_file is not allowed")
+
     def test_upload_with_get_and_delete(self):
         response_upload = self.make_upload_blueprint()
         self.assertEqual(200, response_upload.status_code,
@@ -98,6 +110,6 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
 
     def test_upload_blueprint_with_buitin_tasks(self):
         self._upload_invalid_blueprint(
-            "vcloud-blueprint-invalid-with-builtins.yaml", 403,
+            "vcloud-invalid-blueprint-with-builtins.yaml", 403,
             expected_message_part='Forbidden workflow '
                                   'diamond_agent.tasks.')

@@ -40,6 +40,11 @@ node_types:
                     inputs:
                         script_path:
                             default: scripts/install_postgresql.sh
+                delete:
+                    implementation: fabric.fabric_plugin.tasks.run_script
+                    inputs:
+                        script_path:
+                            default: scripts/uninstall_postgresql.sh
 
 
     agentless.nodes.ScorePostgreSql:

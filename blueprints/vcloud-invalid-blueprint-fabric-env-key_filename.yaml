@@ -19,13 +19,11 @@ inputs:
         description: >
             Default admin user in os template
 
-    private_key:
-        default: >
-            MIIEogIBAAKCAQEAuBh4/JK5X6E2ee3dTsmfyYGaPiU/OiHCBwq/+1GLBUZZSNef
-            7gnBir0WNaXBM+EQyZ0y0+kQ9boc2rB4GO+3lPWvMp0aNWnOhn0=
+    private_key_path:
+        default: ~/.ssh/ubuntu-private.key
         type: string
         description: >
-            Private part of your key
+            Please upload key to manager server before use key
 
     host_string:
         default: localhost
@@ -56,13 +54,6 @@ node_templates:
                 inputs:
                     fabric_env:
                         user: { get_input: servers_user }
-                        key: { get_input: private_key }
-                        host_string: { get_input: host_string }
-                        port: { get_input: port }
-            delete:
-                inputs:
-                    fabric_env:
-                        user: { get_input: servers_user }
-                        key: { get_input: private_key }
+                        key_filename: { get_input: private_key_path }
                         host_string: { get_input: host_string }
                         port: { get_input: port }
