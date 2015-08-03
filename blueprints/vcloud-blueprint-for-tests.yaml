@@ -14,18 +14,68 @@ imports:
 inputs:
 
     servers_user:
-        default: ubuntu
+        default: root
         type: string
         description: >
             Default admin user in os template
+            (use root in case install to manager)
 
     private_key:
-        default: >
-            MIIEogIBAAKCAQEAuBh4/JK5X6E2ee3dTsmfyYGaPiU/OiHCBwq/+1GLBUZZSNef
-            7gnBir0WNaXBM+EQyZ0y0+kQ9boc2rB4GO+3lPWvMp0aNWnOhn0=
         type: string
         description: >
             Private part of your key
+        default: >
+            -----BEGIN RSA PRIVATE KEY-----
+            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
+            -----END RSA PRIVATE KEY-----
 
     host_string:
         default: localhost
