@@ -182,16 +182,17 @@ class BlueprintsId(restful.Resource):
                         operation_opts['operation']
                     )
 
-                key_file = fabric_env.get('key_filename')
-                if key_file:
-                    raise exceptions.CloudifyClientError(
-                        "Node {0} lifecycle {1} operation {2}: "
-                        "Invalid fabric env - key_file is not "
-                        "allowed",
-                        node['name'],
-                        operation,
-                        operation_opts['operation']
-                    )
+                # disable for now, SCOR-149
+                # key_file = fabric_env.get('key_filename')
+                # if key_file:
+                #    raise exceptions.CloudifyClientError(
+                #        "Node {0} lifecycle {1} operation {2}: "
+                #        "Invalid fabric env - key_file is not "
+                #        "allowed",
+                #        node['name'],
+                #        operation,
+                #        operation_opts['operation']
+                #    )
 
         logger.debug(
             "Exiting Blueprints.validate_plugin_nodes_"
