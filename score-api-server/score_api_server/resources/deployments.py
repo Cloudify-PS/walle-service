@@ -187,8 +187,9 @@ class DeploymentsId(restful.Resource):
 class DeploymentOutputs(restful.Resource):
 
     @swagger.operation(
+        responseClass=responses.DeploymentOutputs,
         nickname="output",
-        notes="Returns a output of the deployment.",
+        notes="Gets a specific deployment outputs.",
     )
     def get(self, deployment_id):
         logger.debug("Entering DeploymentOutputs.get method.")
@@ -199,4 +200,5 @@ class DeploymentOutputs(restful.Resource):
             logger.debug("Done. Exiting DeploymentOutputs.get method.")
             return util.remove_org_prefix(output)
         except exceptions.CloudifyClientError as e:
+            logger.error(str(e))
             return util.make_response_from_exception(e)
