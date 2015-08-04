@@ -159,7 +159,7 @@ def _set_host(host, service_type):
     if host:
         return _add_prefix(host)
     if _is_ondemand(service_type):
-        return "https://iam.vchs.vmware.com"
+        return "https://vca.vmware.com"
     else:
         return "https://vchs.vmware.com"
 

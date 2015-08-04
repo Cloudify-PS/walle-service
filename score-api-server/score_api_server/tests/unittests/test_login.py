@@ -31,7 +31,7 @@ class TestBase(testtools.TestCase):
         self.assertEqual(login._add_prefix('https://test'), 'https://test')
         self.assertEqual(login._set_host('host', 'ondemand'), 'https://host')
         self.assertEqual(login._set_host('', 'ondemand'),
-                         'https://iam.vchs.vmware.com')
+                         'https://vca.vmware.com')
         self.assertEqual(login._set_host('', 'subscription'),
                          'https://vchs.vmware.com')
         self.assertEqual(login._set_version('5.0', 'ondemand'), '5.0')
@@ -110,6 +110,6 @@ class TestBase(testtools.TestCase):
                           "x_vcloud_version": version}
                 self.assertEqual(testlogin.post(), result)
                 fake_login.assert_called_with('user',
-                                              'https://iam.vchs.vmware.com',
+                                              'https://vca.vmware.com',
                                               'password', 'ondemand', '5.7',
                                               'instance', 'service', None)
