@@ -27,8 +27,9 @@ def remove_org_prefix(obj):
     obj_copy = copy.deepcopy(obj)
     for attr in ('id', 'blueprint_id', 'deployment_id'):
         try:
-            obj_copy[attr] = obj_copy[attr].replace(
-                "{}_".format(g.org_id), "", 1)
+            if obj_copy[attr]:
+                obj_copy[attr] = obj_copy[attr].replace(
+                    "{}_".format(g.org_id), "", 1)
         except KeyError:
             pass
     return obj_copy
