@@ -83,13 +83,12 @@ def validate_json(schema):
                 return fn(args[0], json, **kwargs)
             except BadRequest as e:
                 setup_logging(__name__).exception(e)
-                return make_response("Unauthorized."
-                                     " Can't parse input json file", 401)
+                return make_response("Bad json data in request body."
+                                     " Can't parse input json file", 400)
             except ValidationError as e:
                 setup_logging(__name__).exception(e)
-                return make_response("Unauthorized."
-                                     " Validation error: {}.".format(e),
-                                     401)
+                return make_response(" Validation error: {}.".format(e),
+                                     400)
         return decorated
     return wrapper
 

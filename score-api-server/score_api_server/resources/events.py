@@ -1,7 +1,7 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
 from flask.ext import restful
-from flask import request, g
+from flask import g
 from flask_restful_swagger import swagger
 
 from score_api_server.common import util
@@ -13,15 +13,14 @@ logger = util.setup_logging(__name__)
 
 class Events(restful.Resource):
 
-    def get_events(self):
+    def get_events(self, json):
         try:
-            request_json = request.json
             logger.info("Seeking for events by execution-id: %s",
-                        request_json.get('execution_id'))
-            result = g.cc.events.get(request_json.get('execution_id'),
-                                     request_json.get('from'),
-                                     request_json.get('size'),
-                                     request_json.get('include_logs'))
+                        json['execution_id'])
+            result = g.cc.events.get(json['execution_id'],
+                                     json.get('from', 0),
+                                     json.get('size', 100),
+                                     json.get('include_logs', False))
             if len(result) == 2:
                 r = result[0]
                 r.append(result[1])
@@ -64,9 +63,19 @@ class Events(restful.Resource):
                      'paramType': 'body'}],
         consumes=['application/json']
     )
-    def get(self):
+    @util.validate_json(
+        {"type": "object",
+         "properties": {
+             "execution_id": {"type": "string", "minLength": 1},
+             "from": {"type": "integer", "minimum": 0},
+             "size": {"type": "integer", "minimum": 1},
+             "include_logs": {"type": "boolean"}
+         },
+         "required": ["execution_id"]}
+    )
+    def get(self, json):
         logger.debug("Entering Events.get method.")
-        result = self.get_events()
+        result = self.get_events(json)
         logger.debug("Done. Exiting Events.get method.")
         return result
 
@@ -102,8 +111,18 @@ class Events(restful.Resource):
                      'paramType': 'query'}],
         consumes=['application/json']
     )
-    def post(self):
+    @util.validate_json(
+        {"type": "object",
+         "properties": {
+             "execution_id": {"type": "string", "minLength": 1},
+             "from": {"type": "integer", "minimum": 0},
+             "size": {"type": "integer", "minimum": 1},
+             "include_logs": {"type": "boolean"}
+         },
+         "required": ["execution_id"]}
+    )
+    def post(self, json):
         logger.debug("Entering Events.post method.")
-        result = self.get_events()
+        result = self.get_events(json)
         logger.debug("Done. Exiting Events.post method.")
         return result

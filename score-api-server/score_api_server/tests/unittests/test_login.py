@@ -88,7 +88,7 @@ class TestBase(testtools.TestCase):
             'service': 'service'}
         with self.app.app_context():
             with self.app.test_request_context('/login', method="POST"):
-                self.assertEqual(testlogin.post().status_code, 401)
+                self.assertEqual(testlogin.post().status_code, 400)
 
         with self.app.test_request_context('/login', method="POST",
                                            data=json.dumps(data),
