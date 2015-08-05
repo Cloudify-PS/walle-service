@@ -8,7 +8,7 @@ deployment_plugins:
         source: https://github.com/cloudify-cosmo/cloudify-fabric-plugin/archive/1.2.zip
 
     - vcloud:
-        source: https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/master.zip
+        source: https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.zip
 
 workflow_plugins:
 
