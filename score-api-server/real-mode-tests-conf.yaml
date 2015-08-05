@@ -3,6 +3,6 @@ user: vchs-cert24@vmware.com
 password: Vchs24!cert@24
 service_type: subscription
 service_version: '5.6'
-cloudify_host: 23.92.245.227
+cloudify_host: 23.92.245.235
 cloudify_port: 80
 deployment_limits: -1
