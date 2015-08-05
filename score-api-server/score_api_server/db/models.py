@@ -75,8 +75,8 @@ class ApprovedPlugins(base.BaseDatabaseModel,
     __tablename__ = 'approved_plugins'
 
     id = base.db.Column(base.db.String(), primary_key=True)
-    name = base.db.Column(base.db.String(), unique=True)
-    source = base.db.Column(base.db.String(), unique=True)
+    name = base.db.Column(base.db.String())
+    source = base.db.Column(base.db.String())
     plugin_type = base.db.Column(base.db.String())
 
     def __init__(self, name, source, plugin_type):
@@ -102,10 +102,11 @@ class ApprovedPlugins(base.BaseDatabaseModel,
         _plugins = []
         for plugin in list_of_plugins:
             _name = plugin.keys()[0]
-            _source = plugin[_name]['source']
+            _sources = plugin[_name]['source']
             _type = _type
-            _plugins.append(cls(
-                _name, _source, _type))
+            for _source in _sources:
+                _plugins.append(cls(
+                    _name, _source, _type))
         return _plugins
 
     @classmethod
