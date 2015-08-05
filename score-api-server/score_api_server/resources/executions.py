@@ -1,6 +1,6 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
-from flask import request, g
+from flask import g
 from flask.ext import restful
 from flask.ext.restful import reqparse
 from flask_restful_swagger import swagger
@@ -12,8 +12,6 @@ from score_api_server.resources import responses
 from score_api_server.resources import requests_schema
 
 logger = util.setup_logging(__name__)
-parser = reqparse.RequestParser()
-parser.add_argument('deployment_id', type=str, help='Deployment ID')
 
 
 class Executions(restful.Resource):
@@ -33,13 +31,16 @@ class Executions(restful.Resource):
     )
     def get(self):
         logger.debug("Entering Execution.get method.")
+        parser = reqparse.RequestParser()
+        parser.add_argument('deployment_id', type=str, default='',
+                            help='Deployment ID')
         parsed = parser.parse_args()
         try:
             deployment_id = util.add_prefix_to_deployment(
                 parsed['deployment_id'])
             logger.info("Listing executions for deployment %s .",
                         deployment_id)
-            executions = g.cc.executions.list(deployment_id=deployment_id)
+            executions = g.cc.executions.list(deployment_id)
             filtered = [util.remove_org_prefix(e) for e in executions
                         if g.org_id in e['deployment_id']]
             return filtered
@@ -55,14 +56,14 @@ class Executions(restful.Resource):
                      'description': 'Deployment id',
                      'required': True,
                      'allowMultiple': False,
-                     'dataType': 'string',
-                     'paramType': 'query'},
+                     'dataType': requests_schema.ExecutionRequest.__name__,
+                     'paramType': 'body'},
                     {'name': 'workflow_id',
                      'description': 'Workflow id',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': requests_schema.ExecutionRequest.__name__,
-                     'paramType': 'query'},
+                     'paramType': 'body'},
                     {'name': 'parameters',
                      'description': 'Parameters for execution',
                      'required': False,
@@ -86,16 +87,26 @@ class Executions(restful.Resource):
             "application/json"
         ]
     )
-    def post(self):
+    @util.validate_json(
+        {"type": "object",
+         "properties": {
+             "deployment_id": {"type": "string", "minLength": 1},
+             "workflow_id": {"type": "string", "minLength": 1},
+             "parameters": {"type": ["object", "null"]},
+             "allow_custom_parameters": {"type": "boolean"},
+             "force": {"type": "boolean"},
+         },
+         "required": ["deployment_id", "workflow_id"]}
+    )
+    def post(self, json):
         logger.debug("Entering Execution.post method.")
         try:
-            deployment_id = util.add_org_prefix(
-                request.json.get('deployment_id'))
-            workflow_id = request.json.get('workflow_id')
-            parameters = request.json.get('parameters')
-            allow_custom_parameters = request.json.get(
-                'allow_custom_parameters')
-            force = request.json.get('force', False)
+            deployment_id = util.add_org_prefix(json['deployment_id'])
+            workflow_id = json['workflow_id']
+            parameters = json.get('parameters')
+            allow_custom_parameters = json.get('allow_custom_parameters',
+                                               False)
+            force = json.get('force', False)
             logger.info("Looking for deployment %s .", deployment_id)
             g.cc.deployments.get(deployment_id)
             logger.info("Staring workflow %s for deployment %s.",
@@ -161,13 +172,17 @@ class ExecutionsId(restful.Resource):
             "application/json"
         ]
     )
-    def post(self, execution_id=None):
+    @util.validate_json(
+        {"type": "object",
+         "properties": {
+             "force": {"type": "boolean"},
+         },
+         "required": ["force"]}
+    )
+    def post(self, json, execution_id=None):
         logger.debug("Entering Execution.put method.")
         try:
-            force = False
-            json = request.get_json(force=True, silent=True)
-            if json:
-                force = json.get('force', False)
+            force = json.get('force', False)
             self.get(execution_id=execution_id)
             result = g.cc.executions.cancel(execution_id, force)
             logger.debug("Done. Exiting Executions.put method.")

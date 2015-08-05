@@ -1,22 +1,16 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
-import json
-
-
 from cloudify_rest_client import exceptions
 
 from flask.ext import restful
-from flask.ext.restful import reqparse
-from flask import request, g, make_response
+from flask import g, make_response
 from flask_restful_swagger import swagger
 
 from score_api_server.common import util
 from score_api_server.resources import responses
+import json as jsonloader
 
 logger = util.setup_logging(__name__)
-parser = reqparse.RequestParser()
-parser.add_argument('ignore_live_nodes', type=bool,
-                    default=False, help='Ignore Live nodes')
 
 
 class Deployments(restful.Resource):
@@ -79,7 +73,7 @@ class DeploymentsId(restful.Resource):
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'query'}]
+                     'paramType': 'path'}]
     )
     def get(self, deployment_id=None):
         logger.debug("Entering DeploymentsId.get method.")
@@ -110,20 +104,22 @@ class DeploymentsId(restful.Resource):
                      'dataType': 'boolean',
                      'paramType': 'query'}]
     )
-    def delete(self, deployment_id):
+    def delete(self, deployment_id=None):
         logger.debug("Entering Deployments.delete method.")
-        parsed = parser.parse_args()
         try:
-            ignore_live_nodes = parsed['ignore_live_nodes']
+            parser = restful.reqparse.RequestParser()
+            parser.add_argument('ignore_live_nodes',
+                                type=bool, default=False,
+                                help='ignore live nodes')
+            arguments = parser.parse_args()
+            ignore_live_nodes = arguments['ignore_live_nodes']
             cfy_dp_id = util.add_org_prefix(deployment_id)
-
             # necessary to validate that deployment exists
             logger.info("Checking if deployment %s exists.",
                         deployment_id)
             self.get(deployment_id=cfy_dp_id)
             logger.info("Deleting deployment %s.", deployment_id)
-            result = g.cc.deployments.delete(
-                cfy_dp_id, ignore_live_nodes=ignore_live_nodes)
+            result = g.cc.deployments.delete(cfy_dp_id, ignore_live_nodes)
             self.update_quota(-1)
             logger.debug("Done. Exiting Deployments.delete method.")
             return util.remove_org_prefix(result)
@@ -135,14 +131,14 @@ class DeploymentsId(restful.Resource):
         responseClass=responses.Deployment,
         nickname="createDeployment",
         notes="Created a new deployment of the given blueprint.",
-        parameters=[{'name': 'blueprint_id',
-                     'description': 'Blueprint ID',
+        parameters=[{'name': 'deployment_id',
+                     'description': 'Deployment ID',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'body'},
-                    {'name': 'deployment_id',
-                     'description': 'Deployment ID',
+                     'paramType': 'path'},
+                    {'name': 'blueprint_id',
+                     'description': 'Blueprint ID',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
@@ -152,17 +148,25 @@ class DeploymentsId(restful.Resource):
                      'required': False,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'query'}],
+                     'paramType': 'body'}],
         consumes=[
             "application/json"
         ]
     )
-    def put(self, deployment_id):
+    @util.validate_json(
+        {"type": "object",
+         "properties": {
+             "blueprint_id": {"type": "string", "minLength": 1},
+             "inputs": {"type": "string"}
+         },
+         "required": ["blueprint_id"]}
+    )
+    def put(self, json, deployment_id=None):
         logger.debug("Entering Deployments.put method.")
-        blueprint_id = request.json.get('blueprint_id')
-        inputs = request.json.get('inputs')
+        blueprint_id = json['blueprint_id']
+        inputs = json.get('inputs')
         if inputs:
-            inputs = json.loads(inputs)
+            inputs = jsonloader.loads(inputs)
         if self.can_do_deployment():
             try:
                 logger.info("Updating quota for Org-ID %s.",

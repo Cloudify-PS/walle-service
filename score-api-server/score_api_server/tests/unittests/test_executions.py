@@ -53,7 +53,7 @@ class TestBase(testtools.TestCase):
                 'deployment_id': deployment,
                 'workflow_id': workflow,
                 'parameters': None,
-                'allow_custom_parameters': None,
+                'allow_custom_parameters': False,
                 'force': False}
             with self.app.test_request_context('/executions', method="POST",
                                                data=json.dumps(data),

@@ -411,9 +411,20 @@ class BlueprintsId(restful.Resource):
             "application/octet-stream"
         ]
     )
-    def put(self, blueprint_id):
+    def put(self, blueprint_id=None):
         try:
             logger.debug("Entering Blueprints.put method.")
+            parser = restful.reqparse.RequestParser()
+            parser.add_argument('application_file_name',
+                                type=str, default='',
+                                location="args",
+                                help='blueprint filename')
+            arguments = parser.parse_args()
+            application_file_name = arguments['application_file_name']
+            if not application_file_name:
+                logger.info("Empty 'application_file_name'")
+                return make_response("Query parameter"
+                                     " 'application_file_name' is empty", 400)
             tempdir = tempfile.mkdtemp()
             archive_file_name = os.path.join(
                 tempdir,
@@ -430,7 +441,7 @@ class BlueprintsId(restful.Resource):
                     directory = file
                     break
             self.validate_blueprint_on_security_breaches(
-                request.args['application_file_name'],
+                application_file_name,
                 os.path.join(tempdir, directory))
 
             logger.info("Uploading blueprint to Cloudify manager.")
@@ -460,7 +471,7 @@ class BlueprintsId(restful.Resource):
                      'dataType': 'string',
                      'paramType': 'query'}]
     )
-    def delete(self, blueprint_id):
+    def delete(self, blueprint_id=None):
         logger.debug("Entering Blueprints.delete method.")
         try:
             logger.info("Checking if blueprint exists.")
