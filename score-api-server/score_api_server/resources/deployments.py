@@ -184,3 +184,23 @@ class DeploymentsId(restful.Resource):
                 logger.error("Decreasing quota.")
                 self.update_quota(-1)
                 return util.make_response_from_exception(e)
+
+
+class DeploymentOutputs(restful.Resource):
+
+    @swagger.operation(
+        responseClass=responses.DeploymentOutputs,
+        nickname="output",
+        notes="Gets a specific deployment outputs.",
+    )
+    def get(self, deployment_id):
+        logger.debug("Entering DeploymentOutputs.get method.")
+        try:
+            logger.info("Output of the deployment.")
+            output = g.cc.deployments.outputs.get(
+                util.add_org_prefix(deployment_id))
+            logger.debug("Done. Exiting DeploymentOutputs.get method.")
+            return util.remove_org_prefix(output)
+        except exceptions.CloudifyClientError as e:
+            logger.error(str(e))
+            return util.make_response_from_exception(e)

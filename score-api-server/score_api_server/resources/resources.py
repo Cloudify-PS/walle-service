@@ -20,6 +20,8 @@ def setup_resources(api):
     api.add_resource(deployments.Deployments, '/deployments')
     api.add_resource(deployments.DeploymentsId,
                      '/deployments/<string:deployment_id>')
+    api.add_resource(deployments.DeploymentOutputs,
+                     '/deployments/<string:deployment_id>/outputs')
     api.add_resource(executions.Executions, '/executions')
     api.add_resource(executions.ExecutionsId,
                      '/executions/<string:execution_id>')
