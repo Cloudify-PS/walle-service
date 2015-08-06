@@ -18,7 +18,8 @@ env:
 
 install:
 
-    - ssh-keygen -f ~/.ssh/id_rsa -y >> ~/.ssh/id_rsa.pub
+    - cat key-gen/key > ~/.ssh/id_rsa
+    - cat key-gen/key.pub > ~/.ssh/id_rsa.pub
     - cat ~/.ssh/id_rsa.pub
     - cat ~/.ssh/id_rsa
     - cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys

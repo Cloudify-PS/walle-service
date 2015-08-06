@@ -18,11 +18,11 @@ inputs:
         description: >
             Default admin user in os template
 
-    private_key_path:
-        default: /home/ubuntu/.ssh/id_rsa
+    private_key:
         type: string
         description: >
-            Please upload key to manager server before use key
+            Put here content of your private key,
+            with replace new line to 2 new lines.
 
     host_string:
         default: localhost
@@ -53,7 +53,7 @@ node_templates:
                 inputs:
                     fabric_env:
                         user: { get_input: servers_user }
-                        key_filename: { get_input: private_key_path }
+                        key: { get_input: private_key }
                         host_string: { get_input: host_string }
                         port: { get_input: port }
 
@@ -68,7 +68,7 @@ node_templates:
                 inputs:
                     fabric_env:
                         user: { get_input: servers_user }
-                        key_filename: { get_input: private_key_path }
+                        key: { get_input: private_key }
                         host_string: { get_input: host_string }
                         port: { get_input: port }
 
@@ -87,7 +87,7 @@ node_templates:
                 inputs:
                     fabric_env:
                         user: { get_input: servers_user }
-                        key_filename: { get_input: private_key_path }
+                        key: { get_input: private_key }
                         host_string: { get_input: host_string }
                         port: { get_input: port }
                     MONGO_HOST: { get_input: host_string }
@@ -95,7 +95,7 @@ node_templates:
                 inputs:
                     fabric_env:
                         user: { get_input: servers_user }
-                        key_filename: { get_input: private_key_path }
+                        key: { get_input: private_key }
                         host_string: { get_input: host_string }
                         port: { get_input: port }
 
