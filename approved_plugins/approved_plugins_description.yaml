@@ -6,7 +6,7 @@ deployment_plugins:
 
     - fabric:
         source:
-            - https://github.com/cloudify-cosmo/cloudify-fabric-plugin/archive/1.2.zip
+            - http://s3.amazonaws.com/vcloud-score/cloudify-fabric-plugin-1.2.zip
 
     - vcloud:
         source:
