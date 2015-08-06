@@ -2,7 +2,6 @@
 
 import uuid
 import json
-import testtools
 
 from score_api_server.tests.integration import base
 
@@ -87,7 +86,6 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
             403, expected_message_part="Invalid fabric env - "
                                        "forward_agent is not allowed")
 
-    @testtools.skip("SCOR-149")
     def test_upload_blueprint_fabric_key_filename(self):
         self._upload_invalid_blueprint(
             "vcloud-invalid-blueprint-fabric-env-key_filename.yaml",

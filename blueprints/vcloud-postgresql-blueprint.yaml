@@ -39,7 +39,8 @@ inputs:
     user_private_key:
         type: string
         description: >
-            Private part of your key
+            Put here content of your private key,
+            with replace new line to 2 new lines.
         default: >
             -----BEGIN RSA PRIVATE KEY-----
 
