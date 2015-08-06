@@ -230,8 +230,8 @@ class RealScoreAPIClient(BaseScoreAPIClient, common.vCloudLogin):
             'deployment_id': deployment_id,
             'workflow_id': workflow_id,
             'parameters': parameters,
-            'allow_custom_parameters': str(allow_custom_parameters).lower(),
-            'force': str(force).lower()
+            'allow_custom_parameters': allow_custom_parameters,
+            'force': force
         }
         return self.execute_post_request_with_route(
             '/executions', data=json.dumps(data),

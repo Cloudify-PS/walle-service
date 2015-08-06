@@ -39,7 +39,7 @@ class TestEvents(base.IntegrationBaseTestCase):
 
         content_type = 'application/json'
         data = {'execution_id': self.execution_id,
-                'include_logs': 'true'}
+                'include_logs': True}
         response = self.execute_post_request_with_route(
             "/events", data=json.dumps(data), content_type=content_type)
 
