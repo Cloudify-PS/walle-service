@@ -5,3 +5,4 @@ coverage
 fabric==1.8.3
 testtools>=0.9.36,!=1.2.0
 gitpython
+tox
