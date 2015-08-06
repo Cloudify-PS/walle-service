@@ -3,7 +3,7 @@
 from cloudify_rest_client import exceptions
 
 from flask.ext import restful
-from flask import g, make_response
+from flask import g
 from flask_restful_swagger import swagger
 
 from score_api_server.common import util
@@ -62,7 +62,8 @@ class DeploymentsId(restful.Resource):
         else:
             logger.debug("Deployment quota exceeded for Org-ID:%s.",
                          g.org_id)
-            return make_response("Deployment quota exceeded.", 403)
+            raise exceptions.CloudifyClientError(
+                "Deployment quota exceeded.", status_code=403)
 
     @swagger.operation(
         responseClass=responses.Deployment,
@@ -167,20 +168,20 @@ class DeploymentsId(restful.Resource):
         inputs = json.get('inputs')
         if inputs:
             inputs = jsonloader.loads(inputs)
-        if self.can_do_deployment():
             try:
-                logger.info("Updating quota for Org-ID %s.",
-                            g.org_id)
-                self.update_quota(+1)
-                logger.info("Checking if blueprint %s exists.",
-                            blueprint_id)
-                g.cc.blueprints.get(util.add_org_prefix(blueprint_id))
-                deployment = g.cc.deployments.create(
-                    util.add_org_prefix(blueprint_id),
-                    util.add_org_prefix(deployment_id),
-                    inputs=inputs)
-                logger.debug("Done. Exiting Deployments.put method.")
-                return util.remove_org_prefix(deployment)
+                if self.can_do_deployment():
+                    logger.info("Updating quota for Org-ID %s.",
+                                g.org_id)
+                    self.update_quota(+1)
+                    logger.info("Checking if blueprint %s exists.",
+                                blueprint_id)
+                    g.cc.blueprints.get(util.add_org_prefix(blueprint_id))
+                    deployment = g.cc.deployments.create(
+                        util.add_org_prefix(blueprint_id),
+                        util.add_org_prefix(deployment_id),
+                        inputs=inputs)
+                    logger.debug("Done. Exiting Deployments.put method.")
+                    return util.remove_org_prefix(deployment)
             except(exceptions.CloudifyClientError,
                    exceptions.MissingRequiredDeploymentInputError,
                    exceptions.UnknownDeploymentInputError) as e:
