@@ -11,6 +11,7 @@ import urllib
 import shutil
 import tarfile
 import yaml
+import shutil
 
 from os.path import expanduser
 
@@ -57,21 +58,25 @@ class BaseScoreAPIClient(testtools.TestCase):
         pass
 
     def make_upload_blueprint(
-            self, blueprint_filename="vcloud-blueprint-for-tests.yaml"):
+            self, blueprint_filename="vcloud-blueprint-for-tests.yaml",
+            arc_type='tar'):
         current_dir = os.path.dirname(os.path.realpath(__file__))
         blueprints_dir = current_dir + '/../../../../blueprints/'
         blueprint_path = blueprints_dir + blueprint_filename
         bp_id = str(uuid.uuid4()) + '_' + blueprint_filename
-        response = self.upload_blueprint(blueprint_path, bp_id)
+        response = self.upload_blueprint(blueprint_path, bp_id, arc_type)
         return response
 
-    def upload_blueprint(self, blueprint_path, blueprint_id):
+    def upload_blueprint(self, blueprint_path, blueprint_id, arc_type):
         tempdir = tempfile.mkdtemp()
         try:
-            tar_path = self._tar_blueprint(blueprint_path, tempdir)
+            if arc_type is 'tar':
+                arc_path = self._tar_blueprint(blueprint_path, tempdir)
+            else:
+                arc_path = self._zip_blueprint(blueprint_path, tempdir)
             application_file = os.path.basename(blueprint_path)
             return self._upload(
-                tar_path,
+                arc_path,
                 blueprint_id=blueprint_id,
                 application_file_name=application_file)
         finally:
@@ -89,13 +94,27 @@ class BaseScoreAPIClient(testtools.TestCase):
             blueprint_directory = os.getcwd()
         tar_path = os.path.join(
             tempdir, '{0}.tar.gz'.format(blueprint_name))
-
         with tarfile.open(tar_path, "w:gz") as tar:
             tar.add(
                 blueprint_directory,
                 arcname=os.path.basename(blueprint_directory))
 
         return tar_path
+
+    def _zip_blueprint(self, blueprint_path, tempdir):
+
+        blueprint_path = expanduser(blueprint_path)
+        blueprint_name = os.path.basename(
+            os.path.splitext(blueprint_path)[0])
+        blueprint_directory = os.path.dirname(blueprint_path)
+        if not blueprint_directory:
+            # blueprint path only contains a file name from the local directory
+            blueprint_directory = os.getcwd()
+        arc_path = os.path.join(tempdir, blueprint_name)
+        zip_path = shutil.make_archive(arc_path, 'zip',
+                                       os.path.dirname(blueprint_directory),
+                                       os.path.basename(blueprint_directory))
+        return zip_path
 
     def _upload(self, tar_file,
                 blueprint_id,

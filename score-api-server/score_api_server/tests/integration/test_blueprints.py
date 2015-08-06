@@ -52,6 +52,14 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
         self.assertIsNotNone(json.loads(response.data),
                              response.data)
 
+    def test_upload_zip_blueprint(self):
+        response = self.make_upload_blueprint(arc_type='zip')
+        self.assertEqual(200, response.status_code, response.data)
+        self.assertIn("OK", response.status,
+                      response.data)
+        self.assertIsNotNone(json.loads(response.data),
+                             response.data)
+
     def _upload_invalid_blueprint(self, name, expected_code=403,
                                   expected_message_part="invalid"):
         response = self.make_upload_blueprint(
