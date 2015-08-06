@@ -10,3 +10,6 @@ openssl rsa -in server.key.org -out server.key
 openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
 mkdir -p ../etc/keys
 mv server.crt server.key ../etc/keys
+
+# ssh keys for login
+ssh-keygen -t rsa -b 4096 -C "score@getcloudify.org" -f key

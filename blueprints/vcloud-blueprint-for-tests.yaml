@@ -7,8 +7,8 @@ tosca_definitions_version: cloudify_dsl_1_0
 
 imports:
   - http://s3.amazonaws.com/vcloud-score/types.yaml
-  - https://raw.githubusercontent.com/cloudify-cosmo/tosca-vcloud-plugin/master/plugin.yaml
-  - http://www.getcloudify.org/spec/fabric-plugin/1.2/plugin.yaml
+  - https://raw.githubusercontent.com/cloudify-cosmo/tosca-vcloud-plugin/1.2/plugin.yaml
+  - http://s3.amazonaws.com/vcloud-score/cloudify-fabric-plugin/1.2/plugin.yaml
   - types/agentless.yaml
 
 inputs:
@@ -26,55 +26,105 @@ inputs:
             Private part of your key
         default: >
             -----BEGIN RSA PRIVATE KEY-----
-            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
+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
+
             -----END RSA PRIVATE KEY-----
 
     host_string:
