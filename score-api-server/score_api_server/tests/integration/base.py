@@ -58,7 +58,8 @@ class BaseScoreAPIClient(testtools.TestCase):
         pass
 
     def make_upload_blueprint(
-            self, blueprint_filename="vcloud-blueprint-for-tests.yaml",
+            self,
+            blueprint_filename="vcloud-blueprint-for-integration-tests.yaml",
             arc_type='tar'):
         current_dir = os.path.dirname(os.path.realpath(__file__))
         blueprints_dir = current_dir + '/../../../../blueprints/'
