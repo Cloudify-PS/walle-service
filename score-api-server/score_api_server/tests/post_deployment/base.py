@@ -24,7 +24,7 @@ class BasePostDeploymentTestCase(testtools.TestCase, common.vCloudLogin):
         current_dir = os.path.dirname(os.path.realpath(__file__))
         blueprints_dir = current_dir + '/../../../../blueprints/'
         self._valid_blueprint_path = (
-            blueprints_dir + "vcloud-blueprint-for-tests.yaml")
+            blueprints_dir + "vcloud-valid-blueprint.yaml")
 
         self.valid_blueprint_path = os.getenv("SCORE_VALID_BLUEPRINT",
                                               self._valid_blueprint_path)

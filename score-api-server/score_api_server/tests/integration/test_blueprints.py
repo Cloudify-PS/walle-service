@@ -78,7 +78,7 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
     def test_upload_blueprint_with_unapproved_plugins(self):
         self.drop_approved_plugins()
         self._upload_invalid_blueprint(
-            "vcloud-blueprint-for-tests.yaml", 403,
+            "vcloud-valid-blueprint.yaml", 403,
             expected_message_part="is not approved. Blueprint: ")
         self.recreate_approved_plugins()
 

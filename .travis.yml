@@ -11,10 +11,7 @@ env:
     - TOX_ENV=unittests
     - TOX_ENV=integration
     - TOX_ENV=validate-blueprints
-    - TOX_ENV=cfy-local-nodecellar
-    - TOX_ENV=travis-cfy-local-nodecellar-with-fabric
-    - TOX_ENV=travis-cfy-local-postgresql-with-fabric
-    - TOX_ENV=travis-cfy-local-score-postgresql-with-fabric
+    - TOX_ENV=vcloud-score-blueprint-local-with-fabric
 
 install:
 
