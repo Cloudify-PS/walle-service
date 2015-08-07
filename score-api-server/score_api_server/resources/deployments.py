@@ -8,7 +8,6 @@ from flask_restful_swagger import swagger
 
 from score_api_server.common import util
 from score_api_server.resources import responses
-import json as jsonloader
 
 logger = util.setup_logging(__name__)
 
@@ -158,7 +157,7 @@ class DeploymentsId(restful.Resource):
         {"type": "object",
          "properties": {
              "blueprint_id": {"type": "string", "minLength": 1},
-             "inputs": {"type": "string"}
+             "inputs": {"type": ["object", "null"]}
          },
          "required": ["blueprint_id"]}
     )
@@ -166,29 +165,27 @@ class DeploymentsId(restful.Resource):
         logger.debug("Entering Deployments.put method.")
         blueprint_id = json['blueprint_id']
         inputs = json.get('inputs')
-        if inputs:
-            inputs = jsonloader.loads(inputs)
-            try:
-                if self.can_do_deployment():
-                    logger.info("Updating quota for Org-ID %s.",
-                                g.org_id)
-                    self.update_quota(+1)
-                    logger.info("Checking if blueprint %s exists.",
-                                blueprint_id)
-                    g.cc.blueprints.get(util.add_org_prefix(blueprint_id))
-                    deployment = g.cc.deployments.create(
-                        util.add_org_prefix(blueprint_id),
-                        util.add_org_prefix(deployment_id),
-                        inputs=inputs)
-                    logger.debug("Done. Exiting Deployments.put method.")
-                    return util.remove_org_prefix(deployment)
-            except(exceptions.CloudifyClientError,
-                   exceptions.MissingRequiredDeploymentInputError,
-                   exceptions.UnknownDeploymentInputError) as e:
-                logger.error(str(e))
-                logger.error("Decreasing quota.")
-                self.update_quota(-1)
-                return util.make_response_from_exception(e)
+        try:
+            if self.can_do_deployment():
+                logger.info("Updating quota for Org-ID %s.",
+                            g.org_id)
+                self.update_quota(+1)
+                logger.info("Checking if blueprint %s exists.",
+                            blueprint_id)
+                g.cc.blueprints.get(util.add_org_prefix(blueprint_id))
+                deployment = g.cc.deployments.create(
+                    util.add_org_prefix(blueprint_id),
+                    util.add_org_prefix(deployment_id),
+                    inputs=inputs)
+                logger.debug("Done. Exiting Deployments.put method.")
+                return util.remove_org_prefix(deployment)
+        except(exceptions.CloudifyClientError,
+               exceptions.MissingRequiredDeploymentInputError,
+               exceptions.UnknownDeploymentInputError) as e:
+            logger.error(str(e))
+            logger.error("Decreasing quota.")
+            self.update_quota(-1)
+            return util.make_response_from_exception(e)
 
 
 class DeploymentOutputs(restful.Resource):
