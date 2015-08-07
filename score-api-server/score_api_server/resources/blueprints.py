@@ -6,6 +6,7 @@ import tempfile
 import tarfile
 import shutil
 import os.path
+import zipfile
 
 from flask.ext import restful
 from flask import request, g, make_response
@@ -366,6 +367,24 @@ class BlueprintsId(restful.Resource):
             "Done. Exiting BlueprintsId.validate_blueprint_"
             "on_security_breaches method.")
 
+    @staticmethod
+    def _get_archive_type(archive_path):
+        if zipfile.is_zipfile(archive_path):
+            return 'zip'
+        if tarfile.is_tarfile(archive_path):
+            return 'tar'
+        raise RuntimeError("Can't recognize archive type")
+
+    def _is_zip(self, archive_path):
+        return self._get_archive_type(archive_path) == 'zip'
+
+    def _is_tar(self, archive_path):
+        return self._get_archive_type(archive_path) == 'tar'
+
+    @staticmethod
+    def _is_archive(filename):
+        return filename.endswith('.arc')
+
     @swagger.operation(
         responseClass=responses.BlueprintState,
         nickname="getById",
@@ -427,16 +446,22 @@ class BlueprintsId(restful.Resource):
             tempdir = tempfile.mkdtemp()
             archive_file_name = os.path.join(
                 tempdir,
-                util.add_org_prefix(blueprint_id) + '.tar.gz')
+                util.add_org_prefix(blueprint_id)) + '.arc'
             logger.info("Saving blueprint files locally.")
             self._save_file_locally(archive_file_name)
             logger.debug("Extracting archive.")
-            with tarfile.open(archive_file_name, 'r:gz') as tfile:
-                tfile.extractall(tempdir)
+            if self._is_tar(archive_file_name):
+                with tarfile.open(archive_file_name, 'r:gz') as tfile:
+                    tfile.extractall(tempdir)
+            elif self._is_zip(archive_file_name):
+                with zipfile.ZipFile(archive_file_name) as zfile:
+                    zfile.extractall(tempdir)
+            else:
+                raise Exception("Unknown archive")
             files = os.listdir(tempdir)
             directory = None
             for file in files:
-                if not file.endswith('.tar.gz'):
+                if not self._is_archive(file):
                     directory = file
                     break
             self.validate_blueprint_on_security_breaches(
