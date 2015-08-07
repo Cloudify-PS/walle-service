@@ -1,0 +1,15 @@
+###########################################################
+# This Blueprint for integration tests
+###########################################################
+
+tosca_definitions_version: cloudify_dsl_1_0
+
+imports:
+  - http://s3.amazonaws.com/vcloud-score/types.yaml
+
+node_templates:
+
+  host:
+    type: cloudify.nodes.Compute
+    properties:
+      install_agent: false
