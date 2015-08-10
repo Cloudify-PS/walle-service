@@ -449,13 +449,11 @@ node_templates:
             cloudify.interfaces.lifecycle:
                 start:
                     inputs:
-                        task_properties:
-                            config:
-                                ip_postgres: { get_attribute: [postgresql_host, ip] }
-                                ip_score: { get_attribute: [score_host, ip] }
-                                db_user: { get_input: postgresql_db_user }
-                                db_name: { get_input: postgresql_db_name }
-                                db_pass: { get_input: postgresql_db_pass }
+                        DB_IP: { get_attribute: [postgresql_host, ip] }
+                        SCORE_IP: { get_attribute: [score_host, ip] }
+                        DB_USER: { get_input: postgresql_db_user }
+                        DB_NAME: { get_input: postgresql_db_name }
+                        DB_PASS: { get_input: postgresql_db_pass }
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }

@@ -52,15 +52,10 @@ node_types:
         interfaces:
             cloudify.interfaces.lifecycle:
                 start:
-                    implementation: fabric.fabric_plugin.tasks.run_task
+                    implementation: fabric.fabric_plugin.tasks.run_script
                     inputs:
-                        tasks_file:
-                            default: scripts/install_score_postgresql.py
-                        task_name:
-                            default: install
-                        task_properties:
-                            default:
-                             config: {}
+                        script_path:
+                            default: scripts/install_score_postgresql.sh
 
     #template for nodejs application nodecellar
     agentless.nodes.nodecellar:

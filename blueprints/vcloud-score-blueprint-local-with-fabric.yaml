@@ -106,12 +106,11 @@ node_templates:
             cloudify.interfaces.lifecycle:
                 start:
                     inputs:
-                        task_properties:
-                            config:
-                                ip: { get_input: host_string }
-                                db_user: { get_input: postgresql_db_user }
-                                db_name: { get_input: postgresql_db_name }
-                                db_pass: { get_input: postgresql_db_pass }
+                        DB_IP: { get_input: host_string }
+                        SCORE_IP: { get_input: host_string }
+                        DB_USER: { get_input: postgresql_db_user }
+                        DB_NAME: { get_input: postgresql_db_name }
+                        DB_PASS: { get_input: postgresql_db_pass }
                         fabric_env:
                             user: { get_input: servers_user }
                             key: { get_input: private_key }
