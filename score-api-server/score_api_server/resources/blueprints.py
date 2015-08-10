@@ -7,9 +7,12 @@ import tarfile
 import shutil
 import os.path
 import zipfile
+import contextlib
+
+from urllib2 import urlopen, URLError
 
 from flask.ext import restful
-from flask import request, g, make_response
+from flask import request, g
 from flask_restful_swagger import swagger
 
 from cloudify_rest_client import exceptions
@@ -177,10 +180,8 @@ class BlueprintsId(restful.Resource):
                     raise exceptions.CloudifyClientError(
                         "Node {0} lifecycle {1} operation {2}: "
                         "Invalid fabric env - forward_agent is not "
-                        "allowed",
-                        node['name'],
-                        operation,
-                        operation_opts['operation']
+                        "allowed".format(node['name'], operation,
+                                         operation_opts['operation'])
                     )
 
                 key_file = fabric_env.get('key_filename')
@@ -188,10 +189,10 @@ class BlueprintsId(restful.Resource):
                     raise exceptions.CloudifyClientError(
                         "Node {0} lifecycle {1} operation {2}: "
                         "Invalid fabric env - key_file is not "
-                        "allowed, please use key field.",
-                        node['name'],
-                        operation,
-                        operation_opts['operation']
+                        "allowed, please use key field.".format(
+                            node['name'],
+                            operation,
+                            operation_opts['operation'])
                     )
 
         logger.debug(
@@ -424,7 +425,14 @@ class BlueprintsId(restful.Resource):
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
-                     'paramType': 'query'}],
+                     'paramType': 'query'},
+                    {'name': "blueprint_archive_url",
+                     'description': 'Blueprint archive URL, '
+                                    'an alternative to blueprint archive',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paraType': 'query'}],
         consumes=[
             "application/octet-stream"
         ]
@@ -441,8 +449,9 @@ class BlueprintsId(restful.Resource):
             application_file_name = arguments['application_file_name']
             if not application_file_name:
                 logger.info("Empty 'application_file_name'")
-                return make_response("Query parameter"
-                                     " 'application_file_name' is empty", 400)
+                raise exceptions.CloudifyClientError(
+                    "Query parameter "
+                    "'application_file_name' is empty", status_code=400)
             tempdir = tempfile.mkdtemp()
             archive_file_name = os.path.join(
                 tempdir,
@@ -509,18 +518,49 @@ class BlueprintsId(restful.Resource):
             logger.exception(str(e))
             return util.make_response_from_exception(e)
 
-    @staticmethod
-    def _save_file_locally(archive_file_name):
+    def _save_file_locally(self, archive_file_name):
         logger.debug("Entering Blueprints._save_file_locally method.")
+
+        if 'blueprint_archive_url' in request.args:
+            logger.info("Saving blueprint by its URL.")
+            if request.data or 'Transfer-Encoding' in request.headers:
+                raise exceptions.CloudifyClientError(
+                    "Can't pass both a blueprint URL via query parameters "
+                    "and blueprint data via the request body at the same time",
+                    status_code=400)
+
+            blueprint_url = request.args['blueprint_archive_url']
+            logger.info("Blueprint URL: {0}.".format(blueprint_url))
+            try:
+                with contextlib.closing(urlopen(blueprint_url)) as urlf:
+                    with open(archive_file_name, 'w') as f:
+                        f.write(urlf.read())
+                        logger.info("Blueprint saved.")
+                    logger.debug("Done. Exiting Blueprints."
+                                 "_save_file_locally method.")
+                return
+            except URLError:
+                raise exceptions.CloudifyClientError(
+                    "URL {0} not found - can't download blueprint archive"
+                    .format(blueprint_url),
+                    status_code=404)
+            except ValueError:
+                raise exceptions.CloudifyClientError(
+                    "URL {0} is malformed - can't "
+                    "download blueprint archive"
+                    .format(blueprint_url),
+                    status_code=400)
+
         if 'Transfer-Encoding' in request.headers:
             with open(archive_file_name, 'wb') as f:
                 for buffered_chunked in decode(request.input_stream):
                     f.write(buffered_chunked)
         else:
             if not request.data:
-                return make_response(
+                raise exceptions.CloudifyClientError(
                     'Missing application archive in request body or '
-                    '"blueprint_archive_url" in query parameters', 400)
+                    '"blueprint_archive_url" in query parameters',
+                    status_code=400)
             uploaded_file_data = request.data
             with open(archive_file_name, 'wb') as f:
                 f.write(uploaded_file_data)
