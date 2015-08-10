@@ -7,4 +7,4 @@ sudo apt-get upgrade -y  -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::
 sudo apt-get install -qy build-essential libssl-dev \
  libffi-dev libxml2-dev postgresql-client \
  gunicorn nginx libxslt-dev python-dev \
- python-pip git libpq-dev 2>&1
+ python-pip git libpq-dev curl 2>&1

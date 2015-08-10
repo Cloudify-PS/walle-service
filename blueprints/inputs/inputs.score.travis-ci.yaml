@@ -1,0 +1,6 @@
+servers_user: travis
+host_string: localhost
+port: 22
+score_package_url: file:///home/travis/builds/vcloudair/score-service/score-service.tar.gz
+score_nginx_configuration_url: file:///home/travis/builds/vcloudair/score-service/score-nginx-configuration.tar.gz
+score_ui_package_url: file:///home/travis/builds/vcloudair/vca.io/score-ui.tar.gz
