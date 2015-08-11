@@ -37,7 +37,8 @@ end script
 sudo cp ~/score_api_server.conf /etc/init/score_api_server.conf
 sudo chown root:root /etc/init/score_api_server.conf
 
-source ~/score.rc; score-manage db upgrade -d score-service/score-api-server/migrations/
+source ~/score.rc; score-manage db upgrade head -d score-service/score-api-server/migrations/
+source ~/score.rc; score-manage approved-plugins add --from-file score-service/approved_plugins/approved_plugins_description.yaml
 
 sudo initctl start score_api_server
 
