@@ -103,9 +103,10 @@ class Executions(restful.Resource):
         try:
             deployment_id = util.add_org_prefix(json['deployment_id'])
             workflow_id = json['workflow_id']
-            parameters = json.get('parameters')
-            allow_custom_parameters = json.get('allow_custom_parameters',
-                                               False)
+            parameters = json.get('parameters', {})
+            parameters['session_token'] = g.token
+            parameters['org_url'] = g.org_url
+            allow_custom_parameters = True
             force = json.get('force', False)
             logger.info("Looking for deployment %s .", deployment_id)
             g.cc.deployments.get(deployment_id)
