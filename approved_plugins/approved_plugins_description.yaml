@@ -7,6 +7,7 @@ deployment_plugins:
     - fabric:
         source:
             - http://s3.amazonaws.com/vcloud-score/cloudify-fabric-plugin-1.2.zip
+            - http://s3.amazonaws.com/vcloud-score/cloudify-fabric-plugin-1.2.1.zip
 
     - vcloud:
         source:

@@ -15,8 +15,8 @@ env:
 
 install:
 
-    - cat ~/.ssh/id_rsa.pub
-    - cat ~/.ssh/id_rsa
+    - cat key-gen/key > ~/.ssh/id_rsa
+    - cat key-gen/key.pub > ~/.ssh/id_rsa.pub
     - cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
     - chmod +x ~/.ssh/authorized_keys
     - echo -e "StrictHostKeyChecking no\n" >> ~/.ssh/conf

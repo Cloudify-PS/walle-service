@@ -124,7 +124,7 @@ Approved plugins
 Cloudify stack
 --------------
 
-tosca-vcloud-plugin in (1.2, 1.21)
+tosca-vcloud-plugin in (1.2, 1.2.1)
 cloudify-fabric-plugin==1.2 (our fork only)
 
 Tag URLs::

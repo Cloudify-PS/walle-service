@@ -1,8 +1,8 @@
 tosca_definitions_version: cloudify_dsl_1_0
 
 imports:
-    - http://www.getcloudify.org/spec/cloudify/3.2/types.yaml
-    - https://raw.githubusercontent.com/cloudify-cosmo/tosca-vcloud-plugin/1.2/plugin.yaml
+    - http://www.getcloudify.org/spec/cloudify/3.2.1/types.yaml
+    - https://raw.githubusercontent.com/cloudify-cosmo/tosca-vcloud-plugin/1.2.1/plugin.yaml
     - http://s3.amazonaws.com/vcloud-score/cloudify-fabric-plugin/1.2/plugin.yaml
     - types/agentless.yaml
 
@@ -408,7 +408,8 @@ node_templates:
     common_keypair:
         type: cloudify.vcloud.nodes.KeyPair
         properties:
-            private_key_path: { get_input: private_key_path }
+            private_key:
+                path: { get_input: private_key_path }
             public_key:
                 key: { get_input: user_public_key }
                 user: { get_input: servers_user }
