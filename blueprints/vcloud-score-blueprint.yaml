@@ -206,6 +206,31 @@ inputs:
     postgresql_db_pass:
         type: string
 
+    existing_score_db_url:
+        type: string
+        default: ''
+        description: >
+            postgresql URL that points to existing database
+            example - postgresql://DB_USER:DB_PASS@DB_IP/DB_NAME
+
+    use_existing_score_db_node:
+        type: boolean
+        default: false
+        description: >
+            flag that tells to use existing postgresql node
+
+    existing_score_db_node_name:
+        type: string
+        default: ''
+        description: >
+            Score DB node name
+
+    use_existing_postgresql_node_nat:
+        type: boolean
+        default: false
+        description: >
+            use existing PostgreSQL node NAT
+
 node_types:
 
     # base server type for installation without agent
@@ -263,6 +288,8 @@ node_templates:
     postgresql_host:
         type: agentless.nodes.ParentTypeServer
         properties:
+            use_external_resource: { get_input: use_existing_score_db_node }
+            resource_id:  { get_input: existing_score_db_node_name }
             server:
                 catalog: { get_input: catalog }
                 template: { get_input: template }
@@ -337,6 +364,7 @@ node_templates:
     postgresql_server_nat:
         type: cloudify.vcloud.nodes.PublicNAT
         properties:
+            use_external_resource: { get_input: use_existing_postgresql_node_nat }
             nat:
                 edge_gateway: { get_input: edge_gateway }
                 public_ip: { get_input: postgresql_ip_address }
@@ -438,6 +466,7 @@ node_templates:
             cloudify.interfaces.lifecycle:
                 create:
                     inputs:
+                        SKIP_INSTALLATION: { get_input: use_existing_score_db_node }
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
@@ -453,6 +482,7 @@ node_templates:
             cloudify.interfaces.lifecycle:
                 start:
                     inputs:
+                        SKIP_CONFIGURATION: { get_input: use_existing_score_db_node }
                         DB_IP: { get_attribute: [postgresql_host, ip] }
                         SCORE_IP: { get_attribute: [score_host, ip] }
                         DB_USER: { get_input: postgresql_db_user }
@@ -478,6 +508,7 @@ node_templates:
                             port: { get_input: score_ssh }
                 start:
                     inputs:
+                        SCORE_EXISTING_DB: { get_input: existing_score_db_url }
                         DB_IP: { get_attribute: [postgresql_host, ip] }
                         DB_USER: { get_input: postgresql_db_user }
                         DB_NAME: { get_input: postgresql_db_name }
