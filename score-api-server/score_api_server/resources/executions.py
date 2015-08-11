@@ -107,6 +107,10 @@ class Executions(restful.Resource):
             parameters['session_token'] = g.token
             parameters['org_url'] = g.org_url
             allow_custom_parameters = True
+            if workflow_id is 'install':
+                workflow_id = 'scoreinstall'
+            if workflow_id is 'uninstall':
+                workflow_id = 'scoreuninstall'
             force = json.get('force', False)
             logger.info("Looking for deployment %s .", deployment_id)
             g.cc.deployments.get(deployment_id)
