@@ -15,13 +15,21 @@ env:
 
 install:
 
-    - cat key-gen/key > ~/.ssh/id_rsa
-    - cat key-gen/key.pub > ~/.ssh/id_rsa.pub
     - cat ~/.ssh/id_rsa.pub
     - cat ~/.ssh/id_rsa
     - cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
     - chmod +x ~/.ssh/authorized_keys
     - echo -e "StrictHostKeyChecking no\n" >> ~/.ssh/conf
+    - echo -e "private_key: `cat ~/.ssh/id_rsa`" >> blueprints/inputs/inputs.score.travis-ci.yaml
+
+    - pwd
+    - tar -czf score-service.tar.gz score-api-server/ | true
+    - tar -czf score-nginx-configuration.tar.gz etc/ www/ | true
+    - cd ../
+    - git clone --depth=50 --branch=master git@github.com:vcloudair/vca.io.git vca.io
+    - cd vca.io
+    - tar -czf score-ui.tar.gz . | true
+    - cd ../score-service
 
     - pip install tox
 

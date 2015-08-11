@@ -103,3 +103,19 @@ node_types:
                     inputs:
                         script_path:
                             default: scripts/score/configure.sh
+
+    # template node for Score UI
+    agentless.nodes.score_ui:
+        derived_from: cloudify.nodes.ApplicationModule
+        interfaces:
+            cloudify.interfaces.lifecycle:
+                create:
+                    implementation: fabric.fabric_plugin.tasks.run_script
+                    inputs:
+                        script_path:
+                            default: scripts/score/install_score_ui_and_dependencies.sh
+                start:
+                    implementation: fabric.fabric_plugin.tasks.run_script
+                    inputs:
+                        script_path:
+                            default: scripts/score/configure_ui.sh

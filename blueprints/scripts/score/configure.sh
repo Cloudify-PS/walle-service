@@ -43,7 +43,7 @@ sudo initctl start score_api_server
 
 # TODO(denismakogon): avoid hardcoding by downloading nginx configuration from external source
 
-wget -c ${SCORE_NGINX_CONFIGURATION_URL} -O score-nginx-configration.tar.gz 2>&1
+curl -o score-nginx-configration.tar.gz ${SCORE_NGINX_CONFIGURATION_URL} 2>&1
 mkdir score-nginx-configuration
 tar -xvf score-nginx-configration.tar.gz -C score-nginx-configuration 2>&1
 cd score-nginx-configuration/

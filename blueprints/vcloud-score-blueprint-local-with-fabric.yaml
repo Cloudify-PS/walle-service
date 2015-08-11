@@ -44,6 +44,12 @@ inputs:
         description: >
             Score-related nginx configuration
 
+    score_ui_package_url:
+        type: string
+        default: localhost:8000/score-ui.tar.gz
+        description: >
+            Score UI package
+
     postgresql_db_name:
         type: string
         default: 'score'
@@ -147,6 +153,33 @@ node_templates:
           - type: cloudify.relationships.connected_to
             target: postgresql_score
 
+    score_ui:
+        type: agentless.nodes.score_ui
+        interfaces:
+            cloudify.interfaces.lifecycle:
+                create:
+                    inputs:
+                        SCORE_UI_PACKAGE_URL: { get_input: score_ui_package_url }
+                        SCORE_IP: { get_input: host_string }
+                        fabric_env:
+                            user: { get_input: servers_user }
+                            key_filename: { get_input: private_key }
+                            host_string: { get_input: host_string }
+                            port: { get_input: port }
+                start:
+                    inputs:
+                        fabric_env:
+                            user: { get_input: servers_user }
+                            key_filename: { get_input: private_key }
+                            host_string: { get_input: host_string }
+                            port: { get_input: port }
+        relationships:
+          - type: cloudify.relationships.contained_in
+            target: score
+
 outputs:
-    gunicorn_ip:
+    score_ip:
         value: { get_input: host_string }
+
+    score_port:
+        value: 80
