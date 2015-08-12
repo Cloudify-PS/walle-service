@@ -1,0 +1,15 @@
+vcloud_username: vchs-cert24@vmware.com1
+vcloud_password: Vchs24!cert@241
+vcloud_url: https://vchs.vmware.com
+vcloud_service: M966854774-4471
+vcloud_vdc: M966854774-4471
+vcloud_service_type: subscription
+catalog: giga
+template: newvapp
+network_name: Yoram
+gateway_name: M966854774-4471
+server_name: hellow
+ssh_user: ubuntu
+ssh_private_key_path: ~/.ssh/manager.pem
+ssh_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVN3kb2Pl6jUxAGzmYP73Tq9uOjvhYdFniS83k57QZC0q9nMWIyPfAtURfsEkZdAOI0PyRZdyuw5/IfqeQrnp5QSRNBSiurLktsxXWsBexH+8I7RL4IcdJqh42pr3jRtBclqZuVH8MBZR0P0V2nER1dG5XzPTJxbEsn43kBoJXdQZR03EtvBnzqPyKRcEkFjE5TdGaWp4h8+l9QiSxEJW25q2LduconLPYD98C12WE38VI7MB/5ABoeXawfwyYmYC81ZKJiyQUCLDgG67WsFX0v94o8aHTFuAZxY3KEY565o5D9P00sTQGYeFOFbVz5yZJdMm5Bq5YGKK87/iTrKdt kostya@virtubuntu"
+
