@@ -14,19 +14,8 @@ def configure(vcloud_config):
         and save current context to .cloudify/context
         For now - we have saved only managment network name
     """
-    _copy_vsphere_configuration_to_manager(vcloud_config)
     _install_docker()
 
-
-def _copy_vsphere_configuration_to_manager(vcloud_config):
-    """
-        Copy current config to remote node
-    """
-    tmp = tempfile.mktemp()
-    with open(tmp, 'w') as f:
-        json.dump(vcloud_config, f)
-    fabric.api.put(tmp,
-                   vcloud_plugin_common.Config.VCLOUD_CONFIG_PATH_DEFAULT)
 
 
 def _install_docker():
