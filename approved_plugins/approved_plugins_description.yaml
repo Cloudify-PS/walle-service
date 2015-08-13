@@ -13,6 +13,7 @@ deployment_plugins:
         source:
             - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.zip
             - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.1.zip
+            - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.1m2.zip
 
 workflow_plugins:
 
@@ -23,3 +24,5 @@ workflow_plugins:
         source:
             - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.zip
             - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.1.zip
+            - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.1m2.zip
+
