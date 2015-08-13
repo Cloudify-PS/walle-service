@@ -1,10 +1,10 @@
 language: python
-sudo: true
+sudo: false
 python:
   - "2.7"
 
 addons:
-  - ssh_known_hosts: localhost
+    - ssh_known_hosts: localhost
 
 env:
     - TOX_ENV=pep8
@@ -21,8 +21,6 @@ install:
     - chmod +x ~/.ssh/authorized_keys
     - echo -e "StrictHostKeyChecking no\n" >> ~/.ssh/conf
     - echo -e "private_key: `cat ~/.ssh/id_rsa`" >> blueprints/inputs/inputs.score.travis-ci.yaml
-
-    - pwd
     - tar -czf score-service.tar.gz score-api-server/ | true
     - tar -czf score-nginx-configuration.tar.gz etc/ www/ | true
     - cd ../
@@ -30,7 +28,6 @@ install:
     - cd vca.io
     - tar -czf score-ui.tar.gz . | true
     - cd ../score-service
-
     - pip install tox
 
 script:
