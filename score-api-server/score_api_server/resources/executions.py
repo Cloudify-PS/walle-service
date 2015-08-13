@@ -133,7 +133,12 @@ class Executions(restful.Resource):
                 parameters, allow_custom_parameters, force
             )
             logger.debug("Done. Exiting Executions.post method.")
+            # cleanup result
             result['workflow_id'] = workflow_id
+            result['parameters'] = json.get('parameters')
+            result['allow_custom_parameters'] = json.get(
+                'allow_custom_parameters'
+            )
             return util.remove_org_prefix(result)
         except (exceptions.CloudifyClientError,
                 exceptions.DeploymentEnvironmentCreationInProgressError,
