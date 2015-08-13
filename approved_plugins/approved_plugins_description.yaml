@@ -19,3 +19,7 @@ workflow_plugins:
     - default_workflows:
         source:
             - ''
+    - vcloud:
+        source:
+            - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.zip
+            - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.1.zip
