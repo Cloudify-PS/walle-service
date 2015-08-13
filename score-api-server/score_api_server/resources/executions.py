@@ -101,20 +101,39 @@ class Executions(restful.Resource):
     def post(self, json):
         logger.debug("Entering Execution.post method.")
         try:
+            def _score_tosca_prefix():
+                deployment_obj = g.cc.deployments.get(deployment_id)
+                # check plugin version
+                blueprint_id = deployment_obj['blueprint_id']
+                blueprint_obj = g.cc.blueprints.get(blueprint_id)
+                plan_dict = blueprint_obj['plan']
+                deploy_dict = plan_dict['deployment_plugins_to_install']
+                workflow_dict = plan_dict['workflow_plugins_to_install']
+                for plugin in workflow_dict + deploy_dict:
+                    if plugin['name'] == 'vcloud':
+                        if "1.2.1m" in plugin['source']:
+                            return "score"
+                return ""
+
             deployment_id = util.add_org_prefix(json['deployment_id'])
             workflow_id = json['workflow_id']
             parameters = json.get('parameters')
-            allow_custom_parameters = json.get('allow_custom_parameters',
-                                               False)
+            if not parameters:
+                parameters = {}
+            parameters['session_token'] = g.token
+            parameters['org_url'] = g.org_url
+            allow_custom_parameters = True
             force = json.get('force', False)
             logger.info("Looking for deployment %s .", deployment_id)
-            g.cc.deployments.get(deployment_id)
+
             logger.info("Staring workflow %s for deployment %s.",
                         workflow_id, deployment_id)
-            result = g.cc.executions.start(deployment_id, workflow_id,
-                                           parameters,
-                                           allow_custom_parameters, force)
+            result = g.cc.executions.start(
+                deployment_id, _score_tosca_prefix() + workflow_id,
+                parameters, allow_custom_parameters, force
+            )
             logger.debug("Done. Exiting Executions.post method.")
+            result['workflow_id'] = workflow_id
             return util.remove_org_prefix(result)
         except (exceptions.CloudifyClientError,
                 exceptions.DeploymentEnvironmentCreationInProgressError,

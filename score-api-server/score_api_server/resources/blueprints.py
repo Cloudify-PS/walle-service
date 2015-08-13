@@ -244,6 +244,8 @@ class BlueprintsId(restful.Resource):
         special_cases = [
             "cloudify.plugins.workflows.install",
             "cloudify.plugins.workflows.uninstall",
+            "vcloud_plugin_common.workflows.install",
+            "vcloud_plugin_common.workflows.uninstall"
         ]
         logger.debug(
             "Entering Blueprints.validate_builtin_"
