@@ -119,10 +119,15 @@ class BlueprintsId(restful.Resource):
                         name=name,
                         source=source if source else '',
                         plugin_type=_type) or install_arguments:
-
+                    logger.error("Blueprint rejected. "
+                                 "Blueprint plugin {0} with "
+                                 "source {1} and type {2} is not "
+                                 "approved for usage."
+                                 .format(name, source, _type))
                     raise exceptions.CloudifyClientError(
                         "Forbidden. Blueprint plugin {0} with source {1} "
-                        "is not approved".format(name, source))
+                        "and type {2} is not approved for usage"
+                        .format(name, source, _type))
 
         deployment_plugins = blueprint_plan['deployment_plugins_to_install']
         workflow_plugins = blueprint_plan['workflow_plugins_to_install']
