@@ -81,10 +81,21 @@ class DeploymentsId(restful.Resource):
             logger.info("Seeking for deplyment %s .",
                         deployment_id)
             result = g.cc.deployments.get(util.add_org_prefix(deployment_id))
-            logger.info("Deployment found.")
+            filtere_workflows = []
+            for _workflow in result['workflows']:
+                if not _workflow['name'].startswith('score'):
+                    if _workflow['parameters'].get('session_token'):
+                        del _workflow['parameters']['session_token']
+                    if _workflow['parameters'].get('org_url'):
+                        del _workflow['parameters']['org_url']
+                    filtere_workflows.append(_workflow)
+
+            result['workflows'] = filtere_workflows
+            logger.debug("Done. Exiting DeploymentsId.get method.")
             return util.remove_org_prefix(result)
         except exceptions.CloudifyClientError as e:
-            logger.error(str(e))
+            logger.exception(str(e))
+            logger.debug("Done. Exiting DeploymentsId.get method.")
             return util.make_response_from_exception(e)
 
     @swagger.operation(

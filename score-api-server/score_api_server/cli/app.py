@@ -91,12 +91,16 @@ def main():
     host, port, workers = (CONF.server.host,
                            CONF.server.port,
                            CONF.server.workers)
-    app.logger.setLevel(util.get_logging_level())
+    app.logger_name = "score_api_server"
+    app._logger_name = "score_api_server"
+    app._logger = util.setup_logging(__name__)
     try:
         app.run(
             host=host,
             port=port,
-            processes=workers
+            processes=workers,
+            debug=(True if CONF.logging.level ==
+                   "DEBUG" else False)
         )
     except Exception as e:
         print(str(e))
