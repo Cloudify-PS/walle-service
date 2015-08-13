@@ -2,7 +2,7 @@ tosca_definitions_version: cloudify_dsl_1_0
 
 imports:
     - http://www.getcloudify.org/spec/cloudify/3.2.1/types.yaml
-    - https://raw.githubusercontent.com/cloudify-cosmo/tosca-vcloud-plugin/1.2.1/plugin.yaml
+    - https://raw.githubusercontent.com/cloudify-cosmo/tosca-vcloud-plugin/1.2.1m2/plugin.yaml
     - http://s3.amazonaws.com/vcloud-score/cloudify-fabric-plugin/1.2/plugin.yaml
     - types/agentless.yaml
 
@@ -245,15 +245,14 @@ node_templates:
             server:
                 catalog: { get_input: catalog }
                 template: { get_input: template }
-                guest_customization:
-                    public_keys:
-                        - { get_property: [common_keypair, public_key] }
                 hardware:
                     cpu: { get_input: server_cpu }
                     memory: { get_input: server_memory }
             management_network: { get_input: common_network_name }
             vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
         relationships:
+            - target: common_keypair
+              type: cloudify.vcloud.server_connected_to_keypair
             - target: score_host_nat
               type: cloudify.vcloud.server_connected_to_public_nat
             - target: node_security_group
@@ -267,15 +266,14 @@ node_templates:
             server:
                 catalog: { get_input: catalog }
                 template: { get_input: template }
-                guest_customization:
-                    public_keys:
-                        - { get_property: [common_keypair, public_key] }
                 hardware:
                     cpu: { get_input: server_cpu }
                     memory: { get_input: server_memory }
             management_network: { get_input: common_network_name }
             vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
         relationships:
+            - target: common_keypair
+              type: cloudify.vcloud.server_connected_to_keypair
             - target: postgresql_server_nat
               type: cloudify.vcloud.server_connected_to_public_nat
             - target: node_security_group
