@@ -4,7 +4,7 @@ Score v1.2.1m2 release process
 
 Release version: v1.2.1m2
 Version Score tag URL: https://github.com/vcloudair/score-service/releases/tag/1.2.1m2
-Version Score UI tag URL: https://github.com/vcloudair/vca.io/releases/tag/v1.2.1m1
+Version Score UI tag URL: https://github.com/vcloudair/vca.io/releases/tag/v1.2.1m2
 Version description: More strict validation inputs and use fabric plugin fork.
 Version release date: 06 August 2015
 Version author(s):
@@ -118,7 +118,7 @@ VMware stack
 
 pyvcloud (latest)
 vca-cli (latest)
-vca.io (latest)
+vca.io (1.2.1m2)
 
 ================
 Approved plugins
