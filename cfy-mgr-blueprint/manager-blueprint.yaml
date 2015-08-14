@@ -388,6 +388,10 @@ node_templates:
                 policy_engine:
                     start_timeout: 30
 
+                transient_deployment_workers_mode:
+                    enabled: True
+                    global_parallel_executions_limit: 20
+}
         relationships:
             - target: manager_server
               type: cloudify.relationships.contained_in

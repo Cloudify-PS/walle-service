@@ -17,3 +17,6 @@ management_network_public_ip:
 manager_private_key_path: ~/.ssh/manager.pem
 manager_public_key: some_key
 management_port_ip_allocation_mode: pool
+volume_name: disk_name
+volume_external_name: disk_name
+volume_use_external: false
