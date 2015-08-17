@@ -50,9 +50,10 @@ def check_authorization():
         g.org_id = vcs.organization.id[vcs.organization.id.rfind(':') + 1:]
         g.token = vcloud_token
         g.org_url = vcloud_org_url
-        logger.debug("Org-ID: %s.", g.org_id)
+        logger.info("Org-ID: %s.", g.org_id)
         if not org_limit.check_org_id(g.org_id):
-            logger.error("Unauthorized. Aborting.")
+            logger.error("Unauthorized. Aborting authorization "
+                         "for Org-ID: %s.", g.org_id)
             return make_response("Unauthorized.", 401)
 
         g.current_org_id_limits = org_limit.get_org_id_limits(g.org_id)
