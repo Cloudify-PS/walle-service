@@ -480,9 +480,16 @@ class BlueprintsId(restful.Resource):
                 if not self._is_archive(file):
                     directory = file
                     break
+
+            bp_dir = os.path.join(tempdir, directory)
+            if not os.path.isdir(bp_dir):
+                raise exceptions.CloudifyClientError(
+                    "Malformed blueprint archive structure. "
+                    "Please take a look at TOSCA blueprints "
+                    "documentation. ", status_code=403)
+
             self.validate_blueprint_on_security_breaches(
-                application_file_name,
-                os.path.join(tempdir, directory))
+                application_file_name, bp_dir)
 
             logger.info("Uploading blueprint to Cloudify manager.")
             blueprint = g.cc.blueprints.upload(
