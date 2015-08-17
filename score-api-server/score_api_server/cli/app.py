@@ -58,8 +58,8 @@ def check_authorization():
 
         g.current_org_id_limits = org_limit.get_org_id_limits(g.org_id)
         if g.current_org_id_limits:
-            logger.debug("Org-ID limits entity: %s",
-                         g.current_org_id_limits.to_dict())
+            logger.info("Org-ID limits entity: %s",
+                        g.current_org_id_limits.to_dict())
             logger.info("Limits for Org-ID:%s were found.", g.org_id)
             g.cc = CloudifyClient(host=g.current_org_id_limits.cloudify_host,
                                   port=g.current_org_id_limits.cloudify_port)
