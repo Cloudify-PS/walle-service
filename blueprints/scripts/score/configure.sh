@@ -6,6 +6,18 @@ set -o xtrace
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
+# Logrotate file
+cat > /etc/logrotate.d/score-api <<DELIM
+/var/log/score-api.log {
+        daily
+        size 10M
+        rotate 10
+        missingok
+        notifempty
+        compress
+}
+DELIM
+
 mkdir -p ~/score_logs
 
 # Creating score.rc file with necessary options
