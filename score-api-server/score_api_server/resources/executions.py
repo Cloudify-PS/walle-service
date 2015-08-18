@@ -41,6 +41,8 @@ class Executions(restful.Resource):
             logger.info("Listing executions for deployment %s .",
                         deployment_id)
             executions = g.cc.executions.list(deployment_id)
+            logger.info("Cloudify executions list: {0}.".format(
+                str(executions)))
             filtered = [util.remove_org_prefix(e) for e in executions
                         if g.org_id in e['deployment_id']]
             return filtered

@@ -42,6 +42,7 @@ class DeploymentsId(restful.Resource):
             number_of_deployments=(
                 g.current_org_id_limits.number_of_deployments
                 + increment_or_decrement))
+        g.current_org_id_limits.save()
         logger.debug("Done. Exiting Deployments.update_qouta method.")
 
     def can_do_deployment(self):
@@ -81,6 +82,7 @@ class DeploymentsId(restful.Resource):
             logger.info("Seeking for deplyment %s .",
                         deployment_id)
             result = g.cc.deployments.get(util.add_org_prefix(deployment_id))
+            logger.info("Cloudify deployment get: {0}.".format(str(result)))
             filtere_workflows = []
             for _workflow in result['workflows']:
                 if not _workflow['name'].startswith('score'):
@@ -128,7 +130,7 @@ class DeploymentsId(restful.Resource):
             # necessary to validate that deployment exists
             logger.info("Checking if deployment %s exists.",
                         deployment_id)
-            self.get(deployment_id=cfy_dp_id)
+            self.get(deployment_id=deployment_id)
             logger.info("Deleting deployment %s.", deployment_id)
             result = g.cc.deployments.delete(cfy_dp_id, ignore_live_nodes)
             self.update_quota(-1)
