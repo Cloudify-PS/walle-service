@@ -5,6 +5,7 @@ from flask.ext import restful
 from score_api_server.common import util
 from pyvcloud.vcloudair import VCA
 from flask_restful_swagger import swagger
+from score_api_server.common import org_limit
 
 
 logger = util.setup_logging(__name__)
@@ -95,18 +96,22 @@ class Login(restful.Resource):
         instance = json.get('instance')
         org_name = json.get('org_name')
         service = json.get('service')
-        vca = _login_user_to_service(user, host,
-                                     password, service_type,
+        vca = _login_user_to_service(user, host, password, service_type,
                                      service_version,
                                      instance, service, org_name)
         reply = {}
         if vca:
-            reply["x_vcloud_authorization"] = vca.vcloud_session.token
-            reply["x_vcloud_org_url"] = vca.vcloud_session.org_url
-            reply["x_vcloud_version"] = vca.version
-            logger.debug("Done. Exiting Login.get method.")
-            return reply
-        message = "Incorrect credentials."
+            org_id = vca.vcloud_session.org_url.split('/')[-1]
+            if org_limit.check_org_id(org_id):
+                reply["x_vcloud_authorization"] = vca.vcloud_session.token
+                reply["x_vcloud_org_url"] = vca.vcloud_session.org_url
+                reply["x_vcloud_version"] = vca.version
+                logger.debug("Done. Exiting Login.get method.")
+                return reply
+            else:
+                message = "Organization is not authorized for VCA Blueprinting"
+        else:
+            message = "Incorrect credentials."
         logger.error("Unauthorized. {}. Aborting.".format(message))
         return make_response("Unauthorized. {}.".format(message), 401)
 
