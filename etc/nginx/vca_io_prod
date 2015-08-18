@@ -1,6 +1,5 @@
 
 server {
-
 	client_max_body_size 50M;
 	listen 80 default_server;
 	listen [::]:80 default_server ipv6only=on;
@@ -11,17 +10,17 @@ server {
 }
 
 server {
-
 	client_max_body_size 50M;
 	listen   443;
 	ssl    on;
  	ssl_certificate    /etc/nginx/server.crt;
 	ssl_certificate_key    /etc/nginx/server.key;
 
+	#this also handles Web UI /score
 	root /home/ubuntu/www;
 	index index.html index.htm;
 
-	server_name score.vca.io;
+	server_name vca.io www.vca.io score.vca.io;
 
 	location /login {
 		proxy_pass http://127.0.0.1:8001;
