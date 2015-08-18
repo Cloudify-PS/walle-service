@@ -238,14 +238,15 @@ class BlueprintsId(restful.Resource):
             "plugin_installer.tasks.",
             "windows_agent_installer.tasks.",
             "windows_plugin_installer.tasks.",
-            "script_runner.tasks.",
+            "script_runner.tasks.execute_workflow",
             "diamond_agent.tasks.",
         ]
         special_cases = [
             "cloudify.plugins.workflows.install",
             "cloudify.plugins.workflows.uninstall",
             "vcloud_plugin_common.workflows.install",
-            "vcloud_plugin_common.workflows.uninstall"
+            "vcloud_plugin_common.workflows.uninstall",
+            "script_runner.tasks.run",
         ]
         logger.debug(
             "Entering Blueprints.validate_builtin_"
