@@ -15,6 +15,7 @@ cat > /etc/logrotate.d/score-api <<DELIM
         missingok
         notifempty
         compress
+        create 640 root root
 }
 DELIM
 
