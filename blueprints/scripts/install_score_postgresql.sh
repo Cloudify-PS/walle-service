@@ -5,7 +5,7 @@ set -o xtrace
 
 export LC_ALL=C
 
-if [ "$SKIP_CONFIGURATION" = false ]; then
+if [ "$SKIP_CONFIGURATION" = "False" ]; then
 
     echo -e "
     ALTER USER ${DB_USER} WITH PASSWORD '${DB_PASS}';

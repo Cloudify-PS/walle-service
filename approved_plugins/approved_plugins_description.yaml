@@ -4,7 +4,7 @@
 
 deployment_plugins:
 
-    - script_plugin
+    - script_plugin:
         source:
             - https://github.com/vcloudair/cloudify-script-plugin/archive/1.2.1m1.zip
 
