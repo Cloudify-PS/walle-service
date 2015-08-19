@@ -45,6 +45,10 @@ class Executions(restful.Resource):
                 str(executions)))
             filtered = [util.remove_org_prefix(e) for e in executions
                         if g.org_id in e['deployment_id']]
+            for ex in filtered:
+                if ex['workflow_id'].startswith('score'):
+                    ex['workflow_id'] = ex['workflow_id'][5:]
+
             return filtered
         except exceptions.CloudifyClientError as e:
             return util.make_response_from_exception(e)
