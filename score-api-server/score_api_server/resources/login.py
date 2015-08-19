@@ -102,16 +102,17 @@ class Login(restful.Resource):
         reply = {}
         if vca:
             org_id = vca.vcloud_session.org_url.split('/')[-1]
-            if org_limit.check_org_id(org_id):
+            if (org_limit.check_org_id(org_id) and
+                    org_limit.get_org_id_limits(org_id)):
                 reply["x_vcloud_authorization"] = vca.vcloud_session.token
                 reply["x_vcloud_org_url"] = vca.vcloud_session.org_url
                 reply["x_vcloud_version"] = vca.version
                 logger.debug("Done. Exiting Login.get method.")
                 return reply
             else:
-                message = "Organization is not authorized for VCA Blueprinting"
+                message = "Organization is not authorized."
         else:
-            message = "Incorrect credentials."
+            message = "Invalid credentials."
         logger.error("Unauthorized. {}. Aborting.".format(message))
         return make_response("Unauthorized. {}.".format(message), 401)
 
@@ -183,4 +184,5 @@ def _is_subscription(service_type):
     return _compare(service_type, 'subscription')
 
 
-_compare = lambda service_type, string: service_type.lower().strip() == string
+def _compare(service_type, string):
+    return service_type.lower().strip() == string

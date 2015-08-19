@@ -98,24 +98,27 @@ class TestBase(testtools.TestCase):
                                    '_login_user_to_service') as fake_login:
                 with mock.patch.object(score_api_server.common.org_limit,
                                        'check_org_id') as mock.MagicMock:
-                    token = 1
-                    org_url = 'url'
-                    version = 5
-                    fake_vca = mock.MagicMock()
-                    fake_vca.vcloud_session = mock.MagicMock()
-                    fake_vca.vcloud_session.token = token
-                    fake_vca.vcloud_session.org_url = org_url
-                    fake_vca.version = version
-                    fake_login.return_value = fake_vca
-                    result = {"x_vcloud_authorization": token,
-                              "x_vcloud_org_url": org_url,
-                              "x_vcloud_version": version}
-                    self.assertEqual(testlogin.post(), result)
-                    fake_login.assert_called_with('user',
-                                                  'https://vca.vmware.com',
-                                                  'password', 'ondemand',
-                                                  '5.7', 'instance',
-                                                  'service', None)
+                    with mock.patch.object(
+                            score_api_server.common.org_limit,
+                            'get_org_id_limits') as mock.MagicMock:
+                        token = 1
+                        org_url = 'url'
+                        version = 5
+                        fake_vca = mock.MagicMock()
+                        fake_vca.vcloud_session = mock.MagicMock()
+                        fake_vca.vcloud_session.token = token
+                        fake_vca.vcloud_session.org_url = org_url
+                        fake_vca.version = version
+                        fake_login.return_value = fake_vca
+                        result = {"x_vcloud_authorization": token,
+                                  "x_vcloud_org_url": org_url,
+                                  "x_vcloud_version": version}
+                        self.assertEqual(testlogin.post(), result)
+                        fake_login.assert_called_with('user',
+                                                      'https://vca.vmware.com',
+                                                      'password', 'ondemand',
+                                                      '5.7', 'instance',
+                                                      'service', None)
 
         with self.app.test_request_context('/login', method="POST",
                                            data=json.dumps(data),
