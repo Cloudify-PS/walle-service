@@ -4,7 +4,7 @@ server {
 	listen 80 default_server;
 	listen [::]:80 default_server ipv6only=on;
 
-	server_name vca.io www.vca.io score.vca.io;
+	server_name score.vca.io www.vca.io vca.io;
 
 	return 301 https://$server_name$request_uri;
 }
@@ -20,7 +20,7 @@ server {
 	root /home/ubuntu/www;
 	index index.html index.htm;
 
-	server_name vca.io www.vca.io score.vca.io;
+	server_name score.vca.io www.vca.io vca.io;
 
 	location /login {
 		proxy_pass http://127.0.0.1:8001;
