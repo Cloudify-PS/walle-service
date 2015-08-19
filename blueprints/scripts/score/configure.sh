@@ -14,6 +14,7 @@ echo "/var/log/score-api.log {
         missingok
         notifempty
         compress
+        dateext
         create 640 root root
 }" | sudo tee /etc/logrotate.d/score-api
 
