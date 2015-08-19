@@ -7,8 +7,7 @@ export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
 # Logrotate file
-cat > /etc/logrotate.d/score-api <<DELIM
-/var/log/score-api.log {
+echo "/var/log/score-api.log {
         daily
         size 10M
         rotate 10
@@ -16,8 +15,7 @@ cat > /etc/logrotate.d/score-api <<DELIM
         notifempty
         compress
         create 640 root root
-}
-DELIM
+}" | sudo tee /etc/logrotate.d/score-api
 
 mkdir -p ~/score_logs
 
