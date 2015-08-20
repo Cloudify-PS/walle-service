@@ -1,48 +1,5 @@
 
 server {
-	client_max_body_size 50M;
-	listen 80 default_server;
-	listen [::]:80 default_server ipv6only=on;
-
-	root /home/ubuntu/www;
-	index index.html index.htm;
-
-	server_name vca.io;
-
-	location /login {
-		proxy_pass http://127.0.0.1:8001;
-	}
-
-	location /status {
-		proxy_pass http://127.0.0.1:8001;
-	}
-
-	location /blueprints {
-		proxy_pass http://127.0.0.1:8001;
-	}
-
-	location /deployments {
-		proxy_pass http://127.0.0.1:8001;
-	}
-
-	location /executions {
-		proxy_pass http://127.0.0.1:8001;
-	}
-
-	location /events {
-		proxy_pass http://127.0.0.1:8001;
-	}
-
-	location /api {
-		proxy_pass http://127.0.0.1:8001;
-	}
-
-	location / {
-		try_files $uri $uri/ =404;
-	}
-}
-
-server {
 
 	client_max_body_size 50M;
 	listen   443;

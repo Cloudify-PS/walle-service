@@ -1,15 +1,6 @@
 
 server {
-	client_max_body_size 50M;
-	listen 80 default_server;
-	listen [::]:80 default_server ipv6only=on;
 
-	server_name score.vca.io www.vca.io vca.io;
-
-	return 301 https://$server_name$request_uri;
-}
-
-server {
 	client_max_body_size 50M;
 	listen   443;
 	ssl    on;
