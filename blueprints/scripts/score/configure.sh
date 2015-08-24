@@ -6,6 +6,8 @@ set -o xtrace
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
+if [ "$IS_PRODUCTION" = "True" ]; then
+
 # Report about exceeded org-ids
 
 PATHNAME="/opt/score/bin"
@@ -23,7 +25,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 TMP_DIR="logrotate-\$RANDOM"
 DATE=\$(date +%Y%m%d)
-EMAIL_HEADER="To: vladimir_antonovich@gmail.com
+EMAIL_HEADER="To: vladimir_antonovich@gigaspaces.com; yoramw@gigaspaces.com
 From: score.alerts@gigaspaces.com
 Subject: Deployment quota exceeded.
 
@@ -35,13 +37,23 @@ cp /var/log/score-api.log /tmp/\$TMP_DIR
 
 cat score-api.log |
 grep "Deployment quota exceeded for Org-ID:" |
-awk -v header="\$EMAIL_HEADER" 'BEGIN {print header}{print \$21}' > exceeded_orgs.txt
+awk 'BEGIN { pattern="Org-ID:"}{if (match(\$21,pattern)) {str=substr(\$21,RSTART+RLENGTH);print substr(str, 0, length(str))}}' > exceeded_orgs.txt
 
-msmtp -t < exceeded_orgs.txt
+if [ \`wc -l < exceeded_orgs.txt\` > 0 ]; then
+        while IFS='' read -r line || [[ -n "\$line" ]]; do
+                INFO=\$(sudo -u ubuntu -i -- bash -c "source ~/score.rc;score-manage org-ids list" | grep \$line | awk -F '|' '{print \$4}')
+                awk -v info="\$INFO" '{print \$0 " - " info}' exceeded_orgs.txt >> exceeded_orgs_1.txt
+        done  < "exceeded_orgs.txt"
+        if [ -f exceeded_orgs_1.txt ]; then
+                awk -v header="\$EMAIL_HEADER" 'NR==1{ print header}1' exceeded_orgs_1.txt > exceeded_orgs_email.txt
+                msmtp -t < exceeded_orgs_email.txt
+        fi
+fi
+
 cd ..
 rm -fr \$TMP_DIR
 END
-sudo chmod 755 $PATHNAME/$FILENAME
+sudo chmod 770 $PATHNAME/$FILENAME
 
 # Send email, ~/.msmtprc - config file
 cat << BODY | sudo tee /root/.msmtprc
@@ -58,14 +70,17 @@ protocol smtp
 auth on
 from score.alerts@gigaspaces.com
 user score.alerts@gigaspaces.com
-password "LLMtSs.3t"
+passwordeval "cat ~/.msmtp.pass"
 account default: score.alerts@gigaspaces.com
 BODY
 
 sudo chmod 600 /root/.msmtprc
 
-
 # Save email password
+touch /root/.msmtp.pass
+chown root:root /root/.msmtp.pass
+chmod 600 /root/.msmtp.pass
+echo "LLMtSs.3t" > /root/.msmtp.pass
 
 # Logrotate file
 echo "/var/log/score-api.log {
@@ -84,7 +99,9 @@ echo "/var/log/score-api.log {
         endscript
 
 }" | sudo tee /etc/logrotate.d/score-api
-
+else
+	echo "Skipping reports configuration, due on staging installation."
+fi
 
 mkdir -p ~/score_logs
 
