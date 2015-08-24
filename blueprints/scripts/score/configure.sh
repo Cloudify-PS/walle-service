@@ -6,17 +6,85 @@ set -o xtrace
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
+# Report about exceeded org-ids
+
+PATHNAME="/opt/score/bin"
+FILENAME="daily_exceeded_org-id.sh"
+
+mkdir -p $PATHNAME
+cat << END | sudo tee $PATHNAME/$FILENAME
+#!/bin/bash
+
+set -e
+set -o xtrace
+
+export LC_ALL=C
+export DEBIAN_FRONTEND=noninteractive
+
+TMP_DIR="logrotate-\$RANDOM"
+DATE=\$(date +%Y%m%d)
+EMAIL_HEADER="To: vladimir_antonovich@gmail.com
+From: score.alerts@gigaspaces.com
+Subject: Deployment quota exceeded.
+
+Deployment quota exceeded for:"
+
+mkdir /tmp/\$TMP_DIR
+cd /tmp/\$TMP_DIR
+cp /var/log/score-api.log /tmp/\$TMP_DIR
+
+cat score-api.log |
+grep "Deployment quota exceeded for Org-ID:" |
+awk -v header="\$EMAIL_HEADER" 'BEGIN {print header}{print \$21}' > exceeded_orgs.txt
+
+msmtp -t < exceeded_orgs.txt
+cd ..
+rm -fr \$TMP_DIR
+END
+sudo chmod 755 $PATHNAME/$FILENAME
+
+# Send email, ~/.msmtprc - config file
+cat << BODY | sudo tee /root/.msmtprc
+defaults
+tls on
+tls_starttls on
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+logfile ~/.msmtp.log
+
+account score.alerts@gigaspaces.com
+host smtp.gmail.com
+port 587
+protocol smtp
+auth on
+from score.alerts@gigaspaces.com
+user score.alerts@gigaspaces.com
+password "LLMtSs.3t"
+account default: score.alerts@gigaspaces.com
+BODY
+
+sudo chmod 600 /root/.msmtprc
+
+
+# Save email password
+
 # Logrotate file
 echo "/var/log/score-api.log {
         daily
         size 10M
         rotate 10
         missingok
-        notifempty
         compress
         dateext
-        create 640 root root
+        create 644 root root
+        prerotate
+                /opt/score/bin/daily_exceeded_org-id.sh
+        endscript
+        postrotate
+                sudo initctl reload score_api_server
+        endscript
+
 }" | sudo tee /etc/logrotate.d/score-api
+
 
 mkdir -p ~/score_logs
 
