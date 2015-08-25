@@ -24,8 +24,8 @@ class Events(restful.Resource):
             logger.info("Cloudify events: {0}.".format(str(result)))
             for event in result[0]:
                 if event['context']['workflow_id'].startswith('score'):
-                   event['context']['workflow_id'] = (
-                       event['context']['workflow_id'][5:])
+                    event['context']['workflow_id'] = (
+                        event['context']['workflow_id'][5:])
             if len(result) == 2:
                 r = result[0]
                 r.append(result[1])

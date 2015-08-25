@@ -180,6 +180,9 @@ class ExecutionsId(restful.Resource):
                 "Seeking for executions by execution %s.",
                 execution_id)
             result = g.cc.executions.get(execution_id)
+            if (result['workflow_id'] and
+                    result['workflow_id'].startswith("score")):
+                result['workflow_id'] = result['workflow_id'][5:]
             logger.debug("Done. Exiting ExecutionsId.get method.")
             return util.remove_org_prefix(result)
         except exceptions.CloudifyClientError as e:
@@ -215,6 +218,9 @@ class ExecutionsId(restful.Resource):
             force = json.get('force', False)
             self.get(execution_id=execution_id)
             result = g.cc.executions.cancel(execution_id, force)
+            if (result['workflow_id'] and
+                    result['workflow_id'].startswith("score")):
+                result['workflow_id'] = result['workflow_id'][5:]
             logger.debug("Done. Exiting Executions.put method.")
             return util.remove_org_prefix(result)
         except exceptions.CloudifyClientError as e:
