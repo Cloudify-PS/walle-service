@@ -8,6 +8,7 @@ from score_api_server.resources import executions
 from score_api_server.resources import events
 from score_api_server.resources import status
 from score_api_server.resources import login
+from score_api_server.resources import vcloud_instances
 
 
 def setup_resources(api):
@@ -28,3 +29,4 @@ def setup_resources(api):
     api.add_resource(events.Events, '/events')
     api.add_resource(status.Status, '/status')
     api.add_resource(login.Login, '/login')
+    api.add_resource(vcloud_instances.VCAInstances, '/instances')
