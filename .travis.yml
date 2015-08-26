@@ -1,30 +1,33 @@
 language: python
-sudo: true
+sudo: false
 python:
   - "2.7"
 
 addons:
-  - ssh_known_hosts: localhost
+    - ssh_known_hosts: localhost
 
 env:
     - TOX_ENV=pep8
     - TOX_ENV=unittests
     - TOX_ENV=integration
     - TOX_ENV=validate-blueprints
-    - TOX_ENV=cfy-local-nodecellar
-    - TOX_ENV=travis-cfy-local-nodecellar-with-fabric
-    - TOX_ENV=travis-cfy-local-postgresql-with-fabric
-    - TOX_ENV=travis-cfy-local-score-postgresql-with-fabric
+    - TOX_ENV=vcloud-score-blueprint-local-with-fabric
 
 install:
 
-    - ssh-keygen -f ~/.ssh/id_rsa -y >> ~/.ssh/id_rsa.pub
-    - cat ~/.ssh/id_rsa.pub
-    - cat ~/.ssh/id_rsa
+    - cat key-gen/key > ~/.ssh/id_rsa
+    - cat key-gen/key.pub > ~/.ssh/id_rsa.pub
     - cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
     - chmod +x ~/.ssh/authorized_keys
     - echo -e "StrictHostKeyChecking no\n" >> ~/.ssh/conf
-
+    - echo -e "private_key: `cat ~/.ssh/id_rsa`" >> blueprints/inputs/inputs.score.travis-ci.yaml
+    - tar -czf score-service.tar.gz score-api-server/ | true
+    - tar -czf score-nginx-configuration.tar.gz etc/ www/ | true
+    - cd ../
+    - git clone --depth=50 --branch=master git@github.com:vcloudair/vca.io.git vca.io
+    - cd vca.io
+    - tar -czf score-ui.tar.gz . | true
+    - cd ../score-service
     - pip install tox
 
 script:

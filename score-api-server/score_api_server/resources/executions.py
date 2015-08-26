@@ -41,8 +41,14 @@ class Executions(restful.Resource):
             logger.info("Listing executions for deployment %s .",
                         deployment_id)
             executions = g.cc.executions.list(deployment_id)
+            logger.info("Cloudify executions list: {0}.".format(
+                str(executions)))
             filtered = [util.remove_org_prefix(e) for e in executions
                         if g.org_id in e['deployment_id']]
+            for ex in filtered:
+                if ex['workflow_id'].startswith('score'):
+                    ex['workflow_id'] = ex['workflow_id'][5:]
+
             return filtered
         except exceptions.CloudifyClientError as e:
             return util.make_response_from_exception(e)
@@ -101,20 +107,44 @@ class Executions(restful.Resource):
     def post(self, json):
         logger.debug("Entering Execution.post method.")
         try:
+            def _score_tosca_prefix():
+                deployment_obj = g.cc.deployments.get(deployment_id)
+                # check plugin version
+                blueprint_id = deployment_obj['blueprint_id']
+                blueprint_obj = g.cc.blueprints.get(blueprint_id)
+                plan_dict = blueprint_obj['plan']
+                deploy_dict = plan_dict['deployment_plugins_to_install']
+                workflow_dict = plan_dict['workflow_plugins_to_install']
+                for plugin in workflow_dict + deploy_dict:
+                    if plugin['name'] == 'vcloud':
+                        if "1.2.1m" in plugin['source']:
+                            return "score"
+                return ""
+
             deployment_id = util.add_org_prefix(json['deployment_id'])
             workflow_id = json['workflow_id']
             parameters = json.get('parameters')
-            allow_custom_parameters = json.get('allow_custom_parameters',
-                                               False)
+            if not parameters:
+                parameters = {}
+            parameters['session_token'] = g.token
+            parameters['org_url'] = g.org_url
+            allow_custom_parameters = True
             force = json.get('force', False)
             logger.info("Looking for deployment %s .", deployment_id)
-            g.cc.deployments.get(deployment_id)
+
             logger.info("Staring workflow %s for deployment %s.",
                         workflow_id, deployment_id)
-            result = g.cc.executions.start(deployment_id, workflow_id,
-                                           parameters,
-                                           allow_custom_parameters, force)
+            result = g.cc.executions.start(
+                deployment_id, _score_tosca_prefix() + workflow_id,
+                parameters, allow_custom_parameters, force
+            )
             logger.debug("Done. Exiting Executions.post method.")
+            # cleanup result
+            result['workflow_id'] = workflow_id
+            result['parameters'] = json.get('parameters')
+            result['allow_custom_parameters'] = json.get(
+                'allow_custom_parameters'
+            )
             return util.remove_org_prefix(result)
         except (exceptions.CloudifyClientError,
                 exceptions.DeploymentEnvironmentCreationInProgressError,
@@ -150,6 +180,9 @@ class ExecutionsId(restful.Resource):
                 "Seeking for executions by execution %s.",
                 execution_id)
             result = g.cc.executions.get(execution_id)
+            if (result['workflow_id'] and
+                    result['workflow_id'].startswith("score")):
+                result['workflow_id'] = result['workflow_id'][5:]
             logger.debug("Done. Exiting ExecutionsId.get method.")
             return util.remove_org_prefix(result)
         except exceptions.CloudifyClientError as e:
@@ -185,6 +218,9 @@ class ExecutionsId(restful.Resource):
             force = json.get('force', False)
             self.get(execution_id=execution_id)
             result = g.cc.executions.cancel(execution_id, force)
+            if (result['workflow_id'] and
+                    result['workflow_id'].startswith("score")):
+                result['workflow_id'] = result['workflow_id'][5:]
             logger.debug("Done. Exiting Executions.put method.")
             return util.remove_org_prefix(result)
         except exceptions.CloudifyClientError as e:

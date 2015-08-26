@@ -4,17 +4,30 @@
 
 deployment_plugins:
 
+    - script_plugin:
+        source:
+            - https://github.com/vcloudair/cloudify-script-plugin/archive/1.2.1m1.zip
+
     - fabric:
         source:
-            - https://github.com/cloudify-cosmo/cloudify-fabric-plugin/archive/1.2.zip
+            - http://s3.amazonaws.com/vcloud-score/cloudify-fabric-plugin-1.2.zip
+            - http://s3.amazonaws.com/vcloud-score/cloudify-fabric-plugin-1.2.1.zip
 
     - vcloud:
         source:
             - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.zip
             - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.1.zip
+            - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.1m2.zip
+            - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.1m3.zip
 
 workflow_plugins:
 
     - default_workflows:
         source:
             - ''
+    - vcloud:
+        source:
+            - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.zip
+            - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.1.zip
+            - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.1m2.zip
+            - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.2.1m3.zip

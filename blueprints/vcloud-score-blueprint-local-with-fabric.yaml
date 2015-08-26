@@ -6,8 +6,8 @@
 tosca_definitions_version: cloudify_dsl_1_0
 
 imports:
-  - http://www.getcloudify.org/spec/cloudify/3.3m2/types.yaml
-  - http://www.getcloudify.org/spec/fabric-plugin/1.2/plugin.yaml
+  - http://www.getcloudify.org/spec/cloudify/3.2.1/types.yaml
+  - http://s3.amazonaws.com/vcloud-score/cloudify-fabric-plugin/1.2/plugin.yaml
   - types/agentless.yaml
 
 inputs:
@@ -18,11 +18,11 @@ inputs:
         description: >
             Default admin user in os template
 
-    private_key_path:
-        default: /home/ubuntu/.ssh/id_rsa
+    private_key:
         type: string
         description: >
-            Please upload key to manager server before use key
+            Put here content of your private key,
+            with replace new line to 2 new lines.
 
     host_string:
         default: localhost
@@ -43,6 +43,12 @@ inputs:
         default: localhost:8000/score-nginx-configuration.tar.gz
         description: >
             Score-related nginx configuration
+
+    score_ui_package_url:
+        type: string
+        default: localhost:8000/score-ui.tar.gz
+        description: >
+            Score UI package
 
     postgresql_db_name:
         type: string
@@ -76,7 +82,7 @@ node_templates:
                     inputs:
                         fabric_env:
                             user: { get_input: servers_user }
-                            key_filename: { get_input: private_key_path }
+                            key: { get_input: private_key }
                             host_string: { get_input: host_string }
                             port: { get_input: port }
 
@@ -93,7 +99,7 @@ node_templates:
                     inputs:
                         fabric_env:
                             user: { get_input: servers_user }
-                            key_filename: { get_input: private_key_path }
+                            key: { get_input: private_key }
                             host_string: { get_input: host_string }
                             port: { get_input: port }
 
@@ -106,15 +112,14 @@ node_templates:
             cloudify.interfaces.lifecycle:
                 start:
                     inputs:
-                        task_properties:
-                            config:
-                                ip: { get_input: host_string }
-                                db_user: { get_input: postgresql_db_user }
-                                db_name: { get_input: postgresql_db_name }
-                                db_pass: { get_input: postgresql_db_pass }
+                        DB_IP: { get_input: host_string }
+                        SCORE_IP: { get_input: host_string }
+                        DB_USER: { get_input: postgresql_db_user }
+                        DB_NAME: { get_input: postgresql_db_name }
+                        DB_PASS: { get_input: postgresql_db_pass }
                         fabric_env:
                             user: { get_input: servers_user }
-                            key_filename: { get_input: private_key_path }
+                            key: { get_input: private_key }
                             host_string: { get_input: host_string }
                             port: { get_input: port }
 
@@ -127,7 +132,7 @@ node_templates:
                         SCORE_PACKAGE_URL: { get_input: score_package_url }
                         fabric_env:
                             user: { get_input: servers_user }
-                            key_filename: { get_input: private_key_path }
+                            key: { get_input: private_key }
                             host_string: { get_input: host_string }
                             port: { get_input: port }
                 start:
@@ -139,7 +144,7 @@ node_templates:
                         SCORE_NGINX_CONFIGURATION_URL: { get_input: score_nginx_configuration_url }
                         fabric_env:
                             user: { get_input: servers_user }
-                            key_filename: { get_input: private_key_path }
+                            key: { get_input: private_key }
                             host_string: { get_input: host_string }
                             port: { get_input: port }
         relationships:
@@ -148,6 +153,33 @@ node_templates:
           - type: cloudify.relationships.connected_to
             target: postgresql_score
 
+    score_ui:
+        type: agentless.nodes.score_ui
+        interfaces:
+            cloudify.interfaces.lifecycle:
+                create:
+                    inputs:
+                        SCORE_UI_PACKAGE_URL: { get_input: score_ui_package_url }
+                        SCORE_IP: { get_input: host_string }
+                        fabric_env:
+                            user: { get_input: servers_user }
+                            key_filename: { get_input: private_key }
+                            host_string: { get_input: host_string }
+                            port: { get_input: port }
+                start:
+                    inputs:
+                        fabric_env:
+                            user: { get_input: servers_user }
+                            key_filename: { get_input: private_key }
+                            host_string: { get_input: host_string }
+                            port: { get_input: port }
+        relationships:
+          - type: cloudify.relationships.contained_in
+            target: score
+
 outputs:
-    gunicorn_ip:
+    score_ip:
         value: { get_input: host_string }
+
+    score_port:
+        value: 80

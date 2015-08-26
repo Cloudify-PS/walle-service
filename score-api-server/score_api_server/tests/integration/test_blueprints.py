@@ -2,7 +2,6 @@
 
 import uuid
 import json
-import testtools
 
 from score_api_server.tests.integration import base
 
@@ -52,6 +51,14 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
         self.assertIsNotNone(json.loads(response.data),
                              response.data)
 
+    def test_upload_zip_blueprint(self):
+        response = self.make_upload_blueprint(arc_type='zip')
+        self.assertEqual(200, response.status_code, response.data)
+        self.assertIn("OK", response.status,
+                      response.data)
+        self.assertIsNotNone(json.loads(response.data),
+                             response.data)
+
     def _upload_invalid_blueprint(self, name, expected_code=403,
                                   expected_message_part="invalid"):
         response = self.make_upload_blueprint(
@@ -71,8 +78,8 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
     def test_upload_blueprint_with_unapproved_plugins(self):
         self.drop_approved_plugins()
         self._upload_invalid_blueprint(
-            "vcloud-blueprint-for-tests.yaml", 403,
-            expected_message_part="is not approved. Blueprint: ")
+            "vcloud-valid-blueprint.yaml", 403,
+            expected_message_part="is not approved for usage. Blueprint: ")
         self.recreate_approved_plugins()
 
     def test_upload_blueprint_with_file_uri(self):
@@ -87,7 +94,6 @@ class TestBlueprintsReSTResources(base.IntegrationBaseTestCase):
             403, expected_message_part="Invalid fabric env - "
                                        "forward_agent is not allowed")
 
-    @testtools.skip("SCOR-149")
     def test_upload_blueprint_fabric_key_filename(self):
         self._upload_invalid_blueprint(
             "vcloud-invalid-blueprint-fabric-env-key_filename.yaml",

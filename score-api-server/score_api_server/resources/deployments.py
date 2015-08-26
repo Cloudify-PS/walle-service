@@ -3,12 +3,11 @@
 from cloudify_rest_client import exceptions
 
 from flask.ext import restful
-from flask import g, make_response
+from flask import g
 from flask_restful_swagger import swagger
 
 from score_api_server.common import util
 from score_api_server.resources import responses
-import json as jsonloader
 
 logger = util.setup_logging(__name__)
 
@@ -43,6 +42,7 @@ class DeploymentsId(restful.Resource):
             number_of_deployments=(
                 g.current_org_id_limits.number_of_deployments
                 + increment_or_decrement))
+        g.current_org_id_limits.save()
         logger.debug("Done. Exiting Deployments.update_qouta method.")
 
     def can_do_deployment(self):
@@ -62,7 +62,8 @@ class DeploymentsId(restful.Resource):
         else:
             logger.debug("Deployment quota exceeded for Org-ID:%s.",
                          g.org_id)
-            return make_response("Deployment quota exceeded.", 403)
+            raise exceptions.CloudifyClientError(
+                "Deployment quota exceeded.", status_code=403)
 
     @swagger.operation(
         responseClass=responses.Deployment,
@@ -81,10 +82,22 @@ class DeploymentsId(restful.Resource):
             logger.info("Seeking for deplyment %s .",
                         deployment_id)
             result = g.cc.deployments.get(util.add_org_prefix(deployment_id))
-            logger.info("Deployment found.")
+            logger.info("Cloudify deployment get: {0}.".format(str(result)))
+            filtere_workflows = []
+            for _workflow in result['workflows']:
+                if not _workflow['name'].startswith('score'):
+                    if _workflow['parameters'].get('session_token'):
+                        del _workflow['parameters']['session_token']
+                    if _workflow['parameters'].get('org_url'):
+                        del _workflow['parameters']['org_url']
+                    filtere_workflows.append(_workflow)
+
+            result['workflows'] = filtere_workflows
+            logger.debug("Done. Exiting DeploymentsId.get method.")
             return util.remove_org_prefix(result)
         except exceptions.CloudifyClientError as e:
-            logger.error(str(e))
+            logger.exception(str(e))
+            logger.debug("Done. Exiting DeploymentsId.get method.")
             return util.make_response_from_exception(e)
 
     @swagger.operation(
@@ -117,7 +130,7 @@ class DeploymentsId(restful.Resource):
             # necessary to validate that deployment exists
             logger.info("Checking if deployment %s exists.",
                         deployment_id)
-            self.get(deployment_id=cfy_dp_id)
+            self.get(deployment_id=deployment_id)
             logger.info("Deleting deployment %s.", deployment_id)
             result = g.cc.deployments.delete(cfy_dp_id, ignore_live_nodes)
             self.update_quota(-1)
@@ -157,7 +170,7 @@ class DeploymentsId(restful.Resource):
         {"type": "object",
          "properties": {
              "blueprint_id": {"type": "string", "minLength": 1},
-             "inputs": {"type": "string"}
+             "inputs": {"type": ["object", "null"]}
          },
          "required": ["blueprint_id"]}
     )
@@ -165,10 +178,8 @@ class DeploymentsId(restful.Resource):
         logger.debug("Entering Deployments.put method.")
         blueprint_id = json['blueprint_id']
         inputs = json.get('inputs')
-        if inputs:
-            inputs = jsonloader.loads(inputs)
-        if self.can_do_deployment():
-            try:
+        try:
+            if self.can_do_deployment():
                 logger.info("Updating quota for Org-ID %s.",
                             g.org_id)
                 self.update_quota(+1)
@@ -181,13 +192,13 @@ class DeploymentsId(restful.Resource):
                     inputs=inputs)
                 logger.debug("Done. Exiting Deployments.put method.")
                 return util.remove_org_prefix(deployment)
-            except(exceptions.CloudifyClientError,
-                   exceptions.MissingRequiredDeploymentInputError,
-                   exceptions.UnknownDeploymentInputError) as e:
-                logger.error(str(e))
-                logger.error("Decreasing quota.")
-                self.update_quota(-1)
-                return util.make_response_from_exception(e)
+        except(exceptions.CloudifyClientError,
+               exceptions.MissingRequiredDeploymentInputError,
+               exceptions.UnknownDeploymentInputError) as e:
+            logger.error(str(e))
+            logger.error("Decreasing quota.")
+            self.update_quota(-1)
+            return util.make_response_from_exception(e)
 
 
 class DeploymentOutputs(restful.Resource):

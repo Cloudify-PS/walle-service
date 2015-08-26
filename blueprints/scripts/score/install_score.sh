@@ -6,7 +6,7 @@ set -o xtrace
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
-wget -c ${SCORE_PACKAGE_URL} -O score-service.tar.gz 2>&1
+curl -o score-service.tar.gz ${SCORE_PACKAGE_URL}  2>&1
 mkdir score-service
 tar -xvf score-service.tar.gz -C score-service 2>&1
 cd score-service/

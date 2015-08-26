@@ -1,4 +1,4 @@
-cloudify-plugins-common==3.2
-cloudify-script-plugin==1.2
--e git+https://github.com/cloudify-cosmo/cloudify-cli@3.2#egg=cloudify-cli==3.2
+cloudify-plugins-common==3.2.1
+cloudify-script-plugin==1.2.1
+-e git+https://github.com/cloudify-cosmo/cloudify-cli@3.2.1#egg=cloudify-cli==3.2.1
 

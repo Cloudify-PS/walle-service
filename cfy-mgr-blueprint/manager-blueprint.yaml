@@ -1,9 +1,9 @@
 tosca_definitions_version: cloudify_dsl_1_0
 
 imports:
-    - http://www.getcloudify.org/spec/cloudify/3.2/types.yaml
-    - https://raw.githubusercontent.com/cloudify-cosmo/tosca-vcloud-plugin/1.2/plugin.yaml
-    - http://www.getcloudify.org/spec/fabric-plugin/1.2/plugin.yaml
+    - http://www.getcloudify.org/spec/cloudify/3.2.1/types.yaml
+    - https://raw.githubusercontent.com/cloudify-cosmo/tosca-vcloud-plugin/1.2.1m3/plugin.yaml
+    - http://www.getcloudify.org/spec/fabric-plugin/1.2.1/plugin.yaml
 
 inputs:
     vcloud_username:
@@ -77,11 +77,13 @@ inputs:
 
     manager_server_catalog:
         type: string
+        default: 'Public Catalog'
         description: >
             Name of catalog, can be 'Public Catalog'
 
     manager_server_template:
         type: string
+        default: 'Ubuntu Server 12.04 LTS (amd64 20150127)'
         description: >
             Name of template from catalog,
             can be 'Ubuntu Server 12.04 LTS (amd64 20150127)'
@@ -94,7 +96,7 @@ inputs:
 
     manager_server_memory:
         type: string
-        default: 4096
+        default: 8192
         description: >
             Amount memmory on node
 
@@ -143,24 +145,12 @@ inputs:
             For 'ondemand' service type, the value of edge_gateway
             is always 'gateway'
 
-    manager_server_public_ip:
-        type: string
-        default: ''
-        description: >
-            For 'ondemand' service type, the value of
-            floating_ip_public_ip can be empty
 
     manager_server_ssh_port:
         type: string
         default: 22
         description: >
             SSH port that can be used for installed node
-
-    agents_user:
-        type: string
-        default: ubuntu
-        description: >
-            User name that will be used for agent
 
     manager_server_user:
         default: ubuntu
@@ -174,33 +164,15 @@ inputs:
         description: >
             Private key for manager
 
-    agent_private_key_path:
-        default: ~/.ssh/cloudify-agent-kp.pem
-        type: string
-        description: >
-            Private key for agent
-
     manager_public_key:
         type: string
         default: ''
         description: >
             Public key for manager
 
-    agent_public_key:
-        type: string
-        default: ''
-        description: >
-            Public key for agent
-
-    resources_prefix:
-        type: string
-        default: ''
-        description: >
-            Prefix for node name
-
     volume_use_external:
         type: boolean
-        default: false
+        default: true
         description: >
             Use alredy exised volume
 
@@ -218,7 +190,7 @@ inputs:
 
     volume_size_Mb:
         type: string
-        default: 10240
+        default: 40960
         description: >
             Volume size in Mb
 
@@ -229,48 +201,6 @@ node_types:
             vcloud_config: {}
 
 node_templates:
-
-    node_security_group:
-        type: cloudify.vcloud.nodes.SecurityGroup
-        properties:
-            security_group:
-                name: nodevcloud_security_group
-                edge_gateway: { get_input: edge_gateway }
-            rules:
-                - source: internal
-                  destination: internal
-                  destination_port: 22
-                  action: allow
-                  description: >
-                        ssh between nodes and management node
-                  protocol: TCP
-                - source: external
-                  destination: internal
-                  destination_port: { get_input: manager_server_ssh_port }
-                  action: allow
-                  description: >
-                        ssh between external net and managment node
-                  protocol: TCP
-                - source: external
-                  destination: internal
-                  destination_port: 80
-                  action: allow
-                  description: >
-                        http to management node
-                  protocol: TCP
-                - source: host
-                  destination: any
-                  action: allow
-                  description: >
-                         backward network connection for host updates
-                  protocol: any
-                - source: external
-                  destination: internal
-                  action: allow
-                  description: >
-                         Allow ping
-                  protocol: ICMP
-            vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
 
     management_port:
         type: cloudify.vcloud.nodes.Port
@@ -317,31 +247,6 @@ node_templates:
                 - type: SNAT
             vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
 
-    management_server_nat:
-        type: cloudify.vcloud.nodes.PublicNAT
-        properties:
-            nat:
-                edge_gateway: { get_input: edge_gateway }
-                public_ip: { get_input: manager_server_public_ip }
-            rules:
-             - type: DNAT
-               protocol: tcp
-               original_port: 80
-               translated_port: 80
-             - type: DNAT
-               protocol: tcp
-               original_port: 8086
-               translated_port: 8086
-             - type:  DNAT
-               protocol: tcp
-               original_port: 443
-               translated_port: 443
-             - type: DNAT
-               protocol: tcp
-               original_port: { get_input: manager_server_ssh_port }
-               translated_port: 22
-            vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
-
     vcloud_configuration:
         type: vcloud_configuration
         properties:
@@ -362,18 +267,11 @@ node_templates:
     manager_keypair:
         type: cloudify.vcloud.nodes.KeyPair
         properties:
-            private_key_path: { get_input: manager_private_key_path }
+            private_key:
+                path: { get_input: manager_private_key_path }
             public_key:
                 key: { get_input: manager_public_key }
                 user: { get_input: manager_server_user }
-
-    agent_keypair:
-        type: cloudify.vcloud.nodes.KeyPair
-        properties:
-            private_key_path: { get_input: agent_private_key_path }
-            public_key:
-                key: { get_input: agent_public_key }
-                user: { get_input: agents_user }
 
     manager_server:
         type: cloudify.vcloud.nodes.Server
@@ -384,9 +282,6 @@ node_templates:
                 catalog: { get_input: manager_server_catalog }
                 template: { get_input: manager_server_template }
                 guest_customization:
-                    public_keys:
-                        - { get_property: [manager_keypair, public_key] }
-                        - { get_property: [agent_keypair, public_key] }
                     computer_name: { get_input: manager_server_name }
                 hardware:
                     cpu: { get_input: manager_server_cpus }
@@ -396,10 +291,8 @@ node_templates:
         relationships:
             - target: management_port
               type: cloudify.vcloud.server_connected_to_port
-            - target: management_server_nat
-              type: cloudify.vcloud.server_connected_to_public_nat
-            - target: node_security_group
-              type: cloudify.vcloud.server_connected_to_security_group
+            - target: manager_keypair
+              type: cloudify.vcloud.server_connected_to_keypair
 
     volume:
         type: cloudify.vcloud.nodes.Volume
@@ -429,7 +322,7 @@ node_templates:
                         fabric_env:
                             user: { get_input: manager_server_user }
                             key_filename: { get_input: manager_private_key_path }
-                            host_string: { get_attribute: [management_server_nat, public_ip] }
+                            host_string: { get_attribute: [manager_server, ip] }
                             port: { get_input: manager_server_ssh_port }
         relationships:
             - type: cloudify.relationships.file_system_depends_on_volume
@@ -444,7 +337,7 @@ node_templates:
                               fabric_env:
                                   user: { get_input: manager_server_user }
                                   key_filename: { get_input: manager_private_key_path }
-                                  host_string: { get_attribute: [management_server_nat, public_ip] }
+                                  host_string: { get_attribute: [manager_server, ip] }
                                   port: { get_input: manager_server_ssh_port }
 
             - type: cloudify.relationships.file_system_contained_in_compute
@@ -458,7 +351,7 @@ node_templates:
                               fabric_env:
                                   user: { get_input: manager_server_user }
                                   key_filename: { get_input: manager_private_key_path }
-                                  host_string: { get_attribute: [management_server_nat, public_ip] }
+                                  host_string: { get_attribute: [manager_server, ip] }
                                   port: { get_input: manager_server_ssh_port }
                       unlink:
                           implementation: fabric.fabric_plugin.tasks.run_script
@@ -467,7 +360,7 @@ node_templates:
                               fabric_env:
                                   user: { get_input: manager_server_user }
                                   key_filename: { get_input: manager_private_key_path }
-                                  host_string: { get_attribute: [management_server_nat, public_ip] }
+                                  host_string: { get_attribute: [manager_server, ip] }
                                   port: { get_input: manager_server_ssh_port }
 
     manager:
@@ -475,20 +368,18 @@ node_templates:
         properties:
             cloudify_packages:
                 agents:
-                    ubuntu_agent_url: http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/3.2.0/ga-RELEASE/cloudify-ubuntu-agent_3.2.0-ga-b200_amd64.deb
-                    centos_agent_url: http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/3.2.0/ga-RELEASE/cloudify-centos-final-agent_3.2.0-ga-b200_amd64.deb
-                    windows_agent_url: http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/3.2.0/ga-RELEASE/cloudify-windows-agent_3.2.0-ga-b200_amd64.deb
+                    ubuntu_agent_url: http://s3.amazonaws.com/vcloud-score/cloudify-ubuntu-trusty-agent_3.2.1_amd64.deb
+                    centos_agent_url: http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/3.2.1/ga-RELEASE/cloudify-centos-final-agent_3.2.1-ga-b212_amd64.deb
+                    windows_agent_url: http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/3.2.1/ga-RELEASE/cloudify-windows-agent_3.2.1-ga-b212_amd64.deb
                 docker:
-                    docker_url: http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/3.2.0/ga-RELEASE/cloudify-docker_3.2.0-ga-b200.tar
+                    docker_url: http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/3.2.1/ga-RELEASE/cloudify-docker_3.2.1-ga-b212.tar
 
             cloudify:
-                resources_prefix: { get_input: resources_prefix }
-
                 cloudify_agent:
                     min_workers: 0
                     max_workers: 5
                     remote_execution_port: 22
-                    user: { get_input: agents_user }
+                    user: { get_input: manager_server_user }
 
                 workflows:
                     task_retries: -1  # this means forever
@@ -497,6 +388,9 @@ node_templates:
                 policy_engine:
                     start_timeout: 30
 
+                transient_deployment_workers_mode:
+                    enabled: True
+                    global_parallel_executions_limit: 20
         relationships:
             - target: manager_server
               type: cloudify.relationships.contained_in
@@ -515,7 +409,7 @@ node_templates:
                         fabric_env:
                             user: { get_input: manager_server_user }
                             key_filename: { get_input: manager_private_key_path }
-                            host_string: { get_attribute: [management_server_nat, public_ip] }
+                            host_string: { get_attribute: [manager_server, ip] }
                             port: { get_input: manager_server_ssh_port }
                 configure:
                     implementation: fabric.fabric_plugin.tasks.run_module_task
@@ -523,12 +417,11 @@ node_templates:
                         task_mapping: cloudify_cli.bootstrap.tasks.bootstrap_docker
                         task_properties:
                             cloudify_packages: { get_property: [manager, cloudify_packages] }
-                            agent_local_key_path: { get_property: [agent_keypair, private_key_path] }
-                            provider_context: { get_attribute: [manager, provider_context] }
+                            provider_context: ''
                         fabric_env:
                             user: { get_input: manager_server_user }
                             key_filename: { get_input: manager_private_key_path }
-                            host_string: { get_attribute: [management_server_nat, public_ip] }
+                            host_string: { get_attribute: [manager_server, ip] }
                             port: { get_input: manager_server_ssh_port }
                 start:
                     implementation: fabric.fabric_plugin.tasks.run_task
@@ -540,7 +433,7 @@ node_templates:
                         fabric_env:
                             user: { get_input: manager_server_user }
                             key_filename: { get_input: manager_private_key_path }
-                            host_string: { get_attribute: [management_server_nat, public_ip] }
+                            host_string: { get_attribute: [manager_server, ip] }
                             port: { get_input: manager_server_ssh_port }
                 stop:
                     implementation: fabric.fabric_plugin.tasks.run_module_task
@@ -548,8 +441,8 @@ node_templates:
                         task_mapping: cloudify_cli.bootstrap.tasks.stop_manager_container
                         fabric_env:
                             user: { get_input: manager_server_user }
-                            key_filename: { get_property: [manager_keypair, private_key_path] }
-                            host_string: { get_attribute: [management_server_nat, public_ip] }
+                            key_filename: { get_property: [manager_keypair, private_key, path] }
+                            host_string: { get_attribute: [manager_server, ip] }
                             port: { get_input: manager_server_ssh_port }
                 delete:
                     implementation: fabric.fabric_plugin.tasks.run_module_task
@@ -557,8 +450,8 @@ node_templates:
                         task_mapping: cloudify_cli.bootstrap.tasks.stop_docker_service
                         fabric_env:
                             user: { get_input: manager_server_user }
-                            key_filename: { get_property: [manager_keypair, private_key_path] }
-                            host_string: { get_attribute: [management_server_nat, public_ip] }
+                            key_filename: { get_property: [manager_keypair, private_key, path] }
+                            host_string: { get_attribute: [manager_server, ip] }
                             port: { get_input: manager_server_ssh_port }
             cloudify.interfaces.validation:
                 creation:
@@ -575,4 +468,4 @@ plugins:
 
 outputs:
     manager_ip:
-        value: { get_attribute: [management_server_nat, public_ip] }
+        value: { get_attribute: [manager_server, ip] }

@@ -19,6 +19,8 @@ class TestBase(testtools.TestCase):
 
     def setup_context(self):
         flask.g.org_id = self.test_id
+        flask.g.token = "secret token"
+        flask.g.org_url = "org_url"
         flask.g.cc = mock.MagicMock()
 
     def prefix_deployment(self, deployment):

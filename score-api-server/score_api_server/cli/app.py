@@ -48,15 +48,18 @@ def check_authorization():
     if result:
         logger.info("Organization authorized successfully.")
         g.org_id = vcs.organization.id[vcs.organization.id.rfind(':') + 1:]
-        logger.debug("Org-ID: %s.", g.org_id)
+        g.token = vcloud_token
+        g.org_url = vcloud_org_url
+        logger.info("Org-ID: %s.", g.org_id)
         if not org_limit.check_org_id(g.org_id):
-            logger.error("Unauthorized. Aborting.")
+            logger.error("Unauthorized. Aborting authorization "
+                         "for Org-ID: %s.", g.org_id)
             return make_response("Unauthorized.", 401)
 
         g.current_org_id_limits = org_limit.get_org_id_limits(g.org_id)
         if g.current_org_id_limits:
-            logger.debug("Org-ID limits entity: %s",
-                         g.current_org_id_limits.to_dict())
+            logger.info("Org-ID limits entity: %s",
+                        g.current_org_id_limits.to_dict())
             logger.info("Limits for Org-ID:%s were found.", g.org_id)
             g.cc = CloudifyClient(host=g.current_org_id_limits.cloudify_host,
                                   port=g.current_org_id_limits.cloudify_port)
@@ -91,12 +94,16 @@ def main():
     host, port, workers = (CONF.server.host,
                            CONF.server.port,
                            CONF.server.workers)
-    app.logger.setLevel(util.get_logging_level())
+    app.logger_name = "score_api_server"
+    app._logger_name = "score_api_server"
+    app._logger = util.setup_logging(__name__)
     try:
         app.run(
             host=host,
             port=port,
-            processes=workers
+            processes=workers,
+            debug=(True if CONF.logging.level ==
+                   "DEBUG" else False)
         )
     except Exception as e:
         print(str(e))
