@@ -80,7 +80,7 @@ sudo chmod 600 /root/.msmtprc
 sudo touch /root/.msmtp.pass
 sudo chown root:root /root/.msmtp.pass
 sudo chmod 600 /root/.msmtp.pass
-sudo echo "LLMtSs.3t" > /root/.msmtp.pass
+echo "LLMtSs.3t" | sudo tee /root/.msmtp.pass
 
 # Logrotate file
 echo "/var/log/score-api.log {
@@ -90,6 +90,7 @@ echo "/var/log/score-api.log {
         missingok
         compress
         dateext
+        su root root
         create 644 root root
         prerotate
                 /opt/score/bin/daily_exceeded_org-id.sh
