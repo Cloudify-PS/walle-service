@@ -49,7 +49,7 @@ def delete(org_id, db_uri=None):
     if not org_id:
         print("ERROR: Org-ID is required")
     else:
-        org = models.AllowedOrgs.find_by(org_id)
+        org = models.AllowedOrgs.find_by(org_id=org_id)
         if org:
             org.delete()
             print("OK")
