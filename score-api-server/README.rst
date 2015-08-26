@@ -273,9 +273,31 @@ To run code style checks please do::
 Post-Deployment verification
 ============================
 
-To run post-deployment verification plaese do::
+To run post-deployment verification please do::
 .. code-block:: bash
 
 
     $ export SCORE_URL=http://{score_ip}:{score_port}
     $ tox -e post-deployment -c score-api-server/tox.ini
+
+
+=======================================
+Run integration test in real-mode
+=======================================
+
+In order to run real-mode integration tests you must add
+specific flag inside commit message  body:
+         RunIntegrationTests: True
+Otherwise, pull request will be tested with fake-mode integration tests
+(including fake vCloud and Cloudify manager).
+
+Copy 'real-mode-tests-conf.yaml.template' to 'real-mode-tests-conf.yaml' and fill it 
+with correct values.
+
+To run integration tests please do::
+.. code-block:: bash
+
+    $ export SCORE_INT_TESTS_CONF=/full/path/to/real-mode-tests-conf.yaml
+    $ tox -e integration -c score-api-server/tox.ini
+
+

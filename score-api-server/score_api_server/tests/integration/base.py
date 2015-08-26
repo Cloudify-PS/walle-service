@@ -143,10 +143,10 @@ class RealScoreAPIClient(BaseScoreAPIClient, common.vCloudLogin):
     def setUp(self):
         super(BaseScoreAPIClient, self).setUp()
 
-        current_dir = os.path.dirname(os.path.realpath(__file__))
-        path_to_login_json = (current_dir +
-                              '/../../../real-mode-tests-conf.yaml')
-        with open(path_to_login_json, 'r') as stream:
+        config_file = os.getenv('SCORE_INT_TESTS_CONF')
+        if not config_file or not os.path.exists(config_file):
+            raise exceptions.Unauthorized()
+        with open(config_file, 'r') as stream:
             login_cfg = yaml.load(stream)
 
         cloudify_host = login_cfg.get('cloudify_host')

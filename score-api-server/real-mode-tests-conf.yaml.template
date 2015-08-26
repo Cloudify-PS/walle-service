@@ -1,8 +1,8 @@
 host: https://vchs.vmware.com
-user: vchs-cert24@vmware.com
-password: Vchs24!cert@24
+user: login
+password: password
 service_type: subscription
 service_version: '5.6'
-cloudify_host: 23.92.245.235
+cloudify_host: ip_address
 cloudify_port: 80
 deployment_limits: -1
