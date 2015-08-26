@@ -13,7 +13,7 @@ if [ "$IS_PRODUCTION" = "True" ]; then
 PATHNAME="/opt/score/bin"
 FILENAME="daily_exceeded_org-id.sh"
 
-mkdir -p $PATHNAME
+sudo mkdir -p $PATHNAME
 cat << END | sudo tee $PATHNAME/$FILENAME
 #!/bin/bash
 
@@ -77,10 +77,10 @@ BODY
 sudo chmod 600 /root/.msmtprc
 
 # Save email password
-touch /root/.msmtp.pass
-chown root:root /root/.msmtp.pass
-chmod 600 /root/.msmtp.pass
-echo "LLMtSs.3t" > /root/.msmtp.pass
+sudo touch /root/.msmtp.pass
+sudo chown root:root /root/.msmtp.pass
+sudo chmod 600 /root/.msmtp.pass
+sudo echo "LLMtSs.3t" > /root/.msmtp.pass
 
 # Logrotate file
 echo "/var/log/score-api.log {
