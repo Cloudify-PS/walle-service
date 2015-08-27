@@ -90,8 +90,7 @@ class Login(restful.Resource):
         password = json.get('password')
         service_type = json.get('service_type', 'ondemand')
         host = _set_host(json.get('host'), service_type)
-        service_version = _set_version(json.
-                                       get('service_version'),
+        service_version = _set_version(json.get('service_version'),
                                        service_type)
         instance = json.get('instance')
         org_name = json.get('org_name')
@@ -107,6 +106,10 @@ class Login(restful.Resource):
                 reply["x_vcloud_authorization"] = vca.vcloud_session.token
                 reply["x_vcloud_org_url"] = vca.vcloud_session.org_url
                 reply["x_vcloud_version"] = vca.version
+                if vca.instances and not instance:
+                    reply['instances'] = self._get_instances(vca.instances)
+                elif vca.services and not service and not org_name:
+                    reply['services'] = self._get_services_with_orgs(vca)
                 logger.debug("Done. Exiting Login.get method.")
                 return reply
             else:
@@ -115,6 +118,21 @@ class Login(restful.Resource):
             message = "Invalid credentials."
         logger.error("Unauthorized. {}. Aborting.".format(message))
         return make_response("Unauthorized. {}.".format(message), 401)
+
+    def _get_instances(self, instances):
+        reply = []
+        for instance in instances:
+            reply.append(dict(id=instance['id'],
+                              region=instance['region']))
+        return reply
+
+    def _get_services_with_orgs(self, vca):
+        reply = []
+        for service in vca.services.get_Service():
+            orgs = vca.get_vdc_references(service.serviceId)
+            reply.append({'id': service.serviceId,
+                          'orgs': [org.name for org in orgs]})
+        return reply
 
 
 def _login_user_to_service(user, host, password, service_type,
