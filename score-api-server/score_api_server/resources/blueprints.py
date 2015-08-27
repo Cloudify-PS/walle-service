@@ -12,7 +12,7 @@ import contextlib
 from urllib2 import urlopen, URLError
 
 from flask.ext import restful
-from flask import request, g
+from flask import request, g, make_response
 from flask_restful_swagger import swagger
 
 from cloudify_rest_client import exceptions
@@ -32,6 +32,42 @@ def decode(input_stream, buffer_size=8192):
             return
 
 logger = util.setup_logging(__name__)
+
+
+class BlueprintArchive(restful.Resource):
+
+    @swagger.operation(
+        nickname="getArchive",
+        notes="Downloads blueprint as an archive.",
+        parameters=[{'name': 'blueprint_id',
+                     'description': 'Blueprint ID',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'}]
+    )
+    def get(self, blueprint_id):
+        logger.debug("Entering BlueprintArchive.get method.")
+        try:
+            uri = '/blueprints/{0}/archive'.format(
+                util.add_org_prefix(blueprint_id))
+            with contextlib.closing(
+                    g.cc.blueprints.api.get(
+                        uri, stream=True)) as streamed_response:
+
+                streamed_response._response.url = request.url
+                response = make_response()
+                heads = streamed_response.headers._store
+                disposition, content = list(heads['content-disposition'])
+                content = util.remove_org_prefix(
+                    {'blueprint_id': content})['blueprint_id']
+                heads['content-disposition'] = (disposition, content)
+                response.headers._list = heads.values()
+                response.data = streamed_response._response.content
+                return response
+        except (Exception, exceptions.CloudifyClientError) as e:
+            logger.exception(str(e))
+            return util.make_response_from_exception(e)
 
 
 class Blueprints(restful.Resource):

@@ -17,6 +17,8 @@ def setup_resources(api):
     api.add_resource(blueprints.Blueprints, '/blueprints')
     api.add_resource(blueprints.BlueprintsId,
                      '/blueprints/<string:blueprint_id>')
+    api.add_resource(blueprints.BlueprintArchive,
+                     '/blueprints/<string:blueprint_id>/archive')
     api.add_resource(deployments.Deployments, '/deployments')
     api.add_resource(deployments.DeploymentsId,
                      '/deployments/<string:deployment_id>')
