@@ -231,6 +231,12 @@ inputs:
         description: >
             use existing PostgreSQL node NAT
 
+    is_production:
+        type: boolean
+        default: false
+        description: >
+            Indicates the purpose of the installation, production or staging
+
 node_types:
 
     # base server type for installation without agent
@@ -514,6 +520,7 @@ node_templates:
                         DB_NAME: { get_input: postgresql_db_name }
                         DB_PASS: { get_input: postgresql_db_pass }
                         SCORE_NGINX_CONFIGURATION_URL: { get_input: score_nginx_configuration_url }
+                        IS_PRODUCTION: { get_input: is_production }
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
