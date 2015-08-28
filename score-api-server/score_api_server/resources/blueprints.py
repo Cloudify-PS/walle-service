@@ -6,10 +6,9 @@ import tempfile
 import tarfile
 import shutil
 import os.path
+import requests
 import zipfile
 import contextlib
-
-from urllib2 import urlopen, URLError
 
 from flask.ext import restful
 from flask import request, g, make_response
@@ -583,18 +582,19 @@ class BlueprintsId(restful.Resource):
             blueprint_url = request.args['blueprint_archive_url']
             logger.info("Blueprint URL: {0}.".format(blueprint_url))
             try:
-                with contextlib.closing(urlopen(blueprint_url)) as urlf:
-                    with open(archive_file_name, 'w') as f:
-                        f.write(urlf.read())
+                response = requests.get(blueprint_url)
+                if response.status_code == 404:
+                    raise exceptions.CloudifyClientError(
+                        "Blueprint provided by URL: {0} "
+                        "not found.".format(blueprint_url),
+                        status_code=404)
+                with contextlib.closing(response) as urlf:
+                    with open(archive_file_name, 'wb') as f:
+                        f.write(urlf.content)
                         logger.info("Blueprint saved.")
                     logger.debug("Done. Exiting Blueprints."
                                  "_save_file_locally method.")
                 return
-            except URLError:
-                raise exceptions.CloudifyClientError(
-                    "URL {0} not found - can't download blueprint archive"
-                    .format(blueprint_url),
-                    status_code=404)
             except ValueError:
                 raise exceptions.CloudifyClientError(
                     "URL {0} is malformed - can't "
