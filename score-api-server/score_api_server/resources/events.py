@@ -29,12 +29,27 @@ class Events(restful.Resource):
             if len(result) == 2:
                 r = result[0]
                 r.append(result[1])
-                return r
+                return self._filter_messages(r)
             else:
                 return []
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
             return util.make_response_from_exception(e)
+
+    def _filter_messages(self, events):
+        scoreinstall = 'scoreinstall'
+        scoreuninstall = 'scoreuninstall'
+        for event in events:
+            if isinstance(event, dict):
+                text_message = event['message']['text']
+                if scoreinstall in text_message:
+                    text_message = event['message']['text'].replace(
+                        scoreinstall, 'install')
+                elif scoreuninstall in text_message:
+                    text_message = event['message']['text'].replace(
+                        scoreuninstall, 'uninstall')
+                event['message']['text'] = text_message
+        return events
 
     @swagger.operation(
         nickname='events',
