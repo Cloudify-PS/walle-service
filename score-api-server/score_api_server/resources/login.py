@@ -101,6 +101,11 @@ class Login(restful.Resource):
         reply = {}
         if vca:
             org_id = vca.vcloud_session.org_url.split('/')[-1]
+            logger.info("Authorizing Org-ID {0}.".format(org_id))
+            logger.info("Org-ID registered object {0}".format(
+                org_limit.check_org_id(org_id)))
+            logger.info("Org-ID registered limit{0}".format(
+                org_limit.get_org_id_limits(org_id)))
             if (org_limit.check_org_id(org_id) and
                     org_limit.get_org_id_limits(org_id)):
                 reply["x_vcloud_authorization"] = vca.vcloud_session.token
@@ -113,9 +118,10 @@ class Login(restful.Resource):
                 logger.debug("Done. Exiting Login.get method.")
                 return reply
             else:
-                message = "Organization is not authorized."
+                message = "Organization is not authorized"
         else:
-            message = "Invalid credentials."
+            message = ("Invalid credentials or can't authorize instance or "
+                       "service with its organization")
         logger.error("Unauthorized. {}. Aborting.".format(message))
         return make_response("Unauthorized. {}.".format(message), 401)
 
@@ -147,6 +153,8 @@ def _login_user_to_service(user, host, password, service_type,
                         return None
                     instance = vca.instances[0]['id']
                 result = vca.login_to_instance(instance, password)
+                logger.info("Login using instance: {0}. "
+                            "Result: {1}.".format(instance, result))
             elif _is_subscription(service_type):
                 if not service:
                     if org_name:
@@ -159,8 +167,14 @@ def _login_user_to_service(user, host, password, service_type,
                 if not org_name:
                     org_name = vca.get_vdc_references(service)[0].name
                 result = vca.login_to_org(service, org_name)
-            if result:
-                return vca
+                logger.info(
+                    "Login using service and organization: "
+                    "{0}, {1}. Result: {2}.".format(
+                        service, org_name, result))
+            if (result and
+                    hasattr(vca, 'vcloud_session') and
+                    hasattr(vca.vcloud_session, 'org_url')):
+                        return vca
         return None
     except Exception as e:
         logger.exception(e)
