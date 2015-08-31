@@ -8,8 +8,10 @@ cp server.key server.key.org
 openssl rsa -in server.key.org -out server.key
 # Sign your SSL Certificate
 openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+#  generate prime numbers
+openssl dhparam -out dhparam.pem 4096
 mkdir -p ../etc/keys
-mv server.crt server.key ../etc/keys
+mv server.crt server.key dhparam.pem ../etc/keys
 
 # ssh keys for login
 ssh-keygen -t rsa -b 4096 -C "score@getcloudify.org" -f key
