@@ -88,6 +88,18 @@ node_types:
                         script_path:
                             default: scripts/score/install_dependencies.sh
 
+
+    # template for gunicorn node
+    agentless.nodes.Nginx:
+        derived_from: cloudify.nodes.WebServer
+        interfaces:
+            cloudify.interfaces.lifecycle:
+                start:
+                    implementation: fabric.fabric_plugin.tasks.run_script
+                    inputs:
+                        script_path:
+                            default: scripts/score/configure_nginx.sh
+
     #template for gunicorn application score
     agentless.nodes.score:
         derived_from: cloudify.nodes.ApplicationModule
