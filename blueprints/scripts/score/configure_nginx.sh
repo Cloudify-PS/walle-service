@@ -25,6 +25,7 @@ mv www ~/www
 
 sed "s/127.0.0.1/${SCORE_INTERNAL_IP_ADDRESS}/g" -i etc/nginx/vca_io
 
+sudo chmod 600 etc/keys/*
 sudo cp etc/keys/* /etc/nginx
 sudo rm -fr /etc/nginx/sites-enabled/*
 sudo cp etc/nginx/vca_io /etc/nginx/sites-enabled/
