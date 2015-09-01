@@ -101,7 +101,7 @@ echo "/var/log/score-api.log {
 
 }" | sudo tee /etc/logrotate.d/score-api
 else
-	echo "Skipping reports configuration, due on staging installation."
+    echo "Skipping reports configuration, due on staging installation."
 fi
 
 mkdir -p ~/score_logs
@@ -118,6 +118,11 @@ export SCORE_LOGGING_LEVEL=DEBUG
 
 rm -f ~/score_api_server.conf
 
+sudo touch /var/log/gunicorn_score.log
+sudo touch /var/log/score-api.log
+sudo chown ubuntu:ubuntu /var/log/gunicorn_score.log /var/log/score-api.log
+sudo chmod 660 /var/log/gunicorn_score.log /var/log/score-api.log
+
 echo -e "description 'score service'
 # used to be: start on startup
 # until we found some mounts were not ready yet while booting:
@@ -126,9 +131,11 @@ stop on shutdown
 # Automatically Respawn:
 respawn
 respawn limit 99 5
+setuid ubuntu
+setgid ubuntu
 script
-	export SCORE_DB=${SCORE_EXISTING_DB:=postgresql://${DB_USER}:${DB_PASS}@${DB_IP}/${DB_NAME}}
-	exec /usr/bin/gunicorn -w 4 -b 0.0.0.0:8001 score_api_server.cli.app:app --log-level=error --error-logfile=/var/log/gunicorn_score.log
+    export SCORE_DB=${SCORE_EXISTING_DB:=postgresql://${DB_USER}:${DB_PASS}@${DB_IP}/${DB_NAME}}
+    exec /usr/bin/gunicorn -w 4 -b 0.0.0.0:8001 score_api_server.cli.app:app --log-level=error --error-logfile=/var/log/gunicorn_score.log
 end script
 " >> ~/score_api_server.conf
 
