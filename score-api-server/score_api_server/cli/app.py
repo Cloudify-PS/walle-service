@@ -13,6 +13,7 @@ from score_api_server.common import cfg
 from score_api_server.common import util
 from score_api_server.common import org_limit
 from score_api_server.resources import resources
+from urlparse import urlparse
 
 
 app = Flask(__name__)
@@ -25,9 +26,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = CONF.server.db_uri
 util.setup_logging_for_app(app)
 logger = util.setup_logging(__name__)
 app.url_map.strict_slashes = False
-
+ALLOWED_URLS = ['vchs.vmware.com']
 
 # note: assume vcs.organization.id is unique across the service
+
 
 @app.before_request
 def check_authorization():
@@ -35,12 +37,16 @@ def check_authorization():
     if _can_skip_auth(request.path):
         return
     vcloud_token = request.headers.get('x-vcloud-authorization')
-    vcloud_org_url = request.headers.get('x-vcloud-org-url')
+    vcloud_org_url = request.headers.get('x-vcloud-org-url', '')
     vcloud_version = request.headers.get('x-vcloud-version')
     if (vcloud_token is None or vcloud_org_url
        is None or vcloud_version is None):
         logger.error("Unauthorized. Aborting.")
         return make_response("Unauthorized.", 401)
+    if not _is_valid_url(vcloud_org_url):
+        logger.error("Unauthorized. Invalid 'vcloud_org_url'. Aborting.")
+        return make_response("Unauthorized:"
+                             " 'vcloud_org_url' value not allowed", 401)
     vcs = VCS(vcloud_org_url, None, None, None,
               vcloud_org_url, vcloud_org_url,
               version=vcloud_version)
@@ -86,6 +92,14 @@ def _can_skip_auth(path):
         return True
     return False
 
+
+def _is_valid_url(vcloud_org_url):
+    org_url = urlparse(vcloud_org_url)
+    hostname = org_url.hostname 
+    for url in ALLOWED_URLS:
+        if hostname and hostname.endswith(url):
+            return True
+    return False
 
 resources.setup_resources(api)
 
