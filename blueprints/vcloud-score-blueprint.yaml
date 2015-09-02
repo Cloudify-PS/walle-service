@@ -625,7 +625,7 @@ node_templates:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
                             host_string: { get_attribute: [nginx_host_nat, public_ip] }
-                            port: { get_input: score_ssh }
+                            port: { get_input: nginx_ssh }
         relationships:
           - type: cloudify.relationships.contained_in
             target: nginx
