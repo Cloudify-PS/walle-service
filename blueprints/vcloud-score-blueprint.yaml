@@ -613,12 +613,12 @@ node_templates:
                 create:
                     inputs:
                         SCORE_UI_PACKAGE_URL: { get_input: score_ui_package_url }
-                        SCORE_IP: { get_attribute: [score_host, ip] }
+                        SCORE_IP: { get_attribute: [nginx_host, ip] }
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
                             host_string: { get_attribute: [nginx_host_nat, public_ip] }
-                            port: { get_input: score_ssh }
+                            port: { get_input: nginx_ssh }
                 start:
                     inputs:
                         fabric_env:
