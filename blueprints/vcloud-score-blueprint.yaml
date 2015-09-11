@@ -232,6 +232,24 @@ inputs:
         description: >
             flag that tells to use existing postgresql node
 
+    use_existing_nginx_node:
+        type: boolean
+        default: false
+        description: >
+            flag that tells to use existing nginx node
+
+    existing_nginx_node_name:
+        type: string
+        default: ''
+        description: >
+            Nginx node name
+
+    use_existing_nginx_node_nat:
+        type: boolean
+        default: false
+        description: >
+            use existing Nginx node NAT
+
     existing_score_db_node_name:
         type: string
         default: ''
@@ -307,6 +325,8 @@ node_templates:
     nginx_host:
         type: agentless.nodes.ParentTypeServer
         properties:
+            use_external_resource: { get_input: use_existing_nginx_node }
+            resource_id:  { get_input: existing_nginx_node_name }
             server:
                 catalog: { get_input: catalog }
                 template: { get_input: template }
@@ -383,6 +403,7 @@ node_templates:
     nginx_host_nat:
         type: cloudify.vcloud.nodes.PublicNAT
         properties:
+            use_external_resource: { get_input: use_existing_nginx_node_nat }
             nat:
                 edge_gateway: { get_input: edge_gateway }
                 public_ip: { get_input: nginx_ip_address }
@@ -512,6 +533,7 @@ node_templates:
             cloudify.interfaces.lifecycle:
                 start:
                     inputs:
+                        SKIP_INSTALLATION: { get_input: use_existing_nginx_node }
                         SCORE_NGINX_CONFIGURATION_URL: { get_input: score_nginx_configuration_url }
                         SCORE_INTERNAL_IP_ADDRESS: { get_attribute: [ score_host, ip] }
                         fabric_env:
