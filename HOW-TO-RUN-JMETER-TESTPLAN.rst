@@ -1,0 +1,56 @@
+============================
+How to run JMeter test plan.
+============================
+
+----------
+Installing
+----------
+
+.. code-block:: bash
+
+    $ sudo apt-get install jmeter
+
+----------------------------------------
+Defining user variables in property file
+----------------------------------------
+
+.. code-block:: bash
+
+    $ vim myuser.properies
+
+NOTE: Property file should contain all of this variables:
+    - BASE_URL_SCORE=some_url
+    - SCORE_PORT=some_port
+    - BLUEPRINT_ID=some_bp_id
+    - APPLICATION_FILE_NAME=some_name_of_bp_yaml_file
+    - DEPLOYMENT_ID=some_deployment_id
+    - URL_TO_BLUEPRINT_TAR_FILE=some_url_to_file_server_with_bp_tar_file
+    - SERVER_NAME=some_name
+    - NETWORK_USE_EXISTING=true|false
+    - VCLOUD_SERVICE=some_service
+    - VCLOUD_API_VERSION=some_version
+    - VCLOUD_VDC=some_vdc
+    - VCLOUD_ORG=some_org
+    - VCLOUD_URL=some_vcloud_url
+    - VCLOUD_SERVICE_TYPE=some_service_type
+    - VCLOUD_USERNAME=username
+    - VCLOUD_PASSWORD=pass
+    - PUBLIC_IP=public_ip
+    - NETWORK_NAME=some_network_name
+    - GATEWAY_NAME=some_gateway
+
+-------
+Running
+-------
+
+For GUI mode:
+
+.. code-block:: bash
+
+    $ jmeter -q [template.properies] -t [path to testplan.jmx]
+
+For CLI mode:
+
+.. code-block:: bash
+
+    $ jmeter -n -q [template.properies] -t [path to testplan.jmx] -l [path to log_file.jtl]
