@@ -31,7 +31,9 @@ mkdir score-nginx-configuration
 tar -xvf score-nginx-configration.tar.gz -C score-nginx-configuration 2>&1
 
 cd score-nginx-configuration/
-mv ~/www ~/www-`date +"%m-%d-%y-%H-%m-%S"`
+if [ -d "~/www" ]; then
+    mv ~/www ~/www-`date +"%m-%d-%y-%H-%m-%S"`
+fi
 mv www ~/www
 
 sed "s/127.0.0.1/${SCORE_INTERNAL_IP_ADDRESS}/g" -i etc/nginx/vca_io
