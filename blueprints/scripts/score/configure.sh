@@ -91,7 +91,7 @@ echo "/var/log/score-api.log {
         compress
         dateext
         su root root
-        create 644 root root
+        create 644 ubuntu adm
         prerotate
                 /opt/score/bin/daily_exceeded_org-id.sh
         endscript
