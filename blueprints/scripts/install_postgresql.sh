@@ -1,10 +1,13 @@
 #!/bin/bash
-
 set -e
 set -o xtrace
 
+cd ~
+
 export DEBIAN_FRONTEND=noninteractive
-if [ "$SKIP_INSTALLATION" = "False" ]; then
+if [ x"$SKIP_INSTALLATION" != x"true" ]; then
+
+    echo "Installing postgresql."
 
     echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -c | awk '{print $2}'`-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
     wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -

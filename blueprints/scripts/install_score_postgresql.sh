@@ -1,11 +1,14 @@
 #!/bin/bash
-
 set -e
 set -o xtrace
 
+cd ~
+
 export LC_ALL=C
 
-if [ "$SKIP_CONFIGURATION" = "False" ]; then
+if [ x"$SKIP_CONFIGURATION" != x"true" ]; then
+
+    echo "Configure postgresql for score."
 
     echo -e "
     ALTER USER ${DB_USER} WITH PASSWORD '${DB_PASS}';

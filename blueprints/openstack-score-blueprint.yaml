@@ -54,13 +54,13 @@ inputs:
 
     is_production:
         type: boolean
-        default: False
+        default: false
         description: >
             Indicates the purpose of the installation, production or staging
 
     use_existing_score_db_node:
         type: boolean
-        default: False
+        default: false
         description: >
             flag that tells to use existing postgresql node
 

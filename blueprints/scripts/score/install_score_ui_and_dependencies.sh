@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-
 set -e
 set -o xtrace
+
+cd ~
 
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
@@ -16,4 +17,5 @@ sudo apt-get update 2>&1
 sudo apt-get -qy install nodejs make g++ git
 sudo npm install -g grunt-cli bower
 
+rm -f score-ui-src.tar.gz
 curl -o score-ui-src.tar.gz ${SCORE_UI_PACKAGE_URL}

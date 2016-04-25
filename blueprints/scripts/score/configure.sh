@@ -1,13 +1,15 @@
 #!/bin/bash
-
 set -e
 set -o xtrace
+
+cd ~
 
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
-if [ "$IS_PRODUCTION" = "True" ]; then
+if [ x"$IS_PRODUCTION" != x"false" ]; then
 
+echo "Prodaction mode."
 # Report about exceeded org-ids
 
 PATHNAME="/opt/score/bin"
@@ -31,7 +33,7 @@ Subject: Deployment quota exceeded.
 
 Deployment quota exceeded for:"
 
-mkdir /tmp/\$TMP_DIR
+mkdir -p /tmp/\$TMP_DIR
 cd /tmp/\$TMP_DIR
 cp /var/log/score-api.log /tmp/\$TMP_DIR
 

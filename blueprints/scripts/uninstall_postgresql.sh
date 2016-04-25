@@ -1,7 +1,8 @@
 #!/bin/bash
-
 set -e
 set -o xtrace
+
+cd ~
 
 export DEBIAN_FRONTEND=noninteractive
 

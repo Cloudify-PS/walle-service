@@ -3,11 +3,14 @@
 set -e
 set -o xtrace
 
+cd ~
+
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
+rm -f score-service.tar.gz
 curl -o score-service.tar.gz ${SCORE_PACKAGE_URL}  2>&1
-mkdir score-service
+mkdir -p score-service
 tar -xvf score-service.tar.gz -C score-service 2>&1
 cd score-service/
 git init
