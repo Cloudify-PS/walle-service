@@ -108,8 +108,10 @@ fi
 
 mkdir -p ~/score_logs
 
+rm -f ~/score.rc
+
 # Creating score.rc file with necessary options
-echo -e "export SCORE_HOST=localhost
+echo -e "export SCORE_HOST=127.0.0.1
 export SCORE_PORT=8001
 export SCORE_WORKERS=4
 export SCORE_DB=${SCORE_EXISTING_DB:=postgresql://${DB_USER}:${DB_PASS}@${DB_IP}/${DB_NAME}}

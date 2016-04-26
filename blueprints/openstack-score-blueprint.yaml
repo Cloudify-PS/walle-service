@@ -240,7 +240,7 @@ node_templates:
                         SCORE_UI_PACKAGE_URL: { get_input: score_ui_package_url }
                         SCORE_IP: { get_attribute: [nginx_host, ip] }
                 start:
-                    implementation: scripts/score/configure.sh
+                    implementation: scripts/score/configure_ui.sh
         relationships:
           - type: cloudify.relationships.contained_in
             target: nginx
