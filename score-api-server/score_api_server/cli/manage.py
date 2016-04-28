@@ -16,11 +16,14 @@ manager = Manager(flask_app)
 
 
 OrgIDCommands = Manager(usage="Performs action related to Org-IDs")
+KeyStoreCommands = Manager(usage="Performs action related to Keystore URLs")
 OrgIDLimitsCommands = Manager(usage="Performs action related to Org-ID limits")
+KeyStoreLimitsCommands = Manager(usage="Performs action related to KeyStore Url limits")
 ApprovedPluginsCommands = Manager(usage="Performs actions related to approved "
                                         "deployment and workflow plugins.")
 
 
+# OrgIds
 @OrgIDCommands.option("--org-id", dest="org_id",
                       help="Adds Org-IDs to Score DB")
 @OrgIDCommands.option("--info", dest="info",
@@ -68,6 +71,7 @@ def list(db_uri=None):
                                      "info", "created_at"])
 
 
+# OrgIDLimits
 @OrgIDLimitsCommands.option("--org-id", dest="org_id")
 @OrgIDLimitsCommands.option("--cloudify-host", dest="cloudify_host")
 @OrgIDLimitsCommands.option("--cloudify-port", dest="cloudify_port")
@@ -168,6 +172,7 @@ def delete(**kwargs):
         print("OK")
 
 
+# ApprovedPlugins
 @ApprovedPluginsCommands.option(
     "--name", dest="name", help="Approved plugin name.")
 @ApprovedPluginsCommands.option("--source", dest="source",
@@ -218,9 +223,160 @@ def delete(**kwargs):
     models.ApprovedPlugins.find_by(name=name).delete()
 
 
+# KeyStore Urls
+@KeyStoreCommands.option("--keystore-url", dest="keystore_url",
+                      help="Adds keystore-urls to Score DB")
+@KeyStoreCommands.option("--info", dest="info",
+                      help="Adds keystore-urls to Score DB")
+@KeyStoreCommands.option("--db-uri", dest="db_uri", default=None)
+def add(keystore_url, db_uri=None, info=None):
+    """Adds keystore-url."""
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+
+    if not keystore_url:
+        print("ERROR: keystore-url is required")
+    else:
+        org = models.AllowedKeyStoreUrl(keystore_url, info=info)
+        print_utils.print_dict(org.to_dict())
+
+
+@KeyStoreCommands.option("--keystore-url", dest="keystore_url",
+                      help="Deletes keystore-url from Score DB")
+@KeyStoreCommands.option("--db-uri", dest="db_uri", default=None)
+def delete(keystore_url, db_uri=None):
+    """Deletes keystore-url."""
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+
+    if not keystore_url:
+        print("ERROR: keystore-url is required")
+    else:
+        org = models.AllowedKeyStoreUrl.find_by(keystore_url=keystore_url)
+        if org:
+            org.delete()
+            print("OK")
+        else:
+            print("ERROR: keystore-url not found")
+
+
+@KeyStoreCommands.option("--db-uri", dest="db_uri", default=None)
+def list(db_uri=None):
+    """Lists keystore-urls."""
+
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+    keystore_urls = models.AllowedKeyStoreUrl.list()
+    print_utils.print_list(keystore_urls, ["id", "keystore_url",
+                                     "info", "created_at"])
+
+
+# KeyStoreLimits
+@KeyStoreLimitsCommands.option("--keystore-url", dest="keystore_url")
+@KeyStoreLimitsCommands.option("--cloudify-host", dest="cloudify_host")
+@KeyStoreLimitsCommands.option("--cloudify-port", dest="cloudify_port")
+@KeyStoreLimitsCommands.option("--deployment-limits",
+                            dest="deployment_limits", default=0)
+@KeyStoreLimitsCommands.option("--db-uri", dest="db_uri", default=None)
+def create(keystore_url, cloudify_host, cloudify_port,
+           deployment_limits, db_uri=None):
+    """Creates deployment limits pinned to specific
+       keystore-url and specific Cloudify Manager
+    """
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+    if not cloudify_host or not cloudify_port:
+        print("ERROR: Cloudify host and port are required.")
+        return
+    else:
+        if not models.AllowedKeyStoreUrl.find_by(keystore_url=keystore_url):
+            print("ERROR: No such keystore-url.")
+            return
+        limit = models.KeyStoreUrlToCloudifyAssociationWithLimits(
+            keystore_url,
+            cloudify_host,
+            cloudify_port,
+            deployment_limits,
+        )
+        print_utils.print_dict(limit.to_dict())
+
+
+@KeyStoreLimitsCommands.option("--db-uri", dest="db_uri", default=None)
+def list(db_uri=None):
+    """Lists all keystore-url limits."""
+
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+    limits = models.KeyStoreUrlToCloudifyAssociationWithLimits.list()
+    print_utils.print_list(limits, ["id", "keystore_url", "cloudify_host",
+                                    "cloudify_port", "deployment_limits",
+                                    "number_of_deployments",
+                                    "created_at", "updated_at"])
+
+
+@KeyStoreLimitsCommands.option("--id", dest="id")
+@KeyStoreLimitsCommands.option("--keystore-url", dest="keystore_url")
+@KeyStoreLimitsCommands.option("--cloudify-host", dest="cloudify_host")
+@KeyStoreLimitsCommands.option("--cloudify-port", dest="cloudify_port")
+@KeyStoreLimitsCommands.option("--deployment-limits", dest="deployment_limits")
+@KeyStoreLimitsCommands.option("--number-of-deployments",
+                            dest="number_of_deployments")
+@KeyStoreLimitsCommands.option("--db-uri", dest="db_uri", default=None)
+def update(**kwargs):
+    """Updates keystore-url limits with given keys by its ID."""
+    db_uri = kwargs.get("db_uri")
+    update_kwargs = {}
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+
+    limit_id = kwargs["id"]
+
+    keys = ["keystore_url", "cloudify_host", "cloudify_port",
+            "deployment_limits", "number_of_deployments"]
+
+    for key in keys:
+        if kwargs.get(key):
+            update_kwargs.update({key: kwargs.get(key)})
+
+    if (not models.AllowedKeyStoreUrl.find_by(keystore_url=kwargs.get("keystore_url"))
+            and not limit_id):
+        print("ERROR: ID or existing keystore-url required.")
+        return
+
+    limit = models.KeyStoreUrlToCloudifyAssociationWithLimits.find_by(
+        id=limit_id)
+    if not limit:
+        print("No such keystore-url limit entity.")
+    else:
+        limit.update(**update_kwargs)
+        updated_limit = (
+            models.KeyStoreUrlToCloudifyAssociationWithLimits.find_by(
+                id=limit_id))
+        print_utils.print_dict(updated_limit.to_dict())
+
+
+@KeyStoreLimitsCommands.option("--id", dest="id")
+@KeyStoreLimitsCommands.option("--db-uri", dest="db_uri", default=None)
+def delete(**kwargs):
+    """Deletes keystore-url limit by its ID."""
+    db_uri = kwargs.get("db_uri")
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+    limit = models.KeyStoreUrlToCloudifyAssociationWithLimits.find_by(
+        id=kwargs.get("id"))
+    if not limit:
+        print("ERROR: No such keystore-url limit entity.")
+        return
+    else:
+        limit.delete()
+        print("OK")
+
+
 manager.add_command('approved-plugins', ApprovedPluginsCommands)
 manager.add_command('org-ids', OrgIDCommands)
+manager.add_command('keystore-urls', KeyStoreCommands)
 manager.add_command('org-id-limits', OrgIDLimitsCommands)
+manager.add_command('keystore-url-limits', KeyStoreLimitsCommands)
 manager.add_command('db', MigrateCommand)
 
 
