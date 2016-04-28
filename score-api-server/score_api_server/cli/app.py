@@ -39,10 +39,25 @@ def check_authorization():
     vcloud_token = request.headers.get('x-vcloud-authorization')
     vcloud_org_url = request.headers.get('x-vcloud-org-url', '')
     vcloud_version = request.headers.get('x-vcloud-version')
-    if (vcloud_token is None or vcloud_org_url
-       is None or vcloud_version is None):
-        logger.error("Unauthorized. Aborting.")
-        return make_response("Unauthorized.", 401)
+    if (vcloud_org_url and vcloud_token and vcloud_version):
+        return check_authorization_vcloud(
+            vcloud_org_url, vcloud_token, vcloud_version
+        )
+
+    openstack_authorization = request.headers.get('x-openstack-authorization')
+    openstack_keystore = request.headers.get("x-openstack-keystore-url")
+    if (openstack_keystore and openstack_authorization):
+        return check_authorization_openstack(
+            openstack_authorization, openstack_keystore
+        )
+    logger.error("Unauthorized. Aborting.")
+    return make_response("Unauthorized.", 401)
+
+def check_authorization_openstack(openstack_authorization, openstack_keystore):
+    pass
+    # return make_response("Unauthorized by OpenStack.", 401)
+
+def check_authorization_vcloud(vcloud_org_url, vcloud_token, vcloud_version):
     if not _is_valid_url(vcloud_org_url):
         logger.error("Unauthorized. Invalid 'vcloud_org_url'. Aborting.")
         return make_response("Unauthorized:"
@@ -95,7 +110,7 @@ def _can_skip_auth(path):
 
 def _is_valid_url(vcloud_org_url):
     org_url = urlparse(vcloud_org_url)
-    hostname = org_url.hostname 
+    hostname = org_url.hostname
     for url in ALLOWED_URLS:
         if hostname and hostname.endswith(url):
             return True

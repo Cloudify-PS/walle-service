@@ -37,7 +37,10 @@ def remove_org_prefix(obj):
 
 def make_response_from_exception(exception, code=None):
     def remove_org(e):
-        return str(e).replace("{}_".format(g.org_id), "")
+        response = str(e)
+        if hasattr(g, "org_id"):
+            response = response.replace("{}_".format(g.org_id), "")
+        return response
 
     status = code if code else exception.status_code
     return make_response(remove_org(exception),
