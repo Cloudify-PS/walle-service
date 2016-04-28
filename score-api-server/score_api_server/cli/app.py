@@ -12,6 +12,7 @@ from cloudify_rest_client.client import CloudifyClient
 from score_api_server.common import cfg
 from score_api_server.common import util
 from score_api_server.common import org_limit
+from score_api_server.common import keystore_limit
 from score_api_server.resources import resources
 from urlparse import urlparse
 
@@ -54,8 +55,25 @@ def check_authorization():
     return make_response("Unauthorized.", 401)
 
 def check_authorization_openstack(openstack_authorization, openstack_keystore):
-    pass
-    # return make_response("Unauthorized by OpenStack.", 401)
+    g.keystore_url = openstack_keystore
+    if not keystore_limit.check_org_id(g.keystore_url):
+        logger.error("Unauthorized. Aborting authorization "
+                     "for Keystore Url: %s.", g.keystore_url)
+        return make_response("Unauthorized.", 401)
+
+    g.current_keystore_limits = keystore_limit.get_keystore_url_limits(g.keystore_url)
+    if g.current_keystore_limits:
+        logger.info("Org-ID limits entity: %s",
+                    g.current_org_id_limits.to_dict())
+        logger.info("Limits for Keystore Url:%s were found.", g.keystore_url)
+        g.cc = CloudifyClient(host=g.current_keystore_limits.cloudify_host,
+                              port=g.current_keystore_limits.cloudify_port)
+    else:
+        logger.error("No limits were defined for Keystore Url: %s", g.keystore_url)
+        return make_response("Limits for Org-ID: %s were not defined. "
+                             "Please contact administrator."
+                             % g.org_id, 403)
+
 
 def check_authorization_vcloud(vcloud_org_url, vcloud_token, vcloud_version):
     if not _is_valid_url(vcloud_org_url):
