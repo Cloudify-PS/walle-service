@@ -38,19 +38,19 @@ class DeploymentsId(restful.Resource):
 
     def update_quota(self, increment_or_decrement):
         logger.debug("Entering Deployments.update_qouta method.")
-        g.current_org_id_limits = g.current_org_id_limits.update(
+        g.current_account_limits = g.current_account_limits.update(
             number_of_deployments=(
-                g.current_org_id_limits.number_of_deployments
+                g.current_account_limits.number_of_deployments
                 + increment_or_decrement))
-        g.current_org_id_limits.save()
+        g.current_account_limits.save()
         logger.debug("Done. Exiting Deployments.update_qouta method.")
 
     def can_do_deployment(self):
         logger.debug(
             "Entering Deployments.can_do_deployment method.")
-        if g.current_org_id_limits.deployment_limits == -1 or (
-           g.current_org_id_limits.deployment_limits >
-           g.current_org_id_limits.number_of_deployments):
+        if g.current_account_limits.deployment_limits == -1 or (
+           g.current_account_limits.deployment_limits >
+           g.current_account_limits.number_of_deployments):
             # When deployment limit set to -1 users
             # can deploy infinite number of blueprints.
             # Or deployment limits still greater than number of deployments
