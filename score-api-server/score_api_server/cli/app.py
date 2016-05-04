@@ -6,7 +6,11 @@ from flask import request, g, make_response
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.migrate import Migrate
 
+# vcloud air
 from pyvcloud.vcloudsession import VCS
+#openstack
+import keystoneclient.v2_0.client as ksclient
+
 from cloudify_rest_client.client import CloudifyClient
 
 from score_api_server.common import cfg
@@ -55,6 +59,16 @@ def check_authorization():
     return make_response("Unauthorized.", 401)
 
 def check_authorization_openstack(openstack_authorization, openstack_keystore):
+    openstack_logined = False
+    try:
+        keystone = ksclient.Client(auth_url=openstack_keystore, token=openstack_authorization)
+        openstack_logined = True
+    except:
+        pass
+
+    if not openstack_logined:
+        return make_response("Unauthorized.", 401)
+
     g.keystore_url = openstack_keystore
     if not keystore_limit.check_keystore_url(g.keystore_url):
         logger.error("Unauthorized. Aborting authorization "
