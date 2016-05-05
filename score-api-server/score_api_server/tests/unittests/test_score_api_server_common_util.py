@@ -20,7 +20,7 @@ class CommonUtilTest(testtools.TestCase):
 
     def test_add_org_prefix(self):
         with self.app.app_context():
-            flask.g.org_id = "some_id"
+            flask.g.tenant_id = "some_id"
             self.assertEqual(
                 util.add_org_prefix("magic"),
                 "some_id_magic"
@@ -28,7 +28,7 @@ class CommonUtilTest(testtools.TestCase):
 
     def test_make_response_from_exception(self):
         with self.app.app_context():
-            flask.g.org_id = "some_id"
+            flask.g.tenant_id = "some_id"
             text = "Error"
             e = Exception(util.add_org_prefix(text))
 
@@ -44,7 +44,7 @@ class CommonUtilTest(testtools.TestCase):
             id_string = 'id'
             blueprint_string = 'blueprint'
             deployment_string = 'deployment'
-            g.org_id = '123'
+            g.tenant_id = '123'
 
             self.assertEqual(None, util.remove_org_prefix(None))
             self.assertEqual("", util.remove_org_prefix(""))

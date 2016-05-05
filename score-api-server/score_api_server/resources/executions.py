@@ -44,7 +44,7 @@ class Executions(restful.Resource):
             logger.info("Cloudify executions list: {0}.".format(
                 str(executions)))
             filtered = [util.remove_org_prefix(e) for e in executions
-                        if g.org_id in e['deployment_id']]
+                        if g.tenant_id in e['deployment_id']]
             for ex in filtered:
                 if ex['workflow_id'].startswith('score'):
                     ex['workflow_id'] = ex['workflow_id'][5:]

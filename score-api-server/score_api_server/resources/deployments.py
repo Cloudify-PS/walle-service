@@ -26,7 +26,7 @@ class Deployments(restful.Resource):
             deployments = g.cc.deployments.list()
             result = []
             for deployment in deployments:
-                if deployment.id.startswith(g.org_id + '_'):
+                if deployment.id.startswith(g.tenant_id + '_'):
                     result.append(util.remove_org_prefix(deployment))
             logger.debug("Done. Exiting Deployments.get method.")
             return result
@@ -55,13 +55,13 @@ class DeploymentsId(restful.Resource):
             # can deploy infinite number of blueprints.
             # Or deployment limits still greater than number of deployments
             logger.info(
-                "Success. Deployment can be done for Org-ID:%s .", g.org_id)
+                "Success. Deployment can be done for Org-ID:%s .", g.tenant_id)
             logger.debug(
                 "Done. Exiting Deployments.can_do_deployment method.")
             return True
         else:
             logger.debug("Deployment quota exceeded for Org-ID:%s.",
-                         g.org_id)
+                         g.tenant_id)
             raise exceptions.CloudifyClientError(
                 "Deployment quota exceeded.", status_code=403)
 
@@ -181,7 +181,7 @@ class DeploymentsId(restful.Resource):
         try:
             if self.can_do_deployment():
                 logger.info("Updating quota for Org-ID %s.",
-                            g.org_id)
+                            g.tenant_id)
                 self.update_quota(+1)
                 logger.info("Checking if blueprint %s exists.",
                             blueprint_id)

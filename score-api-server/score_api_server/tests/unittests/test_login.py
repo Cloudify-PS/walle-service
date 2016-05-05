@@ -17,7 +17,7 @@ class TestBase(testtools.TestCase):
         self.test_id = "some_id"
 
     def setup_context(self):
-        flask.g.org_id = self.test_id
+        flask.g.tenant_id = self.test_id
         flask.g.cc = mock.MagicMock()
 
     def test_login(self):

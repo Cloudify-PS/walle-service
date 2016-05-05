@@ -16,7 +16,7 @@ class TestBase(testtools.TestCase):
         self.outputs = deployments.DeploymentOutputs()
 
     def setup_context(self):
-        flask.g.org_id = self.test_id
+        flask.g.tenant_id = self.test_id
         flask.g.cc = mock.MagicMock()
         flask.g.cc.deployments = mock.MagicMock()
 

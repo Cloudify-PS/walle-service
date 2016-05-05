@@ -20,3 +20,11 @@ headers["x-openstack-keystore-url"] = "http://192.168.0.10:5000/v2.0"
 r = requests.get('http://127.0.0.1:5000/status', headers=headers)
 
 print r.content
+
+r = requests.get('http://127.0.0.1:5000/blueprints', headers=headers)
+
+print r.content
+
+r = requests.get('http://127.0.0.1:5000/deployments', headers=headers)
+
+print r.content

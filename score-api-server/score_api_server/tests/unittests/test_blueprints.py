@@ -19,9 +19,9 @@ class TestBase(testtools.TestCase):
 
     def test_get_with_blueprint_id(self):
         with self.app.app_context():
-            flask.g.org_id = "some_id"
+            flask.g.tenant_id = "some_id"
             flask.g.cc = mock.MagicMock()
-            fake_id = flask.g.org_id + '_' + self.bp_id
+            fake_id = flask.g.tenant_id + '_' + self.bp_id
             fake_bp = fake_objects.FakeBlueprint(fake_id, fake_id, fake_id)
             flask.g.cc.blueprints.get = mock.MagicMock(return_value=fake_bp)
             bp = self.bluprient_id.get(blueprint_id=self.bp_id)
@@ -29,9 +29,9 @@ class TestBase(testtools.TestCase):
 
     def test_get_all_blueprints(self):
         with self.app.app_context():
-            flask.g.org_id = "some_id"
+            flask.g.tenant_id = "some_id"
             flask.g.cc = mock.MagicMock()
-            fake_id = flask.g.org_id + '_' + self.bp_id
+            fake_id = flask.g.tenant_id + '_' + self.bp_id
             fake_bp = fake_objects.FakeBlueprint(fake_id, fake_id, fake_id)
             flask.g.cc.blueprints.list = mock.MagicMock(return_value=[fake_bp])
             bps = self.bluprient.get()
@@ -39,9 +39,9 @@ class TestBase(testtools.TestCase):
 
     def test_delete(self):
         with self.app.app_context():
-            flask.g.org_id = "some_id"
+            flask.g.tenant_id = "some_id"
             flask.g.cc = mock.MagicMock()
-            fake_id = flask.g.org_id + '_' + self.bp_id
+            fake_id = flask.g.tenant_id + '_' + self.bp_id
             fake_bp = fake_objects.FakeBlueprint(fake_id, fake_id, fake_id)
             flask.g.cc.blueprints.get = mock.MagicMock(return_value=None)
             flask.g.cc.blueprints.delete = mock.MagicMock(return_value=fake_bp)

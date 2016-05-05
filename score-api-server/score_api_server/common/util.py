@@ -16,7 +16,7 @@ CONF = cfg.CONF
 def add_org_prefix(name):
     if not isinstance(name, basestring) or not name:
         raise ValueError("Name must be nonempty instance of basestring.")
-    return "{}_{}".format(g.org_id, name)
+    return "{}_{}".format(g.tenant_id, name)
 
 
 def remove_org_prefix(obj):
@@ -29,7 +29,7 @@ def remove_org_prefix(obj):
         try:
             if obj_copy[attr]:
                 obj_copy[attr] = obj_copy[attr].replace(
-                    "{}_".format(g.org_id), "", 1)
+                    "{}_".format(g.tenant_id), "", 1)
         except KeyError:
             pass
     return obj_copy
@@ -38,8 +38,7 @@ def remove_org_prefix(obj):
 def make_response_from_exception(exception, code=None):
     def remove_org(e):
         response = str(e)
-        if hasattr(g, "org_id"):
-            response = response.replace("{}_".format(g.org_id), "")
+        response = response.replace("{}_".format(g.tenant_id), "")
         return response
 
     status = code if code else exception.status_code

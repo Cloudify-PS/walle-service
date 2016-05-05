@@ -83,7 +83,7 @@ class Blueprints(restful.Resource):
             blueprints = g.cc.blueprints.list()
             result = []
             for blueprint in blueprints:
-                if blueprint.id.startswith(g.org_id + '_'):
+                if blueprint.id.startswith(g.tenant_id + '_'):
                     result.append(util.remove_org_prefix(blueprint))
             logger.debug("Done. Exiting Blueprints.get method.")
             return result

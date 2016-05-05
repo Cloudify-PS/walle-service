@@ -11,7 +11,7 @@ class VCS(object):
 
         def __init__(self):
             self.id = ":".join([str(uuid.uuid4())])
-            if self.id not in [org.org_id
+            if self.id not in [org.tenant_id
                                for org in
                                models.AllowedOrgs.list()]:
                 models.AllowedOrgs(

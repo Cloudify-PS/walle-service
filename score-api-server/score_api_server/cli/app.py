@@ -70,6 +70,7 @@ def check_authorization_openstack(
             auth_url=openstack_keystore, token=openstack_authorization
         )
         g.token = keystone.auth_ref['token']['id']
+        g.tenant_id = keystone.user_id
         openstack_logined = True
     except Exception as e:
         logger.error("Login failed: %s.", str(e))
@@ -98,7 +99,7 @@ def check_authorization_openstack(
         )
         return make_response("Limits for Org-ID: %s were not defined. "
                              "Please contact administrator."
-                             % g.org_id, 403)
+                             % g.tenant_id, 403)
 
 
 def check_authorization_vcloud(vcloud_org_url, vcloud_token, vcloud_version):
@@ -112,27 +113,27 @@ def check_authorization_vcloud(vcloud_org_url, vcloud_token, vcloud_version):
     result = vcs.login(token=vcloud_token)
     if result:
         logger.info("Organization authorized successfully.")
-        g.org_id = vcs.organization.id[vcs.organization.id.rfind(':') + 1:]
+        g.tenant_id = vcs.organization.id[vcs.organization.id.rfind(':') + 1:]
         g.token = vcloud_token
         g.org_url = vcloud_org_url
-        logger.info("Org-ID: %s.", g.org_id)
-        if not org_limit.check_org_id(g.org_id):
+        logger.info("Org-ID: %s.", g.tenant_id)
+        if not org_limit.check_org_id(g.tenant_id):
             logger.error("Unauthorized. Aborting authorization "
-                         "for Org-ID: %s.", g.org_id)
+                         "for Org-ID: %s.", g.tenant_id)
             return make_response("Unauthorized.", 401)
 
-        g.current_account_limits = org_limit.get_org_id_limits(g.org_id)
+        g.current_account_limits = org_limit.get_org_id_limits(g.tenant_id)
         if g.current_account_limits:
             logger.info("Org-ID limits entity: %s",
                         g.current_account_limits.to_dict())
-            logger.info("Limits for Org-ID:%s were found.", g.org_id)
+            logger.info("Limits for Org-ID:%s were found.", g.tenant_id)
             g.cc = CloudifyClient(host=g.current_account_limits.cloudify_host,
                                   port=g.current_account_limits.cloudify_port)
         else:
-            logger.error("No limits were defined for Org-ID: %s", g.org_id)
+            logger.error("No limits were defined for Org-ID: %s", g.tenant_id)
             return make_response("Limits for Org-ID: %s were not defined. "
                                  "Please contact administrator."
-                                 % g.org_id, 403)
+                                 % g.tenant_id, 403)
     else:
         logger.error(str(vcs.response.status_code))
         return make_response(str(vcs.response.reason),
