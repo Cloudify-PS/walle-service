@@ -134,7 +134,7 @@ class Status(object):
 
 
 @swagger.model
-class Login(object):
+class LoginVCloud(object):
 
     resource_fields = {
         'x_vcloud_authorization': fields.String,
@@ -146,3 +146,16 @@ class Login(object):
         self.x_vcloud_authorization = kwargs['x_vcloud_authorization']
         self.x_vcloud_org_url = kwargs['x_vcloud_org_url']
         self.x_vcloud_version = kwargs['x_vcloud_version']
+
+
+@swagger.model
+class LoginOpenStack(object):
+
+    resource_fields = {
+        'x_openstack_authorization': fields.String,
+        'x_openstack_keystore_url': fields.String
+    }
+
+    def __init__(self, **kwargs):
+        self.x_openstack_authorization = kwargs['x-openstack-authorization']
+        self.x_openstack_keystore_url = kwargs['x-openstack-keystore-url']

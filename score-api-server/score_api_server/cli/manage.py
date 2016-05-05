@@ -18,7 +18,8 @@ manager = Manager(flask_app)
 OrgIDCommands = Manager(usage="Performs action related to Org-IDs")
 KeyStoreCommands = Manager(usage="Performs action related to Keystore URLs")
 OrgIDLimitsCommands = Manager(usage="Performs action related to Org-ID limits")
-KeyStoreLimitsCommands = Manager(usage="Performs action related to KeyStore Url limits")
+KeyStoreLimitsCommands = Manager(usage="Performs action related to "
+                                       "KeyStore Url limits")
 ApprovedPluginsCommands = Manager(usage="Performs actions related to approved "
                                         "deployment and workflow plugins.")
 
@@ -225,9 +226,9 @@ def delete(**kwargs):
 
 # KeyStore Urls
 @KeyStoreCommands.option("--keystore-url", dest="keystore_url",
-                      help="Adds keystore-urls to Score DB")
+                         help="Adds keystore-urls to Score DB")
 @KeyStoreCommands.option("--info", dest="info",
-                      help="Adds keystore-urls to Score DB")
+                         help="Adds keystore-urls to Score DB")
 @KeyStoreCommands.option("--db-uri", dest="db_uri", default=None)
 def add(keystore_url, db_uri=None, info=None):
     """Adds keystore-url."""
@@ -242,7 +243,7 @@ def add(keystore_url, db_uri=None, info=None):
 
 
 @KeyStoreCommands.option("--keystore-url", dest="keystore_url",
-                      help="Deletes keystore-url from Score DB")
+                         help="Deletes keystore-url from Score DB")
 @KeyStoreCommands.option("--db-uri", dest="db_uri", default=None)
 def delete(keystore_url, db_uri=None):
     """Deletes keystore-url."""
@@ -267,8 +268,9 @@ def list(db_uri=None):
     if db_uri:
         flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     keystore_urls = models.AllowedKeyStoreUrl.list()
-    print_utils.print_list(keystore_urls, ["id", "keystore_url",
-                                     "info", "created_at"])
+    print_utils.print_list(
+        keystore_urls, ["id", "keystore_url", "info", "created_at"]
+    )
 
 
 # KeyStoreLimits
@@ -276,7 +278,7 @@ def list(db_uri=None):
 @KeyStoreLimitsCommands.option("--cloudify-host", dest="cloudify_host")
 @KeyStoreLimitsCommands.option("--cloudify-port", dest="cloudify_port")
 @KeyStoreLimitsCommands.option("--deployment-limits",
-                            dest="deployment_limits", default=0)
+                               dest="deployment_limits", default=0)
 @KeyStoreLimitsCommands.option("--db-uri", dest="db_uri", default=None)
 def create(keystore_url, cloudify_host, cloudify_port,
            deployment_limits, db_uri=None):
@@ -318,9 +320,10 @@ def list(db_uri=None):
 @KeyStoreLimitsCommands.option("--keystore-url", dest="keystore_url")
 @KeyStoreLimitsCommands.option("--cloudify-host", dest="cloudify_host")
 @KeyStoreLimitsCommands.option("--cloudify-port", dest="cloudify_port")
-@KeyStoreLimitsCommands.option("--deployment-limits", dest="deployment_limits")
+@KeyStoreLimitsCommands.option("--deployment-limits",
+                               dest="deployment_limits")
 @KeyStoreLimitsCommands.option("--number-of-deployments",
-                            dest="number_of_deployments")
+                               dest="number_of_deployments")
 @KeyStoreLimitsCommands.option("--db-uri", dest="db_uri", default=None)
 def update(**kwargs):
     """Updates keystore-url limits with given keys by its ID."""
@@ -338,7 +341,8 @@ def update(**kwargs):
         if kwargs.get(key):
             update_kwargs.update({key: kwargs.get(key)})
 
-    if (not models.AllowedKeyStoreUrl.find_by(keystore_url=kwargs.get("keystore_url"))
+    if (not models.AllowedKeyStoreUrl.find_by(
+            keystore_url=kwargs.get("keystore_url"))
             and not limit_id):
         print("ERROR: ID or existing keystore-url required.")
         return

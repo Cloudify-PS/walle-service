@@ -4,6 +4,7 @@ import yaml
 
 from score_api_server.db import base
 
+
 class AllowedKeyStoreUrl(base.BaseDatabaseModel, base.db.Model):
     __tablename__ = 'allowed_ketstore_urls'
 
@@ -31,8 +32,9 @@ class AllowedKeyStoreUrl(base.BaseDatabaseModel, base.db.Model):
             "created_at": self.created_at,
         }
 
+
 class KeyStoreUrlToCloudifyAssociationWithLimits(base.BaseDatabaseModel,
-                                           base.db.Model):
+                                                 base.db.Model):
     __tablename__ = 'keystore_url_to_cloudify_with_limits'
 
     id = base.db.Column(base.db.String(), primary_key=True)

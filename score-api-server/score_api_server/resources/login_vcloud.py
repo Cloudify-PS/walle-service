@@ -11,10 +11,10 @@ from score_api_server.common import org_limit
 logger = util.setup_logging(__name__)
 
 
-class Login(restful.Resource):
+class LoginVcloud(restful.Resource):
     @swagger.operation(
-        responseClass=responses.Login,
-        nickname="login",
+        responseClass=responses.LoginVCloud,
+        nickname="login_vcloud",
         notes="Returns information for authorization in vCloud.",
         parameters=[{'name': 'user',
                      'description': 'User login.',

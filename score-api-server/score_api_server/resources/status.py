@@ -27,14 +27,10 @@ class Status(restful.Resource):
             logger.info("Checking Score version.")
             score_version = score_api_server.get_version()
             logger.info("Checking Cloudify manager version.")
-            manager_version = {"version": "N/A"}
-            manager_status = {"status": "N/A"}
-            # TODO drop hack
-            if hasattr(g, "cc"):
-                manager_version = g.cc.manager.get_version()
-                logger.info("Checking Cloudify manager status.")
-                manager_status = g.cc.manager.get_status()
-                logger.debug("Done. Exiting Status.get method.")
+            manager_version = g.cc.manager.get_version()
+            logger.info("Checking Cloudify manager status.")
+            manager_status = g.cc.manager.get_status()
+            logger.debug("Done. Exiting Status.get method.")
             return {"score_version": score_version,
                     "manager_version": manager_version["version"],
                     "manager_status": manager_status["status"]}

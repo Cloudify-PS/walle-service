@@ -7,13 +7,14 @@ from score_api_server.resources import deployments
 from score_api_server.resources import executions
 from score_api_server.resources import events
 from score_api_server.resources import status
-from score_api_server.resources import login
+from score_api_server.resources import login_vcloud
+from score_api_server.resources import login_openstack
 
 
 def setup_resources(api):
     api = swagger.docs(api,
                        apiVersion='0.1',
-                       basePath='http://localhost:8100')
+                       basePath='http://localhost:5000')
     api.add_resource(blueprints.Blueprints, '/blueprints')
     api.add_resource(blueprints.BlueprintsId,
                      '/blueprints/<string:blueprint_id>')
@@ -29,4 +30,5 @@ def setup_resources(api):
                      '/executions/<string:execution_id>')
     api.add_resource(events.Events, '/events')
     api.add_resource(status.Status, '/status')
-    api.add_resource(login.Login, '/login')
+    api.add_resource(login_vcloud.LoginVcloud, '/login_vcloud')
+    api.add_resource(login_openstack.LoginOpenStack, '/login_openstack')

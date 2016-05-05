@@ -8,7 +8,7 @@ from flask.ext.migrate import Migrate
 
 # vcloud air
 from pyvcloud.vcloudsession import VCS
-#openstack
+# openstack
 import keystoneclient.v2_0.client as ksclient
 
 from cloudify_rest_client.client import CloudifyClient
@@ -49,7 +49,9 @@ def check_authorization():
             vcloud_org_url, vcloud_token, vcloud_version
         )
 
-    openstack_authorization = request.headers.get('x-openstack-authorization')
+    openstack_authorization = request.headers.get(
+        'x-openstack-authorization'
+    )
     openstack_keystore = request.headers.get("x-openstack-keystore-url")
     if (openstack_keystore and openstack_authorization):
         return check_authorization_openstack(
@@ -58,13 +60,19 @@ def check_authorization():
     logger.error("Unauthorized. Aborting.")
     return make_response("Unauthorized.", 401)
 
-def check_authorization_openstack(openstack_authorization, openstack_keystore):
+
+def check_authorization_openstack(
+    openstack_authorization, openstack_keystore
+):
     openstack_logined = False
     try:
-        keystone = ksclient.Client(auth_url=openstack_keystore, token=openstack_authorization)
+        keystone = ksclient.Client(
+            auth_url=openstack_keystore, token=openstack_authorization
+        )
+        g.token = keystone.auth_ref['token']['id']
         openstack_logined = True
-    except:
-        pass
+    except Exception as e:
+        logger.error("Login failed: %s.", str(e))
 
     if not openstack_logined:
         return make_response("Unauthorized.", 401)
@@ -75,7 +83,9 @@ def check_authorization_openstack(openstack_authorization, openstack_keystore):
                      "for Keystore Url: %s.", g.keystore_url)
         return make_response("Unauthorized.", 401)
 
-    g.current_account_limits = keystore_limit.get_keystore_url_limits(g.keystore_url)
+    g.current_account_limits = keystore_limit.get_keystore_url_limits(
+        g.keystore_url
+    )
     if g.current_account_limits:
         logger.info("Org-ID limits entity: %s",
                     g.current_account_limits.to_dict())
@@ -83,7 +93,9 @@ def check_authorization_openstack(openstack_authorization, openstack_keystore):
         g.cc = CloudifyClient(host=g.current_account_limits.cloudify_host,
                               port=g.current_account_limits.cloudify_port)
     else:
-        logger.error("No limits were defined for Keystore Url: %s", g.keystore_url)
+        logger.error(
+            "No limits were defined for Keystore Url: %s", g.keystore_url
+        )
         return make_response("Limits for Org-ID: %s were not defined. "
                              "Please contact administrator."
                              % g.org_id, 403)
@@ -133,9 +145,13 @@ def _can_skip_auth(path):
         logger.info("Skipping authorizations with request headers,"
                     " show api specification.")
         return True
-    elif name == 'login':
+    elif name == 'login_vcloud':
         logger.info("Skipping authorizations with request headers,"
-                    " using user:password authorization.")
+                    " using user:password VCloud authorization.")
+        return True
+    elif name == 'login_openstack':
+        logger.info("Skipping authorizations with request headers,"
+                    " using user:password OpenStack authorization.")
         return True
     return False
 
