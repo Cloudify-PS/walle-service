@@ -84,6 +84,8 @@ def check_authorization_openstack(
                      "for Keystore Url: %s.", g.keystore_url)
         return make_response("Unauthorized.", 401)
 
+    logger.info("Tenant id: %s.", str(g.tenant_id))
+
     g.current_account_limits = keystore_limit.get_keystore_url_limits(
         g.keystore_url
     )
