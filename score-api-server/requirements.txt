@@ -15,3 +15,5 @@ oslo.utils
 PrettyTable>=0.7,<0.8
 functools32
 jsonschema
+python-keystoneclient
+
