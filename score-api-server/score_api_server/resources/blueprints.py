@@ -281,6 +281,8 @@ class BlueprintsId(restful.Resource):
             "cloudify.plugins.workflows.uninstall",
             "vcloud_plugin_common.workflows.install",
             "vcloud_plugin_common.workflows.uninstall",
+            "openstack_plugin_common.workflows.install",
+            "openstack_plugin_common.workflows.uninstall",
             "script_runner.tasks.run",
         ]
         logger.debug(

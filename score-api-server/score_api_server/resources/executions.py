@@ -127,8 +127,10 @@ class Executions(restful.Resource):
             if not parameters:
                 parameters = {}
             parameters['session_token'] = g.token
-            if hasattr(g, "org_url"):
+            if hasattr(g, 'org_url'):
                 parameters['org_url'] = g.org_url
+            if hasattr(g, 'keystore_url'):
+                parameters['keystore_url'] = g.keystore_url
             allow_custom_parameters = True
             force = json.get('force', False)
             logger.info("Looking for deployment %s .", deployment_id)
