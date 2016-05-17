@@ -5,6 +5,32 @@ import yaml
 from score_api_server.db import base
 
 
+class ScoreAdministrators(base.BaseDatabaseModel, base.db.Model):
+    __tablename__ = 'score_admins'
+
+    id = base.db.Column(base.db.String(), primary_key=True)
+    name = base.db.Column(base.db.String(), unique=True)
+    password = base.db.Column(base.db.String())
+    token = base.db.Column(base.db.String())
+    expire = base.db.Column(base.db.String())
+
+    def __init__(self, name, password, token='', expire=''):
+        self.name = name
+        self.password = password
+        self.token = token
+        self.expire = expire
+        super(ScoreAdministrators, self).__init__()
+        self.save()
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name" : self.name,
+            "password" : self.password,
+            "token" : self.token,
+            "expire" : self.expire
+        }
+
 class AllowedKeyStoreUrl(base.BaseDatabaseModel, base.db.Model):
     __tablename__ = 'allowed_ketstore_urls'
 
@@ -154,9 +180,7 @@ class ApprovedPlugins(base.BaseDatabaseModel,
         :type type: basestring
         """
         self.name = name
-        self.source = (None if not source
-                       and source != ''
-                       else source)
+        self.source = (None if not source and source != '' else source)
         self.plugin_type = plugin_type
         super(ApprovedPlugins, self).__init__()
         self.save()

@@ -159,3 +159,14 @@ class LoginOpenStack(object):
     def __init__(self, **kwargs):
         self.x_openstack_authorization = kwargs['x-openstack-authorization']
         self.x_openstack_keystore_url = kwargs['x-openstack-keystore-url']
+
+
+@swagger.model
+class LoginScore(object):
+
+    resource_fields = {
+        'x_score_authorization': fields.String
+    }
+
+    def __init__(self, **kwargs):
+        self.x_score_authorization = kwargs['x-score-authorization']
