@@ -53,16 +53,17 @@ def check_authorization():
         'x-openstack-authorization'
     )
     openstack_keystore = request.headers.get("x-openstack-keystore-url")
+    openstack_region = request.headers.get("x-openstack-keystore-region", "")
     if (openstack_keystore and openstack_authorization):
         return check_authorization_openstack(
-            openstack_authorization, openstack_keystore
+            openstack_authorization, openstack_keystore, openstack_region
         )
     logger.error("Unauthorized. Aborting.")
     return make_response("Unauthorized.", 401)
 
 
 def check_authorization_openstack(
-    openstack_authorization, openstack_keystore
+    openstack_authorization, openstack_keystore, openstack_region
 ):
     openstack_logined = False
     try:
@@ -71,6 +72,7 @@ def check_authorization_openstack(
         )
         g.token = keystone.auth_ref['token']['id']
         g.tenant_id = keystone.user_id
+        g.openstack_region = openstack_region
         openstack_logined = True
     except Exception as e:
         logger.error("Login failed: %s.", str(e))

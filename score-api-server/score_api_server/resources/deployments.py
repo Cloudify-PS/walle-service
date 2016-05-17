@@ -90,6 +90,10 @@ class DeploymentsId(restful.Resource):
                         del _workflow['parameters']['session_token']
                     if _workflow['parameters'].get('org_url'):
                         del _workflow['parameters']['org_url']
+                    if _workflow['parameters'].get('keystore_url'):
+                        del _workflow['parameters']['keystore_url']
+                    if _workflow['parameters'].get('region'):
+                        del _workflow['parameters']['region']
                     filtere_workflows.append(_workflow)
 
             result['workflows'] = filtere_workflows
