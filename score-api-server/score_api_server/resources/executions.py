@@ -133,6 +133,8 @@ class Executions(restful.Resource):
                 parameters['keystore_url'] = g.keystore_url
             if hasattr(g, 'openstack_region'):
                 parameters['region'] = g.openstack_region
+            if hasattr(g, 'tenant_name'):
+                parameters['tenant_name'] = g.tenant_name
             allow_custom_parameters = True
             force = json.get('force', False)
             logger.info("Looking for deployment %s .", deployment_id)
