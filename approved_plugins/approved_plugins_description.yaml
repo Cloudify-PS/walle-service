@@ -6,15 +6,11 @@ deployment_plugins:
 
     - script:
         source:
-            - https://github.com/vcloudair/cloudify-script-plugin/archive/1.4-build.zip
+            - https://github.com/0lvin/cloudify-script-plugin/archive/1.4-build.zip
 
     - fabric:
         source:
-            - https://github.com/cloudify-cosmo/cloudify-fabric-plugin/archive/1.4.zip
-
-    - vcloud:
-        source:
-            - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.4.zip
+            - https://github.com/cloudify-cosmo/cloudify-fabric-plugin/archive/1.4.1.zip
 
     - openstack:
         source:
@@ -25,10 +21,6 @@ workflow_plugins:
     - default_workflows:
         source:
             - ''
-    - vcloud:
-        source:
-            - https://github.com/cloudify-cosmo/tosca-vcloud-plugin/archive/1.4.zip
-
     - openstack:
         source:
             - https://github.com/0lvin/cloudify-openstack-plugin/archive/1.4-build.zip
