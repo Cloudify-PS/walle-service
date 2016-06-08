@@ -116,9 +116,10 @@ class Executions(restful.Resource):
                 deploy_dict = plan_dict['deployment_plugins_to_install']
                 workflow_dict = plan_dict['workflow_plugins_to_install']
                 for plugin in workflow_dict + deploy_dict:
-                    if plugin['name'] == 'vcloud':
-                        if "1.2.1m" in plugin['source']:
-                            return "score"
+                    # openstack and vcloud have support of 'score' prefix
+                    # so strictly use such prefix
+                    if plugin['name'] in ('vcloud', 'openstack'):
+                        return "score"
                 return ""
 
             deployment_id = util.add_org_prefix(json['deployment_id'])
