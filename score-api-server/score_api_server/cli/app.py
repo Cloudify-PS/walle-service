@@ -41,9 +41,14 @@ def check_authorization():
     logger.debug("Request headers %s", str(request.headers))
     if _can_skip_auth(request.path):
         return
+    score_token = request.headers.get('x-score-authorization')
     vcloud_token = request.headers.get('x-vcloud-authorization')
     vcloud_org_url = request.headers.get('x-vcloud-org-url', '')
     vcloud_version = request.headers.get('x-vcloud-version')
+
+    if score_token:
+        return check_authorization_score(score_token)
+
     if (vcloud_org_url and vcloud_token and vcloud_version):
         return check_authorization_vcloud(
             vcloud_org_url, vcloud_token, vcloud_version
@@ -61,6 +66,10 @@ def check_authorization():
         )
     logger.error("Unauthorized. Aborting.")
     return make_response("Unauthorized.", 401)
+
+
+def check_authorization_score(token):
+    return
 
 
 def check_authorization_openstack(
@@ -160,6 +169,10 @@ def _can_skip_auth(path):
     elif name == 'login_openstack':
         logger.info("Skipping authorizations with request headers,"
                     " using user:password OpenStack authorization.")
+        return True
+    elif name == 'login_score':
+        logger.info("Skipping authorizations with request headers,"
+                    " using user:password Score authorization.")
         return True
     return False
 
