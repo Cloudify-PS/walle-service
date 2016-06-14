@@ -1,6 +1,6 @@
 # Copyright (c) 2016 VMware. All rights reserved
+import hashlib
 import time
-import md5
 from flask import make_response, g
 from score_api_server.resources import responses
 from flask.ext import restful
@@ -67,4 +67,4 @@ def _get_expire_time():
 
 
 def _generate_token(password, timestamp):
-    return md5.new(password + str(timestamp)).hexdigest()
+    return hashlib.md5(password + str(timestamp)).hexdigest()

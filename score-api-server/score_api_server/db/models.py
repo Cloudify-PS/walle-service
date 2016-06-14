@@ -25,11 +25,12 @@ class ScoreAdministrators(base.BaseDatabaseModel, base.db.Model):
     def to_dict(self):
         return {
             "id": self.id,
-            "name" : self.name,
-            "password" : self.password,
-            "token" : self.token,
-            "expire" : self.expire
+            "name": self.name,
+            "password": self.password,
+            "token": self.token,
+            "expire": self.expire
         }
+
 
 class AllowedKeyStoreUrl(base.BaseDatabaseModel, base.db.Model):
     __tablename__ = 'allowed_ketstore_urls'

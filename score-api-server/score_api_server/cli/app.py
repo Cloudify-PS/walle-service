@@ -62,7 +62,8 @@ def check_authorization():
     tenant_name = request.headers.get("x-openstack-keystore-tenant", "")
     if (openstack_keystore and openstack_authorization):
         return check_authorization_openstack(
-            openstack_authorization, openstack_keystore, openstack_region, tenant_name
+            openstack_authorization, openstack_keystore,
+            openstack_region, tenant_name
         )
     logger.error("Unauthorized. Aborting.")
     return make_response("Unauthorized.", 401)

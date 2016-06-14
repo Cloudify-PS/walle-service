@@ -1,4 +1,4 @@
 cloudify-plugins-common==3.4a4
 cloudify-script-plugin==1.4
-cloudify-cli==3.4a4
+cloudify==3.4a4
 

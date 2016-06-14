@@ -152,7 +152,9 @@ class KeystoreUrls(restful.Resource):
         logger.debug("Entering KeystoreUrls.post method.")
         logger.info("Update keystore_url.")
         from score_api_server.db import models
-        url = models.AllowedKeyStoreUrl(json['keystore_url'], info=json['info'])
+        url = models.AllowedKeyStoreUrl(
+            json['keystore_url'], info=json['info']
+        )
         return url.to_dict()
 
 
@@ -251,7 +253,9 @@ class KeyStoreUrlLimitsId(restful.Resource):
         logger.debug("Entering KeyStoreUrlLimitsId.delete method.")
         logger.info("Delete keystore_url_limit.")
         from score_api_server.db import models
-        limit = models.KeyStoreUrlToCloudifyAssociationWithLimits.find_by(id=id)
+        limit = models.KeyStoreUrlToCloudifyAssociationWithLimits.find_by(
+            id=id
+        )
         if not limit:
             return "ERROR: No such keystore_url_limit entity."
         else:

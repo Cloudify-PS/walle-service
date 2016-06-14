@@ -23,7 +23,7 @@ KeyStoreLimitsCommands = Manager(usage="Performs action related to "
 ApprovedPluginsCommands = Manager(usage="Performs actions related to approved "
                                         "deployment and workflow plugins.")
 AdminsCommands = Manager(usage="Performs actions related to score "
-                              "administrators")
+                               "administrators")
 
 
 # OrgIds
@@ -81,8 +81,8 @@ def list(db_uri=None):
 @OrgIDLimitsCommands.option("--deployment-limits",
                             dest="deployment_limits", default=0)
 @OrgIDLimitsCommands.option("--db-uri", dest="db_uri", default=None)
-def add(org_id, cloudify_host, cloudify_port,
-           deployment_limits, db_uri=None):
+def add(org_id, cloudify_host, cloudify_port, deployment_limits,
+        db_uri=None):
     """Creates deployment limits pinned to specific
        Org-ID and specific Cloudify Manager
     """
@@ -282,8 +282,8 @@ def list(db_uri=None):
 @KeyStoreLimitsCommands.option("--deployment-limits",
                                dest="deployment_limits", default=0)
 @KeyStoreLimitsCommands.option("--db-uri", dest="db_uri", default=None)
-def add(keystore_url, cloudify_host, cloudify_port,
-           deployment_limits, db_uri=None):
+def add(keystore_url, cloudify_host, cloudify_port, deployment_limits,
+        db_uri=None):
     """Creates deployment limits pinned to specific
        keystore-url and specific Cloudify Manager
     """
@@ -377,11 +377,12 @@ def delete(**kwargs):
         limit.delete()
         print("OK")
 
+
 # Administrators
 @AdminsCommands.option("--user", dest="user",
-                      help="Adds score admins to Score DB")
+                       help="Adds score admins to Score DB")
 @AdminsCommands.option("--password", dest="password",
-                      help="Adds score admins to Score DB")
+                       help="Adds score admins to Score DB")
 @AdminsCommands.option("--db-uri", dest="db_uri", default=None)
 def add(user, password, db_uri=None):
     """Adds score administrator."""
@@ -408,14 +409,13 @@ def list(db_uri=None):
 
 
 @AdminsCommands.option("--db-uri", dest="db_uri", default=None)
-@AdminsCommands.option("--user", dest="name",
-                                help="User name")
+@AdminsCommands.option("--user", dest="name", help="User name")
 def delete(**kwargs):
     db_uri = kwargs.get("db_uri")
     if db_uri:
         flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     user = kwargs.get("user")
-    if not user :
+    if not user:
         print("ERROR: user is required")
         return
     models.ScoreAdministrators.find_by(name=user).delete()
