@@ -30,7 +30,6 @@ Before run call db update/creation by::
 
 
 Also SCORE_DB can be postgresql://score:secret-password@localhost/score
-And only first time please import sql from initial.sql to db.
 Once you will accomplish deployment guide your environment will have next CLI tool::
 
     score-server
@@ -291,7 +290,7 @@ specific flag inside commit message  body:
 Otherwise, pull request will be tested with fake-mode integration tests
 (including fake vCloud and Cloudify manager).
 
-Copy 'real-mode-tests-conf.yaml.template' to 'real-mode-tests-conf.yaml' and fill it 
+Copy 'real-mode-tests-conf.yaml.template' to 'real-mode-tests-conf.yaml' and fill it
 with correct values.
 
 To run integration tests please do::
