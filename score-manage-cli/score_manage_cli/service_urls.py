@@ -1,8 +1,8 @@
 from score_manage_cli import print_dict
 
 
-def proceed_keystore_urls(client, operation, **kwargs):
-    route = 'keystore_urls'
+def proceed_service_urls(client, operation, **kwargs):
+    route = 'service_urls'
     operations = {'add': _add,
                   'delete': _delete,
                   'list': _list}
@@ -13,24 +13,26 @@ def proceed_keystore_urls(client, operation, **kwargs):
 
 
 def _add(client, route, **kwargs):
-    keystore_url = kwargs.get('keystore_url')
+    service_url = kwargs.get('service_url')
+    tenant = kwargs.get('tenant')
     info = kwargs.get('info')
-    if not keystore_url:
-        client.logger.info('Please specify "keystore_url" parameter.')
+    if not service_url or not tenant:
+        client.logger.info('Please specify "service_url"/"tenant" parameters.')
         return
     data = {
-        'keystore_url': keystore_url,
+        'tenant': tenant,
+        'service_url': service_url,
         'info': info
     }
     print_dict(client.add(route, data))
 
 
 def _delete(client, route, **kwargs):
-    keystore_url = kwargs.get('keystore_url')
-    if not keystore_url:
-        client.logger.info('Please specify "keystore_url" parameter.')
+    id = kwargs.get('id')
+    if not id:
+        client.logger.info('Please specify "id" parameter.')
         return
-    print_dict(client.delete(route, keystore_url))
+    print_dict(client.delete(route, id))
 
 
 def _list(client, route, **kwargs):

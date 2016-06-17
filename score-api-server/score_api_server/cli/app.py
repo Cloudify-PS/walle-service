@@ -15,8 +15,7 @@ from cloudify_rest_client.client import CloudifyClient
 
 from score_api_server.common import cfg
 from score_api_server.common import util
-from score_api_server.common import org_limit
-from score_api_server.common import keystore_limit
+from score_api_server.common import service_limit
 from score_api_server.resources import resources
 from urlparse import urlparse
 
@@ -94,15 +93,15 @@ def check_authorization_openstack(
         return make_response("Unauthorized.", 401)
 
     g.keystore_url = openstack_keystore
-    if not keystore_limit.check_keystore_url(g.keystore_url):
+    if not service_limit.check_service_url(g.keystore_url, tenant_name):
         logger.error("Unauthorized. Aborting authorization "
                      "for Keystore Url: %s.", g.keystore_url)
         return make_response("Unauthorized.", 401)
 
     logger.info("Tenant id: %s.", str(g.tenant_id))
 
-    g.current_account_limits = keystore_limit.get_keystore_url_limits(
-        g.keystore_url
+    g.current_account_limits = service_limit.get_service_url_limits(
+        g.keystore_url, tenant_name
     )
     if g.current_account_limits:
         logger.info("Org-ID limits entity: %s",
@@ -112,7 +111,8 @@ def check_authorization_openstack(
                               port=g.current_account_limits.cloudify_port)
     else:
         logger.error(
-            "No limits were defined for Keystore Url: %s", g.keystore_url
+            "No limits were defined for Keystore Url: %s/%s",
+            g.keystore_url, tenant_name
         )
         return make_response("Limits for Org-ID: %s were not defined. "
                              "Please contact administrator."
@@ -134,12 +134,16 @@ def check_authorization_vcloud(vcloud_org_url, vcloud_token, vcloud_version):
         g.token = vcloud_token
         g.org_url = vcloud_org_url
         logger.info("Org-ID: %s.", g.tenant_id)
-        if not org_limit.check_org_id(g.tenant_id):
+        if not service_limit.check_service_url(
+                vcloud_org_url, g.tenant_id
+        ):
             logger.error("Unauthorized. Aborting authorization "
                          "for Org-ID: %s.", g.tenant_id)
             return make_response("Unauthorized.", 401)
 
-        g.current_account_limits = org_limit.get_org_id_limits(g.tenant_id)
+        g.current_account_limits = service_limit.get_service_url_limits(
+            vcloud_org_url, g.tenant_id
+        )
         if g.current_account_limits:
             logger.info("Org-ID limits entity: %s",
                         g.current_account_limits.to_dict())

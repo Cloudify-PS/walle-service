@@ -1,8 +1,8 @@
 from score_manage_cli import print_dict
 
 
-def proceed_keystore_url_limits(client, operation, **kwargs):
-    route = 'keystore_url_limits'
+def proceed_service_url_limits(client, operation, **kwargs):
+    route = 'service_url_limits'
     operations = {'add': _add,
                   'delete': _delete,
                   'update': _update,
@@ -14,15 +14,19 @@ def proceed_keystore_url_limits(client, operation, **kwargs):
 
 
 def _add(client, route, **kwargs):
-    keystore_url = kwargs.get('keystore_url')
+    service_url = kwargs.get('service_url')
+    tenant = kwargs.get('tenant')
     cloudify_host = kwargs.get('cloudify_host')
     cloudify_port = kwargs.get('cloudify_port')
     deployment_limits = kwargs.get('deployment_limits')
-    if not keystore_url:
-        client.logger.info('Please specify "org_id" parameter.')
+    if not service_url or not tenant:
+        client.logger.info(
+            'Please specify "service_url"/"service" parameters.'
+        )
         return
     data = {
-        'keystore_url': keystore_url,
+        'service_url': service_url,
+        'tenant': tenant,
         'cloudify_host': cloudify_host,
         'cloudify_port': cloudify_port,
         'deployment_limits': deployment_limits
@@ -40,7 +44,8 @@ def _delete(client, route, **kwargs):
 
 def _update(client, route, **kwargs):
     id = kwargs.get('id')
-    keystore_url = kwargs.get('keystore_url')
+    service_url = kwargs.get('service_url')
+    tenant = kwargs.get('tenant')
     cloudify_host = kwargs.get('cloudify_host')
     cloudify_port = kwargs.get('cloudify_port')
     deployment_limits = kwargs.get('deployment_limits')
@@ -50,7 +55,8 @@ def _update(client, route, **kwargs):
         return
     data = {
         'id': id,
-        'keystore_url': keystore_url,
+        'service_url': service_url,
+        'tenant': tenant,
         'cloudify_host': cloudify_host,
         'cloudify_port': cloudify_port,
         'deployment_limits': deployment_limits,

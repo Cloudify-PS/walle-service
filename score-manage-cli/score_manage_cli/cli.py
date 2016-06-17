@@ -18,10 +18,8 @@ from score_manage_cli import (get_logger, load_config, save_config,
 from login import login_to_score
 from score_manage_cli import get_score_client
 from approved_plugins import proceed_approved_plugins
-from org_ids import proceed_org_ids
-from keystore_urls import proceed_keystore_urls
-from org_id_limits import proceed_org_id_limits
-from keystore_url_limits import proceed_keystore_url_limits
+from service_urls import proceed_service_urls
+from service_url_limits import proceed_service_url_limits
 
 default_operation = 'list'
 LOGGER = 'logger'
@@ -47,55 +45,12 @@ def login(ctx, user, password, score_host):
     logger.debug('login')
     token = login_to_score(logger, user, password, score_host)
     if not token:
-        print "Wrong credentials"
+        logger.error("Wrong credentials")
     manage = Configuration
     manage.user = user
     manage.token = token
     manage.score_host = score_host
     save_config(manage)
-
-
-@cli.command()
-@click.pass_context
-@click.argument('operation', default=default_operation,
-                metavar='[list | add | delete]',
-                type=click.Choice(['list', 'add', 'delete']))
-@click.option('--org-id', 'org_id', metavar='<org-id>', help='Organization ID')
-@click.option('--info', metavar='<info>', help='Organization info')
-def org_ids(ctx, operation, org_id, info):
-    logger = ctx.obj[LOGGER]
-    logger.debug('manage')
-    config = load_config(logger)
-    client = _get_score_client(config, logger)
-    if not client:
-        return
-    proceed_org_ids(client, operation, org_id=org_id, info=info)
-
-
-@cli.command()
-@click.pass_context
-@click.argument('operation', default=default_operation,
-                metavar='[list | add | update | delete]',
-                type=click.Choice(['list', 'add', 'update', 'delete']))
-@click.option('--org-id')
-@click.option('--cloudify-host')
-@click.option('--cloudify-port')
-@click.option('--deployment-limits')
-@click.option('--id')
-@click.option('--number-of-deployments')
-def org_id_limits(ctx, operation, org_id, cloudify_host, cloudify_port,
-                  deployment_limits, id, number_of_deployments):
-    logger = ctx.obj[LOGGER]
-    logger.debug('manage')
-    config = load_config(logger)
-    client = _get_score_client(config, logger)
-    if not client:
-        return
-    proceed_org_id_limits(client, operation, org_id=org_id,
-                          cloudify_host=cloudify_host,
-                          cloudify_port=cloudify_port,
-                          deployment_limits=deployment_limits,
-                          id=id, number_of_deployments=number_of_deployments)
 
 
 @cli.command()
@@ -124,17 +79,18 @@ def approved_plugins(ctx, operation, name, source, type, from_file):
 @click.argument('operation', default=default_operation,
                 metavar='[list | add | delete]',
                 type=click.Choice(['list', 'add', 'delete']))
-@click.option('--keystore-url')
+@click.option('--service-url')
+@click.option('--tenant')
 @click.option('--info', metavar='<info>', help='Organization info')
-def keystore_urls(ctx, operation, keystore_url, info):
+def service_urls(ctx, operation, service_url, tenant, info):
     logger = ctx.obj[LOGGER]
     logger.debug('manage')
     config = load_config(logger)
     client = _get_score_client(config, logger)
     if not client:
         return
-    proceed_keystore_urls(client, operation, keystore_url=keystore_url,
-                          info=info)
+    proceed_service_urls(client, operation, service_url=service_url,
+                         tenant=tenant, info=info)
 
 
 @cli.command()
@@ -142,28 +98,30 @@ def keystore_urls(ctx, operation, keystore_url, info):
 @click.argument('operation', default=default_operation,
                 metavar='[list | add | update | delete]',
                 type=click.Choice(['list', 'add', 'update', 'delete']))
-@click.option('--keystore-url')
+@click.option('--service-url')
+@click.option('--tenant')
 @click.option('--cloudify-host')
 @click.option('--cloudify-port')
 @click.option('--deployment-limits')
 @click.option('--id')
 @click.option('--number-of-deployments')
-def keystore_url_limits(ctx, operation, keystore_url, cloudify_host,
-                        cloudify_port, deployment_limits, id,
-                        number_of_deployments):
+def service_url_limits(ctx, operation, service_url, tenant, cloudify_host,
+                       cloudify_port, deployment_limits, id,
+                       number_of_deployments):
     logger = ctx.obj[LOGGER]
     logger.debug('manage')
     config = load_config(logger)
     client = _get_score_client(config, logger)
     if not client:
         return
-    proceed_keystore_url_limits(client, operation,
-                                keystore_url=keystore_url,
-                                cloudify_host=cloudify_host,
-                                cloudify_port=cloudify_port,
-                                deployment_limits=deployment_limits,
-                                id=id,
-                                number_of_deployments=number_of_deployments)
+    proceed_service_url_limits(client, operation,
+                               service_url=service_url,
+                               tenant=tenant,
+                               cloudify_host=cloudify_host,
+                               cloudify_port=cloudify_port,
+                               deployment_limits=deployment_limits,
+                               id=id,
+                               number_of_deployments=number_of_deployments)
 
 
 def _get_score_client(config, logger):
