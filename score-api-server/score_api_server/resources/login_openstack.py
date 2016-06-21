@@ -5,6 +5,7 @@ from flask.ext import restful
 from score_api_server.common import util
 import keystoneclient.v2_0.client as ksclient
 from flask_restful_swagger import swagger
+from score_api_server.common import service_limit
 
 logger = util.setup_logging(__name__)
 
@@ -70,9 +71,10 @@ class LoginOpenStack(restful.Resource):
         except Exception as e:
             logger.error("Login failed: %s.", str(e))
         if openstack_logined:
-            reply = {
-                'x-openstack-authorization': g.token,
-                'x-openstack-keystore_url': auth_url
-            }
-            return reply
+            if service_limit.get_service_url_limits(auth_url, tenant_name):
+                reply = {
+                    'x-openstack-authorization': g.token,
+                    'x-openstack-keystore_url': auth_url
+                }
+                return reply
         return make_response("Unauthorized. Recheck credentials.", 401)

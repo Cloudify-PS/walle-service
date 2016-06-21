@@ -5,7 +5,7 @@ from flask.ext import restful
 from score_api_server.common import util
 from pyvcloud.vcloudair import VCA
 from flask_restful_swagger import swagger
-from score_api_server.common import org_limit
+from score_api_server.common import service_limit
 
 
 logger = util.setup_logging(__name__)
@@ -103,11 +103,11 @@ class LoginVcloud(restful.Resource):
             org_id = vca.vcloud_session.org_url.split('/')[-1]
             logger.info("Authorizing Org-ID {0}.".format(org_id))
             logger.info("Org-ID registered object {0}".format(
-                org_limit.check_org_id(org_id)))
+                service_limit.check_service_url(host, org_id)))
             logger.info("Org-ID registered limit{0}".format(
-                org_limit.get_org_id_limits(org_id)))
-            if (org_limit.check_org_id(org_id) and
-                    org_limit.get_org_id_limits(org_id)):
+                service_limit.get_service_url_limits(host, org_id)))
+            if (service_limit.check_service_url(host, org_id) and
+                    service_limit.get_service_url_limits(host, org_id)):
                 reply["x_vcloud_authorization"] = vca.vcloud_session.token
                 reply["x_vcloud_org_url"] = vca.vcloud_session.org_url
                 reply["x_vcloud_version"] = vca.version
