@@ -8,11 +8,11 @@ cd ~
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
-rm -f score-service.tar.gz
-curl -o score-service.tar.gz ${SCORE_PACKAGE_URL}  2>&1
-mkdir -p score-service
-tar -xvf score-service.tar.gz -C score-service 2>&1
-cd score-service/
+rm -f walle-service.tar.gz
+curl -o walle-service.tar.gz ${WALLE_PACKAGE_URL}  2>&1
+mkdir -p walle-service
+tar -xvf walle-service.tar.gz -C walle-service 2>&1
+cd walle-service/
 git init
-cd score-api-server/
+cd walle-api-server/
 sudo pip install -r requirements.txt && sudo python setup.py install 2>&1

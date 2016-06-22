@@ -2,9 +2,9 @@
 
 FROM ubuntu:trusty
 
-ADD . /score-service
+ADD . /walle-service
 
-RUN cd /; rm -fr score-service/.venv score-service/.git score-service/score-api-server/.tox
+RUN cd /; rm -fr walle-service/.venv walle-service/.git walle-service/walle-api-server/.tox
 
 RUN apt-get update
 
@@ -22,11 +22,11 @@ RUN easy_install pip
 
 RUN virtualenv /venv
 
-RUN . /venv/bin/activate; pip install -r /score-service/score-api-server/cfy-requirements.txt
+RUN . /venv/bin/activate; pip install -r /walle-service/walle-api-server/cfy-requirements.txt
 
-RUN cd /;tar -czf score-service.tar.gz score-service
+RUN cd /;tar -czf walle-service.tar.gz walle-service
 
-RUN cd /; tar -czf score-nginx-configuration.tar.gz score-service/etc score-service/www
+RUN cd /; tar -czf score-nginx-configuration.tar.gz walle-service/etc walle-service/www
 
 RUN ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa
 

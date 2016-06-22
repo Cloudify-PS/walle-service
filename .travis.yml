@@ -21,18 +21,18 @@ install:
     - chmod +x ~/.ssh/authorized_keys
     - echo -e "StrictHostKeyChecking no\n" >> ~/.ssh/conf
     - echo -e "private_key: `cat ~/.ssh/id_rsa`" >> blueprints/inputs/inputs.score.travis-ci.yaml
-    - tar -czf score-service.tar.gz score-api-server/ | true
+    - tar -czf walle-service.tar.gz walle-api-server/ | true
     - tar -czf score-nginx-configuration.tar.gz etc/ www/ | true
     - cd ../
     - git clone --depth=50 --branch=master git@github.com:vcloudair/vca.io.git vca.io
     - cd vca.io
     - tar -czf score-ui.tar.gz . | true
-    - cd ../score-service
+    - cd ../walle-service
     - pip install tox
 
 script:
 
-    - tox -c score-api-server/tox.ini -e $TOX_ENV
+    - tox -c walle-api-server/tox.ini -e $TOX_ENV
 
 after_script:
 

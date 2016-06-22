@@ -43,7 +43,7 @@ awk 'BEGIN { pattern="Org-ID:"}{if (match(\$21,pattern)) {str=substr(\$21,RSTART
 
 if [ \`wc -l < exceeded_orgs.txt\` > 0 ]; then
         while IFS='' read -r line || [[ -n "\$line" ]]; do
-                INFO=\$(sudo -u ubuntu -i -- bash -c "source ~/score.rc;score-manage org-ids list" | grep \$line | awk -F '|' '{print \$4}')
+                INFO=\$(sudo -u ubuntu -i -- bash -c "source ~/score.rc;walle-manage org-ids list" | grep \$line | awk -F '|' '{print \$4}')
                 awk -v info="\$INFO" '{print \$0 " - " info}' exceeded_orgs.txt >> exceeded_orgs_1.txt
         done  < "exceeded_orgs.txt"
         if [ -f exceeded_orgs_1.txt ]; then
@@ -98,7 +98,7 @@ echo "/var/log/score-api.log {
                 /opt/score/bin/daily_exceeded_org-id.sh
         endscript
         postrotate
-                sudo initctl reload score_api_server
+                sudo initctl reload walle_api_server
         endscript
 
 }" | sudo tee /etc/logrotate.d/score-api
@@ -111,16 +111,16 @@ mkdir -p ~/score_logs
 rm -f ~/score.rc
 
 # Creating score.rc file with necessary options
-echo -e "export SCORE_HOST=127.0.0.1
-export SCORE_PORT=8001
-export SCORE_WORKERS=4
-export SCORE_DB=${SCORE_EXISTING_DB:=postgresql://${DB_USER}:${DB_PASS}@${DB_IP}/${DB_NAME}}
-export SCORE_LOGGING_FILE=~/score_logs/score-api.log
-export SCORE_GUNICORN_LOGGING_FILE=~/score_logs/score_gunicorn.log
-export SCORE_LOGGING_LEVEL=DEBUG
+echo -e "export WALLE_HOST=127.0.0.1
+export WALLE_PORT=8001
+export WALLE_WORKERS=4
+export WALLE_DB=${WALLE_EXISTING_DB:=postgresql://${DB_USER}:${DB_PASS}@${DB_IP}/${DB_NAME}}
+export WALLE_LOGGING_FILE=~/score_logs/score-api.log
+export WALLE_GUNICORN_LOGGING_FILE=~/score_logs/score_gunicorn.log
+export WALLE_LOGGING_LEVEL=DEBUG
 " >> ~/score.rc
 
-rm -f ~/score_api_server.conf
+rm -f ~/walle_api_server.conf
 
 sudo touch /var/log/gunicorn_score.log
 sudo touch /var/log/score-api.log
@@ -138,15 +138,15 @@ respawn limit 99 5
 setuid ubuntu
 setgid ubuntu
 script
-    export SCORE_DB=${SCORE_EXISTING_DB:=postgresql://${DB_USER}:${DB_PASS}@${DB_IP}/${DB_NAME}}
-    exec /usr/bin/gunicorn -w 4 -b 0.0.0.0:8001 score_api_server.cli.app:app --log-level=error --error-logfile=/var/log/gunicorn_score.log
+    export WALLE_DB=${WALLE_EXISTING_DB:=postgresql://${DB_USER}:${DB_PASS}@${DB_IP}/${DB_NAME}}
+    exec /usr/bin/gunicorn -w 4 -b 0.0.0.0:8001 walle_api_server.cli.app:app --log-level=error --error-logfile=/var/log/gunicorn_score.log
 end script
-" >> ~/score_api_server.conf
+" >> ~/walle_api_server.conf
 
-sudo cp ~/score_api_server.conf /etc/init/score_api_server.conf
-sudo chown root:root /etc/init/score_api_server.conf
+sudo cp ~/walle_api_server.conf /etc/init/walle_api_server.conf
+sudo chown root:root /etc/init/walle_api_server.conf
 
-source ~/score.rc; score-manage db upgrade head -d score-service/score-api-server/migrations/
-source ~/score.rc; score-manage approved-plugins add --from-file score-service/approved_plugins/approved_plugins_description.yaml
+source ~/score.rc; walle-manage db upgrade head -d walle-service/walle-api-server/migrations/
+source ~/score.rc; walle-manage approved-plugins add --from-file walle-service/approved_plugins/approved_plugins_description.yaml
 
-sudo initctl start score_api_server
+sudo initctl start walle_api_server

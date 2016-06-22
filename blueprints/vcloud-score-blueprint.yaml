@@ -534,8 +534,8 @@ node_templates:
                 start:
                     inputs:
                         SKIP_INSTALLATION: { get_input: use_existing_nginx_node }
-                        SCORE_NGINX_CONFIGURATION_URL: { get_input: score_nginx_configuration_url }
-                        SCORE_INTERNAL_IP_ADDRESS: { get_attribute: [ score_host, ip] }
+                        WALLE_NGINX_CONFIGURATION_URL: { get_input: score_nginx_configuration_url }
+                        WALLE_INTERNAL_IP_ADDRESS: { get_attribute: [ score_host, ip] }
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
@@ -586,7 +586,7 @@ node_templates:
                     inputs:
                         SKIP_CONFIGURATION: { get_input: use_existing_score_db_node }
                         DB_IP: { get_attribute: [postgresql_host, ip] }
-                        SCORE_IP: { get_attribute: [score_host, ip] }
+                        WALLE_IP: { get_attribute: [score_host, ip] }
                         DB_USER: { get_input: postgresql_db_user }
                         DB_NAME: { get_input: postgresql_db_name }
                         DB_PASS: { get_input: postgresql_db_pass }
@@ -602,7 +602,7 @@ node_templates:
             cloudify.interfaces.lifecycle:
                 create:
                     inputs:
-                        SCORE_PACKAGE_URL: { get_input: score_package_url }
+                        WALLE_PACKAGE_URL: { get_input: score_package_url }
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
@@ -610,7 +610,7 @@ node_templates:
                             port: { get_input: score_ssh }
                 start:
                     inputs:
-                        SCORE_EXISTING_DB: { get_input: existing_score_db_url }
+                        WALLE_EXISTING_DB: { get_input: existing_score_db_url }
                         DB_IP: { get_attribute: [postgresql_host, ip] }
                         DB_USER: { get_input: postgresql_db_user }
                         DB_NAME: { get_input: postgresql_db_name }
@@ -634,8 +634,8 @@ node_templates:
             cloudify.interfaces.lifecycle:
                 create:
                     inputs:
-                        SCORE_UI_PACKAGE_URL: { get_input: score_ui_package_url }
-                        SCORE_IP: { get_attribute: [nginx_host, ip] }
+                        WALLE_UI_PACKAGE_URL: { get_input: score_ui_package_url }
+                        WALLE_IP: { get_attribute: [nginx_host, ip] }
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }

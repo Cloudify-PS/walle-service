@@ -26,7 +26,7 @@ if [ x"$SKIP_CONFIGURATION" != x"true" ]; then
     sudo cp /etc/postgresql/9.3/main/pg_hba.conf pg_hba.conf
     sudo chmod 777 pg_hba.conf
     echo "host ${DB_NAME} ${DB_USER} ${DB_IP}/24 md5" >> pg_hba.conf
-    echo "host ${DB_NAME} ${DB_USER} ${SCORE_IP}/24 md5" >> pg_hba.conf
+    echo "host ${DB_NAME} ${DB_USER} ${WALLE_IP}/24 md5" >> pg_hba.conf
 
     sudo mv pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf
     sudo chmod 640 /etc/postgresql/9.3/main/pg_hba.conf

@@ -23,10 +23,10 @@ else
 fi
 
 rm -f score-nginx-configration.tar.gz
-curl -o score-nginx-configration.tar.gz ${SCORE_NGINX_CONFIGURATION_URL} 2>&1
+curl -o score-nginx-configration.tar.gz ${WALLE_NGINX_CONFIGURATION_URL} 2>&1
 if [ "$?" -gt "0" ]; then
     echo "Download configuration."
-    wget -c ${SCORE_NGINX_CONFIGURATION_URL} -O score-nginx-configration.tar.gz 2>&1
+    wget -c ${WALLE_NGINX_CONFIGURATION_URL} -O score-nginx-configration.tar.gz 2>&1
 fi
 
 if [ -d "score-nginx-configuration" ]; then
@@ -43,7 +43,7 @@ if [ -d "~/www" ]; then
 fi
 mv www ~/www
 
-sed "s/127.0.0.1/${SCORE_INTERNAL_IP_ADDRESS}/g" -i etc/nginx/vca_io
+sed "s/127.0.0.1/${WALLE_INTERNAL_IP_ADDRESS}/g" -i etc/nginx/vca_io
 
 sudo chmod 600 etc/keys/*
 sudo cp etc/keys/* /etc/nginx

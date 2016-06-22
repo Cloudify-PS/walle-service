@@ -20,7 +20,7 @@ Defining user variables in property file
 
 NOTE: Property file should contain all of this variables:
     - BASE_URL_SCORE=some_url
-    - SCORE_PORT=some_port
+    - WALLE_PORT=some_port
     - BLUEPRINT_ID=some_bp_id
     - APPLICATION_FILE_NAME=some_name_of_bp_yaml_file
     - DEPLOYMENT_ID=some_deployment_id

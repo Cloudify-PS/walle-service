@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PRJ=~/vca/score-service/score-api-server
+PRJ=~/vca/walle-service/walle-api-server
 
 cd $PRJ
 virtualenv $PRJ/.venv

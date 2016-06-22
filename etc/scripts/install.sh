@@ -11,7 +11,7 @@ python-dev python-pip
 
 pip install virtualenv
 
-PRJ=/home/ubuntu/score-service
+PRJ=/home/ubuntu/walle-service
 
 service nginx stop
 
