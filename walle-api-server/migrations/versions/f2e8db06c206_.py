@@ -36,10 +36,10 @@ def upgrade():
     sa.ForeignKeyConstraint(['serviceurl_id'], ['allowed_service_urls.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.drop_table('allowed_ketstore_urls')
-    op.drop_table('allowed_org_ids')
     op.drop_table('org_id_to_cloudify_with_limits')
+    op.drop_table('allowed_org_ids')
     op.drop_table('keystore_url_to_cloudify_with_limits')
+    op.drop_table('allowed_ketstore_urls')
     ### end Alembic commands ###
 
 
