@@ -15,7 +15,7 @@
 import click
 from walle_manage_cli import (get_logger, load_config, save_config,
                               Configuration)
-from login import login_to_score
+from login import login_to_walle
 from walle_manage_cli import get_walle_client
 from approved_plugins import proceed_approved_plugins
 from service_urls import proceed_service_urls
@@ -39,17 +39,17 @@ def cli(ctx, debug):
 @click.pass_context
 @click.argument('user')
 @click.argument('password')
-@click.argument('score-host')
-def login(ctx, user, password, walle_host ):
+@click.argument('walle-host')
+def login(ctx, user, password, walle_host):
     logger = ctx.obj[LOGGER]
     logger.debug('login')
-    token = login_to_score(logger, user, password, walle_host )
+    token = login_to_walle(logger, user, password, walle_host)
     if not token:
         logger.error("Wrong credentials")
     manage = Configuration
     manage.user = user
     manage.token = token
-    manage.walle_host  = walle_host
+    manage.walle_host = walle_host
     save_config(manage)
 
 

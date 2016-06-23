@@ -15,7 +15,7 @@
 import logging
 import ConfigParser
 import collections
-import walle_manage_cli.wallemanage as score
+import walle_manage_cli.wallemanage as walle
 import pprint
 
 _logger = None
@@ -25,14 +25,14 @@ SECTION = 'Manage'
 
 USER = 'user'
 TOKEN = 'token'
-WALLE_HOST = 'walle_host '
+WALLE_HOST = 'walle_host'
 
 DEFAULT_PROTOCOL = 'http'
 SECURED_PROTOCOL = 'https'
 
 
 Configuration = collections.namedtuple('Configuration',
-                                       'user, token, walle_host ')
+                                       'user, token, walle_host')
 
 
 def get_logger():
@@ -41,7 +41,7 @@ def get_logger():
         return _logger
     log_format = ('%(filename)s[LINE:%(lineno)d]# %(levelname)-8s'
                   ' [%(asctime)s] %(message)s')
-    _logger = logging.getLogger("score_manage_logger")
+    _logger = logging.getLogger("walle_manage_logger")
     _logger.setLevel(logging.DEBUG)
     handler = logging.StreamHandler()
     formatter = logging.Formatter(log_format)
@@ -63,7 +63,7 @@ def _save_manage_config(manage):
     config.add_section(SECTION)
     config.set(SECTION, USER, manage.user)
     config.set(SECTION, TOKEN, manage.token)
-    config.set(SECTION, WALLE_HOST, manage.walle_host )
+    config.set(SECTION, WALLE_HOST, manage.walle_host)
 
     with open(CONFIGFILE, 'wb') as configfile:
         config.write(configfile)
@@ -76,7 +76,7 @@ def _load_manage_config(logger):
         config.read(CONFIGFILE)
         manage.user = config.get(SECTION, USER, None)
         manage.token = config.get(SECTION, TOKEN, None)
-        manage.walle_host  = config.get(SECTION, WALLE_HOST, None)
+        manage.walle_host = config.get(SECTION, WALLE_HOST, None)
     except ConfigParser.NoSectionError as e:
         logger.info(e)
         raise RuntimeError("Can't load config. Please use 'login' command")
@@ -84,8 +84,8 @@ def _load_manage_config(logger):
 
 
 def get_walle_client(config, logger):
-    return score.ScoreManage(
-        config.walle_host , token=config.token,
+    return walle.WalleManage(
+        config.walle_host, token=config.token,
         verify=True, logger=logger)
 
 

@@ -22,7 +22,7 @@ setup(
     author_email='cosmo-admin@gigaspaces.com',
     packages=['walle_manage_cli'],
     license='LICENSE',
-    description='CLI for Score service management',
+    description='CLI for Walle service management',
     entry_points={
         'console_scripts': [
             'walle-manage-cli = walle_manage_cli.cli:main']

@@ -21,7 +21,7 @@ ServiceUrlLimitsCommands = Manager(usage="Performs action related to "
                                          "KeyStore(service) Url limits")
 ApprovedPluginsCommands = Manager(usage="Performs actions related to approved "
                                         "deployment and workflow plugins.")
-AdminsCommands = Manager(usage="Performs actions related to score "
+AdminsCommands = Manager(usage="Performs actions related to walle "
                                "administrators")
 
 
@@ -78,11 +78,11 @@ def delete(**kwargs):
 
 # Service Urls
 @ServiceUrlCommands.option("--service-url", dest="service_url",
-                           help="Adds service-urls to Score DB")
+                           help="Adds service-urls to Walle DB")
 @ServiceUrlCommands.option("--tenant", dest="tenant",
-                           help="Adds tenant to Score DB")
+                           help="Adds tenant to Walle DB")
 @ServiceUrlCommands.option("--info", dest="info",
-                           help="Adds service-urls to Score DB")
+                           help="Adds service-urls to Walle DB")
 @ServiceUrlCommands.option("--db-uri", dest="db_uri", default=None)
 def add(service_url, tenant, db_uri=None, info=None):
     """Adds service-url."""
@@ -97,9 +97,9 @@ def add(service_url, tenant, db_uri=None, info=None):
 
 
 @ServiceUrlCommands.option("--service-url", dest="service_url",
-                           help="Deletes service-url from Score DB")
+                           help="Deletes service-url from Walle DB")
 @ServiceUrlCommands.option("--tenant", dest="tenant",
-                           help="Deletes tenant to Score DB")
+                           help="Deletes tenant to Walle DB")
 @ServiceUrlCommands.option("--db-uri", dest="db_uri", default=None)
 def delete(service_url, tenant, db_uri=None):
     """Deletes service-url."""
@@ -133,7 +133,7 @@ def list(db_uri=None):
 # ServiceUrl Limits
 @ServiceUrlLimitsCommands.option("--service-url", dest="service_url")
 @ServiceUrlLimitsCommands.option("--tenant", dest="tenant",
-                                 help="Adds tenant to Score DB")
+                                 help="Adds tenant to Walle DB")
 @ServiceUrlLimitsCommands.option("--cloudify-host", dest="cloudify_host")
 @ServiceUrlLimitsCommands.option("--cloudify-port", dest="cloudify_port")
 @ServiceUrlLimitsCommands.option("--deployment-limits",
@@ -239,19 +239,19 @@ def delete(**kwargs):
 
 # Administrators
 @AdminsCommands.option("--user", dest="user",
-                       help="Adds score admins to Score DB")
+                       help="Adds walle admins to Walle DB")
 @AdminsCommands.option("--password", dest="password",
-                       help="Adds score admins to Score DB")
+                       help="Adds walle admins to Walle DB")
 @AdminsCommands.option("--db-uri", dest="db_uri", default=None)
 def add(user, password, db_uri=None):
-    """Adds score administrator."""
+    """Adds walle administrator."""
     if db_uri:
         flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 
     if not user or not password:
         print("ERROR: user and password are required")
     else:
-        admin = models.ScoreAdministrators(user, password)
+        admin = models.WalleAdministrators(user, password)
         print_utils.print_dict(admin.to_dict())
 
 
@@ -261,7 +261,7 @@ def list(db_uri=None):
 
     if db_uri:
         flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
-    admins = models.ScoreAdministrators.list()
+    admins = models.WalleAdministrators.list()
     print_utils.print_list(
         admins, ["id", "name", "password", "token", "expire"]
     )
@@ -277,7 +277,7 @@ def delete(**kwargs):
     if not user:
         print("ERROR: user is required")
         return
-    models.ScoreAdministrators.find_by(name=user).delete()
+    models.WalleAdministrators.find_by(name=user).delete()
 
 
 manager.add_command('approved-plugins', ApprovedPluginsCommands)

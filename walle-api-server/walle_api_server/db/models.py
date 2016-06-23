@@ -5,8 +5,8 @@ import yaml
 from walle_api_server.db import base
 
 
-class ScoreAdministrators(base.BaseDatabaseModel, base.db.Model):
-    __tablename__ = 'score_admins'
+class WalleAdministrators(base.BaseDatabaseModel, base.db.Model):
+    __tablename__ = 'walle_admins'
 
     id = base.db.Column(base.db.String(), primary_key=True)
     name = base.db.Column(base.db.String(), unique=True)
@@ -19,7 +19,7 @@ class ScoreAdministrators(base.BaseDatabaseModel, base.db.Model):
         self.password = password
         self.token = token
         self.expire = expire
-        super(ScoreAdministrators, self).__init__()
+        super(WalleAdministrators, self).__init__()
         self.save()
 
     def to_dict(self):
@@ -79,7 +79,7 @@ class ServiceUrlToCloudifyAssociationWithLimits(base.BaseDatabaseModel,
     created_at = base.db.Column(base.db.String())
     updated_at = base.db.Column(base.db.String())
     serviceurl_id = base.db.Column(
-        base.db.Integer,
+        base.db.String(),
         base.db.ForeignKey('allowed_service_urls.id')
     )
 

@@ -107,7 +107,7 @@ class Executions(restful.Resource):
     def post(self, json):
         logger.debug("Entering Execution.post method.")
         try:
-            def _score_tosca_prefix():
+            def _walle_tosca_prefix():
                 deployment_obj = g.cc.deployments.get(deployment_id)
                 # check plugin version
                 blueprint_id = deployment_obj['blueprint_id']
@@ -143,7 +143,7 @@ class Executions(restful.Resource):
             logger.info("Staring workflow %s for deployment %s.",
                         workflow_id, deployment_id)
             result = g.cc.executions.start(
-                deployment_id, _score_tosca_prefix() + workflow_id,
+                deployment_id, _walle_tosca_prefix() + workflow_id,
                 parameters, allow_custom_parameters, force
             )
             logger.debug("Done. Exiting Executions.post method.")

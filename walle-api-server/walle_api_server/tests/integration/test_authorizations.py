@@ -3,13 +3,13 @@
 from walle_api_server.tests.integration import base
 
 
-class TestScoreAuthorizationHooks(base.IntegrationBaseTestCase):
+class TestWalleAuthorizationHooks(base.IntegrationBaseTestCase):
     def setUp(self):
-        super(TestScoreAuthorizationHooks, self).setUp()
+        super(TestWalleAuthorizationHooks, self).setUp()
         self.safe = base.vcloud_air_client.VCS.login
 
     def tearDown(self):
-        super(TestScoreAuthorizationHooks, self).tearDown()
+        super(TestWalleAuthorizationHooks, self).tearDown()
         base.vcloud_air_client.VCS.login = self.safe
 
     def test_unauthorized(self):
@@ -29,6 +29,6 @@ class TestScoreAuthorizationHooks(base.IntegrationBaseTestCase):
 
     def test_authorize_with_existing_limits(self):
         response = self.execute_get_request_with_route("/")
-        # code 404 means that Score doesn't
+        # code 404 means that Walle doesn't
         # have such route and pinned resource
         self.assertEqual(404, response.status_code)

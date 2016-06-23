@@ -11,11 +11,11 @@ from flask_restful_swagger import swagger
 logger = util.setup_logging(__name__)
 
 
-class LoginScore(restful.Resource):
+class LoginWalle(restful.Resource):
     @swagger.operation(
-        responseClass=responses.LoginScore,
+        responseClass=responses.LoginWalle,
         nickname="login_walle",
-        notes="Returns information for authorization in Score.",
+        notes="Returns information for authorization in Walle.",
         parameters=[{'name': 'user',
                      'description': 'User login.',
                      'required': True,
@@ -42,19 +42,19 @@ class LoginScore(restful.Resource):
         logger.debug("Entering Login.get method.")
         user = json.get('user')
         password = json.get('password')
-        score_logined = False
-        from walle_api_server.db.models import ScoreAdministrators
-        admin = ScoreAdministrators.find_by(name=user)
+        walle_logined = False
+        from walle_api_server.db.models import WalleAdministrators
+        admin = WalleAdministrators.find_by(name=user)
         if admin and admin.password == password:
             expire_time = _get_expire_time()
             g.token = _generate_token(password, expire_time)
             admin.update(token=g.token, expire=expire_time)
-            score_logined = True
+            walle_logined = True
         else:
             logger.error("Login failed")
-        if score_logined:
+        if walle_logined:
             reply = {
-                'x-score-authorization': g.token,
+                'x-walle-authorization': g.token,
             }
             return reply
         return make_response("Unauthorized. Recheck credentials.", 401)

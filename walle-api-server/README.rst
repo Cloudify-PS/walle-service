@@ -1,5 +1,5 @@
 ====================
-vCloud Score service
+vCloud Walle service
 ====================
 
 ==========
@@ -29,7 +29,7 @@ Before run call db update/creation by::
     $  walle-manage db upgrade
 
 
-Also WALLE_DB can be postgresql://score:secret-password@localhost/score
+Also WALLE_DB can be postgresql://walle:secret-password@localhost/walle
 Once you will accomplish deployment guide your environment will have next CLI tool::
 
     walle-server
@@ -42,7 +42,7 @@ Usage examples::
       export WALLE_PORT="5000"; \
       export WALLE_WORKERS="4";\
       export WALLE_LOGGING_LEVEL=INFO \
-      export WALLE_LOGGING_FILE="/var/log/score.api" \
+      export WALLE_LOGGING_FILE="/var/log/walle.api" \
       export WALLE_DB="sqlite:////tmp/walle-service.db"; \
       walle-server
 
@@ -70,7 +70,7 @@ Usage examples::
       export WALLE_WORKERS="4"; \
       export WALLE_DB="sqlite:////tmp/walle-service.db"; \
       export WALLE_LOGGING_LEVEL=INFO \
-      export WALLE_LOGGING_FILE="/var/log/score.api"
+      export WALLE_LOGGING_FILE="/var/log/walle.api"
 
     $ gunicorn -w ${WALLE_WORKERS} -b ${WALLE_HOST}:${WALLE_PORT} walle_api_server.cli.app:main
 
@@ -87,7 +87,7 @@ Usage examples::
 Configuration
 =============
 
-Once you would like to change default Score API server host/port and Cloudify manager
+Once you would like to change default Walle API server host/port and Cloudify manager
 host/port to connect to you will need to create a configuration file for walle-server.
 Configuration environment variables might have next look::
 .. code-block:: bash
@@ -105,7 +105,7 @@ Configuration environment variables might have next look::
 Administration
 ==============
 
-New CLI tool 'walle-manage' does allow to add new Org-ID during Score service runtime.
+New CLI tool 'walle-manage' does allow to add new Org-ID during Walle service runtime.
 Here's an example of you can use this tool::
 .. code-block:: bash
 
@@ -129,7 +129,7 @@ Here's an example of you can use this tool::
 
     $ walle-manager org-ids add \
             --org-id 4174a0c7-cd86-4dc8-a784-2cb5b852e823 \
-            --db-uri sqlite:////tmp/score.db
+            --db-uri sqlite:////tmp/walle.db
             --info "test Org-ID"
 
         +----------+--------------------------------------+
@@ -142,12 +142,12 @@ Here's an example of you can use this tool::
 
 
 
-    $ walle-manage org-ids delete --org-id 4174a0c7-cd86-4dc8-a784-2cb5b852e823 --db-uri sqlite:////tmp/score.db
+    $ walle-manage org-ids delete --org-id 4174a0c7-cd86-4dc8-a784-2cb5b852e823 --db-uri sqlite:////tmp/walle.db
 
         OK
 
 
-    $ walle-manage org-ids list --db-uri sqlite:////tmp/score.db
+    $ walle-manage org-ids list --db-uri sqlite:////tmp/walle.db
 
         +--------------------------------------+--------------------------------------+-------------+
         | ID                                   | Org ID                               | Info        |
@@ -178,7 +178,7 @@ Here's an example of you can use this tool::
         --cloudify-host 127.0.0.1 \
         --cloudify-port 80 \
         --deployment-limits 100 \
-        --db-uri sqlite:////tmp/score.db
+        --db-uri sqlite:////tmp/walle.db
 
         +-----------------------+--------------------------------------+
         | Property              | Value                                |
@@ -194,7 +194,7 @@ Here's an example of you can use this tool::
         +-----------------------+--------------------------------------+
 
 
-    $ walle-manage org-id-limits list --db-uri sqlite:////tmp/score.db
+    $ walle-manage org-id-limits list --db-uri sqlite:////tmp/walle.db
 
         +--------------------------------------+--------------------------------------+---------------+---------------+-------------------+-----------------------+----------------------------+----------------------------+
         | ID                                   | Org ID                               | Cloudify Host | Cloudify Port | Deployment Limits | Number Of Deployments | Created At                 | Updated At                 |
@@ -203,7 +203,7 @@ Here's an example of you can use this tool::
         +--------------------------------------+--------------------------------------+---------------+---------------+-------------------+-----------------------+----------------------------+----------------------------+
 
 
-    $ walle-manage org-id-limits update --id 38d71fe2-eb31-44f3-9dcd-d71feacf50cb --deployment-limits -1 --db-uri sqlite:////tmp/score.db
+    $ walle-manage org-id-limits update --id 38d71fe2-eb31-44f3-9dcd-d71feacf50cb --deployment-limits -1 --db-uri sqlite:////tmp/walle.db
 
 
         +-----------------------+--------------------------------------+
@@ -219,7 +219,7 @@ Here's an example of you can use this tool::
         | updated_at            | 2015-07-03 12:10:32.524507           |
         +-----------------------+--------------------------------------+
 
-    $ walle-manage approved-plugins add --name fabric --source https://github.com/cloudify-cosmo/cloudify-fabric-plugin/archive/1.2.zip --type deployment_plugins --db-uri sqlite:////tmp/score.db
+    $ walle-manage approved-plugins add --name fabric --source https://github.com/cloudify-cosmo/cloudify-fabric-plugin/archive/1.2.zip --type deployment_plugins --db-uri sqlite:////tmp/walle.db
 
 
         +-------------+--------------------------------------------------------------------------+
@@ -232,7 +232,7 @@ Here's an example of you can use this tool::
         +-------------+--------------------------------------------------------------------------+
 
 
-    $ walle-manage approved-plugins list --db-uri sqlite:////tmp/score.db
+    $ walle-manage approved-plugins list --db-uri sqlite:////tmp/walle.db
 
 
         +--------+--------------------------------------------------------------------------+--------------------+
@@ -242,7 +242,7 @@ Here's an example of you can use this tool::
         +--------+--------------------------------------------------------------------------+--------------------+
 
 
-    $ walle-manage approved-plugins delete --name --db-uri sqlite:////tmp/score.db
+    $ walle-manage approved-plugins delete --name --db-uri sqlite:////tmp/walle.db
 
 
 =======
@@ -276,7 +276,7 @@ To run post-deployment verification please do::
 .. code-block:: bash
 
 
-    $ export WALLE_URL=http://{score_ip}:{score_port}
+    $ export WALLE_URL=http://{walle_ip}:{walle_port}
     $ tox -e post-deployment -c walle-api-server/tox.ini
 
 

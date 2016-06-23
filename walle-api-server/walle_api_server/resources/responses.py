@@ -162,11 +162,11 @@ class LoginOpenStack(object):
 
 
 @swagger.model
-class LoginScore(object):
+class LoginWalle(object):
 
     resource_fields = {
-        'x_score_authorization': fields.String
+        'x_walle_authorization': fields.String
     }
 
     def __init__(self, **kwargs):
-        self.x_score_authorization = kwargs['x-score-authorization']
+        self.x_walle_authorization = kwargs['x-walle-authorization']

@@ -17,7 +17,7 @@ import requests
 import json
 
 
-class ScoreException(Exception):
+class WalleException(Exception):
 
     def __init__(self, text):
         self.text = text
@@ -31,10 +31,10 @@ def _check_exception(logger, response):
         logger.error('returned %s:%s' % (
             response.status_code, response.content
         ))
-        raise ScoreException(response.content)
+        raise WalleException(response.content)
 
 
-class ScoreManage(object):
+class WalleManage(object):
 
     def __init__(self, url, auth_url=None, token=None,
                  region=None, verify=True, logger=None):
@@ -46,7 +46,7 @@ class ScoreManage(object):
 
     def get_headers(self):
         headers = {}
-        headers["x-score-authorization"] = self.token
+        headers["x-walle-authorization"] = self.token
         return headers
 
     def get_status(self):

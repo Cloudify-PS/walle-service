@@ -13,10 +13,10 @@ class BasePostDeploymentTestCase(testtools.TestCase, common.vCloudLogin):
     def setUp(self):
         self.setup_headers()
 
-        self.printer("Using Score at {0}".format(self.score_url))
+        self.printer("Using Walle at {0}".format(self.walle_url))
 
         self.walle_client = score.Score(
-            self.score_url,
+            self.walle_url,
             token=self.headers['x-vcloud-authorization'],
             org_url=self.headers['x-vcloud-org-url'],
             version=self.headers['x-vcloud-version']

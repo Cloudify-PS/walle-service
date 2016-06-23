@@ -30,13 +30,13 @@ from walle_api_server.tests.fakes import cloudify_manager
 RUN_INTEGRATION_TESTS = 'RunIntegrationTests'
 
 
-class BaseScoreAPIClient(testtools.TestCase):
+class BaseWalleAPIClient(testtools.TestCase):
 
     def setUp(self):
-        super(BaseScoreAPIClient, self).setUp()
+        super(BaseWalleAPIClient, self).setUp()
 
     def tearDown(self):
-        super(BaseScoreAPIClient, self).tearDown()
+        super(BaseWalleAPIClient, self).tearDown()
 
     def execute_get_request_with_route(self, route):
         pass
@@ -138,10 +138,10 @@ class BaseScoreAPIClient(testtools.TestCase):
         pass
 
 
-class RealScoreAPIClient(BaseScoreAPIClient, common.vCloudLogin):
+class RealWalleAPIClient(BaseWalleAPIClient, common.vCloudLogin):
 
     def setUp(self):
-        super(BaseScoreAPIClient, self).setUp()
+        super(BaseWalleAPIClient, self).setUp()
 
         config_file = os.getenv('WALLE_INT_TESTS_CONF')
         if not config_file or not os.path.exists(config_file):
@@ -258,7 +258,7 @@ class RealScoreAPIClient(BaseScoreAPIClient, common.vCloudLogin):
             content_type=content_type)
 
 
-class FakeScoreAPIClient(BaseScoreAPIClient):
+class FakeWalleAPIClient(BaseWalleAPIClient):
 
     reason_for_skipping = "This test-methods not supported.\n"
 
@@ -279,7 +279,7 @@ class FakeScoreAPIClient(BaseScoreAPIClient):
             "x-vcloud-org-url": "URL",
             "x-vcloud-version": "some_version"
         }
-        super(FakeScoreAPIClient, self).setUp()
+        super(FakeWalleAPIClient, self).setUp()
 
     def do_common_setup(self):
 
@@ -334,7 +334,7 @@ class FakeScoreAPIClient(BaseScoreAPIClient):
         app.VCS = self.safe_vcs
         app.CloudifyClient = self.safe_cfy
         vcloud_air_client.VCS.login = self.safe_login
-        super(FakeScoreAPIClient, self).tearDown()
+        super(FakeWalleAPIClient, self).tearDown()
 
 
 def _lookup_mode_value(message):
@@ -371,9 +371,9 @@ def printing_message_which_base_class(base_class):
 
 def get_base_class():
     test_mode = _checking_mode()
-    base_class = (FakeScoreAPIClient
+    base_class = (FakeWalleAPIClient
                   if test_mode is not True
-                  else RealScoreAPIClient)
+                  else RealWalleAPIClient)
     printing_message_which_base_class(base_class)
     return base_class
 

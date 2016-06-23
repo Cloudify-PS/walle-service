@@ -24,14 +24,14 @@ class Status(restful.Resource):
     def get(self):
         logger.debug("Entering Status.get method.")
         try:
-            logger.info("Checking Score version.")
-            score_version = walle_api_server.get_version()
+            logger.info("Checking Walle version.")
+            walle_version = walle_api_server.get_version()
             logger.info("Checking Cloudify manager version.")
             manager_version = g.cc.manager.get_version()
             logger.info("Checking Cloudify manager status.")
             manager_status = g.cc.manager.get_status()
             logger.debug("Done. Exiting Status.get method.")
-            return {"score_version": score_version,
+            return {"walle_version": walle_version,
                     "manager_version": manager_version["version"],
                     "manager_status": manager_status["status"]}
         except (Exception, exceptions.CloudifyClientError) as e:

@@ -16,13 +16,13 @@ import requests
 import json
 
 
-def login_to_score(logger, user, password, walle_host ):
+def login_to_walle(logger, user, password, walle_host):
     payload = {
         "user": user,
         "password": password,
     }
-    r = requests.post(walle_host  + '/login_walle',
+    r = requests.post(walle_host + '/login_walle',
                       data=json.dumps(payload))
     if r.status_code == 200:
-        return json.loads(r.content)['x-score-authorization']
+        return json.loads(r.content)['x-walle-authorization']
     return None

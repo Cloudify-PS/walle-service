@@ -32,7 +32,7 @@ def upgrade():
     sa.Column('cloudify_port', sa.String(), nullable=True),
     sa.Column('created_at', sa.String(), nullable=True),
     sa.Column('updated_at', sa.String(), nullable=True),
-    sa.Column('serviceurl_id', sa.Integer(), nullable=True),
+    sa.Column('serviceurl_id', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['serviceurl_id'], ['allowed_service_urls.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

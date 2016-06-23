@@ -17,7 +17,7 @@ rest_opts = [
     PortOpt("port", default=int(os.getenv("WALLE_PORT", 5000))),
     cfg.IntOpt("workers", default=int(os.getenv("WALLE_WORKERS", 4))),
     cfg.StrOpt('db_uri', default=os.getenv(
-        "WALLE_DB", 'sqlite:////tmp/score.db'
+        "WALLE_DB", 'sqlite:////tmp/walle.db'
     ))
 ]
 
@@ -26,7 +26,7 @@ logging_opts = [
                default=os.getenv("WALLE_LOGGING_LEVEL", "DEBUG"),
                choices=("DEBUG", "INFO")),
     cfg.StrOpt("file", default=os.getenv("WALLE_LOGGING_FILE",
-                                         "/var/log/score-api.log")),
+                                         "/var/log/walle-api.log")),
     cfg.StrOpt("formatter",
                default='[%(asctime)s] - '
                        'PID: %(process)s - '
@@ -39,7 +39,7 @@ logging_opts = [
 ]
 
 rest_group = cfg.OptGroup("server", "ReST server config")
-logging_group = cfg.OptGroup("logging", "Score logging config.")
+logging_group = cfg.OptGroup("logging", "Walle logging config.")
 
 CONF = cfg.CONF
 

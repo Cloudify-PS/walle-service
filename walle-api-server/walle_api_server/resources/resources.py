@@ -34,7 +34,7 @@ def setup_resources(api):
     api.add_resource(status.Status, '/status')
     api.add_resource(login_vcloud.LoginVcloud, '/login_vcloud')
     api.add_resource(login_openstack.LoginOpenStack, '/login_openstack')
-    api.add_resource(login_walle.LoginScore, '/login_walle')
+    api.add_resource(login_walle.LoginWalle, '/login_walle')
     api.add_resource(manage.ServiceUrls, '/manage/service_urls')
     api.add_resource(manage.ServiceUrlsId,
                      '/manage/service_urls/<string:id>/')

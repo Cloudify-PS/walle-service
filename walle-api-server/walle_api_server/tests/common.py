@@ -17,8 +17,8 @@ class vCloudLogin(object):
         with open(path_to_login_json, 'r') as stream:
             login_cfg = yaml.load(stream)
         self.service_version = login_cfg.get('service_version')
-        self.score_url = login_cfg.get(
-            "score_url",
+        self.walle_url = login_cfg.get(
+            "walle_url",
             os.getenv("WALLE_URL",
                       "http://localhost:8000"))
 

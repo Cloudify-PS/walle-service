@@ -1,1 +1,1 @@
-Command line utility for managements of score server.
+Command line utility for managements of Walle server.
