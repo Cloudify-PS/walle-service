@@ -40,16 +40,18 @@ def cli(ctx, debug):
 @click.argument('user')
 @click.argument('password')
 @click.argument('walle-host')
-def login(ctx, user, password, walle_host):
+@click.argument('verify', default=True)
+def login(ctx, user, password, walle_host, verify):
     logger = ctx.obj[LOGGER]
     logger.debug('login')
-    token = login_to_walle(logger, user, password, walle_host)
+    token = login_to_walle(logger, user, password, walle_host, verify)
     if not token:
         logger.error("Wrong credentials")
     manage = Configuration
     manage.user = user
     manage.token = token
     manage.walle_host = walle_host
+    manage.verify = verify
     save_config(manage)
 
 

@@ -62,6 +62,11 @@ class ServiceUrls(restful.Resource):
         logger.debug("Entering ServiceUrls.post method.")
         logger.info("Update keystore_url.")
         from walle_api_server.db import models
+        service = models.AllowedServiceUrl.find_by(
+            service_url=json['service_url'],
+            tenant=json['tenant'])
+        if service:
+            return "Sorry, Already exist"
         url = models.AllowedServiceUrl(
             json['service_url'], json['tenant'], info=json['info']
         )
@@ -83,9 +88,9 @@ class ServiceUrlsId(restful.Resource):
         logger.debug("Entering ServiceUrlsId.delete method.")
         logger.info("Delete service_url.")
         from walle_api_server.db import models
-        org = models.AllowedServiceUrl.find_by(id=id)
-        if org:
-            org.delete()
+        service = models.AllowedServiceUrl.find_by(id=id)
+        if service:
+            service.delete()
             return "OK"
         else:
             return "ERROR: keystore_url not found"
@@ -159,10 +164,15 @@ class ServiceUrlLimits(restful.Resource):
         logger.info("Create org_id_limits.")
         from walle_api_server.db import models
         service = models.AllowedServiceUrl.find_by(
-            service_url=json['service_url'], tenant=json['tenant']
-        )
+            service_url=json['service_url'],
+            tenant=json['tenant'])
         if not service:
             return "ERROR: No such Service url."
+        limit = models.ServiceUrlToCloudifyAssociationWithLimits.find_by(
+            serviceurl_id=service.id)
+        if limit:
+            return "Sorry, Already exist"
+
         limit = models.ServiceUrlToCloudifyAssociationWithLimits(
             service.id,
             json['cloudify_host'],
