@@ -9,7 +9,6 @@ from cloudify_rest_client import exceptions
 
 from walle_api_server.common import util
 from walle_api_server.resources import responses
-from walle_api_server.resources import requests_schema
 
 logger = util.setup_logging(__name__)
 
@@ -62,32 +61,32 @@ class Executions(restful.Resource):
                      'description': 'Deployment id',
                      'required': True,
                      'allowMultiple': False,
-                     'dataType': requests_schema.ExecutionRequest.__name__,
+                     'dataType': 'string',
                      'paramType': 'body'},
                     {'name': 'workflow_id',
                      'description': 'Workflow id',
                      'required': True,
                      'allowMultiple': False,
-                     'dataType': requests_schema.ExecutionRequest.__name__,
+                     'dataType': 'string',
                      'paramType': 'body'},
                     {'name': 'parameters',
                      'description': 'Parameters for execution',
                      'required': False,
                      'allowMultiple': False,
-                     'dataType': requests_schema.ExecutionRequest.__name__,
+                     'dataType': 'object',
                      'paramType': 'body'},
                     {'name': 'allow_custom_parameters',
                      'description': 'Custom parameters',
                      'required': False,
                      'allowMultiple': False,
-                     'dataType': requests_schema.ExecutionRequest.__name__,
+                     'dataType': 'boolean',
                      'paramType': 'body'},
                     {'name': 'force',
                      'description': 'Execution start force',
                      'required': False,
                      'allowMultiple': False,
                      'defaultValue': False,
-                     'dataType': requests_schema.ExecutionRequest.__name__,
+                     'dataType': 'boolean',
                      'paramType': 'body'}],
         consumes=[
             "application/json"
@@ -205,9 +204,9 @@ class ExecutionsId(restful.Resource):
         parameters=[{'name': 'force',
                      'description': 'if flag set to "true"'
                      ' "force-cancel" will be used',
-                     'required': True,
+                     'required': False,
                      'allowMultiple': False,
-                     'dataType': requests_schema.ModifyExecutionRequest.__name__,  # NOQA
+                     'dataType': 'boolean',
                      'paramType': 'body'}],
         consumes=[
             "application/json"

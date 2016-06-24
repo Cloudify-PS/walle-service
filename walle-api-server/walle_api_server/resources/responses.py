@@ -170,3 +170,66 @@ class LoginWalle(object):
 
     def __init__(self, **kwargs):
         self.x_walle_authorization = kwargs['x-walle-authorization']
+
+
+@swagger.model
+class ServiceUrl(object):
+
+    resource_fields = {
+        "id": fields.String,
+        "service_url": fields.String,
+        "tenant": fields.String,
+        "info": fields.String,
+        "created_at": fields.DateTime
+    }
+
+    def __init__(self, **kwargs):
+        self.id = kwargs['id']
+        self.service_url = kwargs['service_url']
+        self.tenant = kwargs['tenant']
+        self.info = kwargs['info']
+        self.created_at = kwargs['created_at']
+
+
+@swagger.model
+class ServiceUrlLimit(object):
+
+    resource_fields = {
+        "id": fields.String,
+        "service_tenant": fields.String,
+        "service_url": fields.String,
+        "deployment_limits": fields.Integer,
+        "number_of_deployments": fields.Integer,
+        "created_at": fields.DateTime,
+        "updated_at": fields.DateTime,
+        "cloudify_host": fields.String,
+        "cloudify_port": fields.Integer
+    }
+
+    def __init__(self, **kwargs):
+        self.id = kwargs['id']
+        self.service_tenant = kwargs['service_tenant']
+        self.service_url = kwargs['service_url']
+        self.deployment_limits = kwargs['deployment_limits']
+        self.number_of_deployments = kwargs['number_of_deployments']
+        self.created_at = kwargs['created_at']
+        self.updated_at = kwargs['updated_at']
+        self.cloudify_host = kwargs['cloudify_host']
+        self.cloudify_port = kwargs['cloudify_port']
+
+
+@swagger.model
+class ApprovedPlugin(object):
+
+    resource_fields = {
+        "id": fields.String,
+        "name": fields.String,
+        "source": fields.String,
+        "plugin_type": fields.String
+    }
+
+    def __init__(self, **kwargs):
+        self.id = kwargs['id']
+        self.name = kwargs['name']
+        self.source = kwargs['source']
+        self.plugin_type = kwargs['plugin_type']

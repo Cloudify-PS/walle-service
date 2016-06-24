@@ -12,7 +12,7 @@ if [ x"$SKIP_CONFIGURATION" != x"true" ]; then
 
     echo -e "
     ALTER USER ${DB_USER} WITH PASSWORD '${DB_PASS}';
-    CREATE DATABASE ${DB_USER};
+    CREATE DATABASE ${DB_NAME};
     GRANT ALL ON DATABASE ${DB_NAME} TO ${DB_USER};
     " >> /tmp/psql_configure.txt
 

@@ -1,11 +1,20 @@
 
 from flask.ext import restful
+from flask_restful_swagger import swagger
+
 from walle_api_server.common import util
+from walle_api_server.resources import responses
 
 logger = util.setup_logging(__name__)
 
 
 class ServiceUrls(restful.Resource):
+
+    @swagger.operation(
+        nickname="getServiceUrls",
+        notes="Return full list of registered service urls, "
+              "does't have any parameters.",
+    )
     def get(self):
         logger.debug("Entering ServiceUrls.get method.")
         logger.info("Listing all service_url.")
@@ -14,6 +23,32 @@ class ServiceUrls(restful.Resource):
         keystore_url = models.AllowedServiceUrl.list()
         return [u.to_dict() for u in keystore_url]
 
+    @swagger.operation(
+        responseClass=responses.ServiceUrl,
+        nickname="RegisterServiceUrl",
+        notes="Register new service url in system.",
+        parameters=[{'name': 'service_url',
+                     'description': 'Service Url',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'tenant',
+                     'description': 'Tenant name',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'info',
+                     'description': 'Descrition for service url',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'}],
+        consumes=[
+            "application/json"
+        ]
+    )
     @util.validate_json(
         {"type": "object",
          "properties": {
@@ -34,6 +69,16 @@ class ServiceUrls(restful.Resource):
 
 
 class ServiceUrlsId(restful.Resource):
+    @swagger.operation(
+        nickname="DeleteServiceUrl",
+        notes="Delete service url from system.",
+        parameters=[{'name': 'id',
+                     'description': 'Service Url ID',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'path'}]
+    )
     def delete(self, id):
         logger.debug("Entering ServiceUrlsId.delete method.")
         logger.info("Delete service_url.")
@@ -47,6 +92,11 @@ class ServiceUrlsId(restful.Resource):
 
 
 class ServiceUrlLimits(restful.Resource):
+    @swagger.operation(
+        nickname="getServiceUrlLimits",
+        notes="Return full list of registered service urls "
+              "with limits.",
+    )
     def get(self):
         logger.debug("Entering OrgIdLimitss.get method.")
         logger.info("Listing all keystore_url_limit.")
@@ -54,11 +104,50 @@ class ServiceUrlLimits(restful.Resource):
         limits = models.ServiceUrlToCloudifyAssociationWithLimits.list()
         return [l.to_dict() for l in limits]
 
+    @swagger.operation(
+        responseClass=responses.ServiceUrlLimit,
+        nickname="RegisterServiceUrlLimit",
+        notes="Set quota limits for service url.",
+        parameters=[{'name': 'service_url',
+                     'description': 'Service Url',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'tenant',
+                     'description': 'Tenant name',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'cloudify_host',
+                     'description': 'Cloudify host ip/name',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'cloudify_port',
+                     'description': 'Cloudify port',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'integer',
+                     'paramType': 'body'},
+                    {'name': 'deployment_limits',
+                     'description': 'deployment limits',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'integer',
+                     'paramType': 'body'}],
+        consumes=[
+            "application/json"
+        ]
+    )
     @util.validate_json(
         {"type": "object",
          "properties": {
              "service_url": {"type": "string", "minLength": 1},
              "tenant": {"type": "string", "minLength": 1},
+             "cloudify_host": {"type": "string", "minLength": 1},
              "cloudify_port": {"type": "string", "minLength": 1},
              "deployment_limits": {"type": "string", "minLength": 1},
          },
@@ -73,7 +162,7 @@ class ServiceUrlLimits(restful.Resource):
             service_url=json['service_url'], tenant=json['tenant']
         )
         if not service:
-            return "ERROR: No such Org-ID."
+            return "ERROR: No such Service url."
         limit = models.ServiceUrlToCloudifyAssociationWithLimits(
             service.id,
             json['cloudify_host'],
@@ -82,6 +171,44 @@ class ServiceUrlLimits(restful.Resource):
         )
         return limit.to_dict()
 
+    @swagger.operation(
+        responseClass=responses.ServiceUrlLimit,
+        nickname="UpdateServiceUrlLimit",
+        notes="Update quota limits for service url.",
+        parameters=[{'name': 'id',
+                     'description': 'Service Url Limit id',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'cloudify_host',
+                     'description': 'Cloudify host ip/name',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'cloudify_port',
+                     'description': 'Cloudify port',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'integer',
+                     'paramType': 'body'},
+                    {'name': 'deployment_limits',
+                     'description': 'deployment limits',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'integer',
+                     'paramType': 'body'},
+                    {'name': 'number_of_deployments',
+                     'description': 'current number of deployments',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'integer',
+                     'paramType': 'body'}],
+        consumes=[
+            "application/json"
+        ]
+    )
     @util.validate_json(
         {"type": "object",
          "properties": {
@@ -123,6 +250,16 @@ class ServiceUrlLimits(restful.Resource):
 
 
 class ServiceUrlLimitsId(restful.Resource):
+    @swagger.operation(
+        nickname="deleteServiceUrlLimit",
+        notes="Delete quota limits for service url.",
+        parameters=[{'name': 'id',
+                     'description': 'Service Url Limit id',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'path'}]
+    )
     def delete(self, id):
         logger.debug("Entering ServiceUrlLimitsId.delete method.")
         logger.info("Delete keystore_url_limit.")
@@ -138,6 +275,10 @@ class ServiceUrlLimitsId(restful.Resource):
 
 
 class ApprovedPlugins(restful.Resource):
+    @swagger.operation(
+        nickname="getApprovedPluginList",
+        notes="Return full list of approved plugins.",
+    )
     def get(self):
         logger.debug("Entering ApprovedPlugins.get method.")
         logger.info("Listing all keystore_url.")
@@ -146,6 +287,32 @@ class ApprovedPlugins(restful.Resource):
         plugins = models.ApprovedPlugins.list()
         return [u.to_dict() for u in plugins]
 
+    @swagger.operation(
+        responseClass=responses.ApprovedPlugin,
+        nickname="addPluginToApproved",
+        notes="add plugin to approved.",
+        parameters=[{'name': 'name',
+                     'description': 'plugin name',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'source',
+                     'description': 'plugin url',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'type',
+                     'description': 'plugin type',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'}],
+        consumes=[
+            "application/json"
+        ]
+    )
     @util.validate_json(
         {"type": "object",
          "properties": {
@@ -165,6 +332,19 @@ class ApprovedPlugins(restful.Resource):
 
 
 class ApprovedPluginsFromFile(restful.Resource):
+    @swagger.operation(
+        nickname="addPluginsToApproved",
+        notes="add plugins to approved.",
+        parameters=[{'name': 'from_file',
+                     'description': 'File with list of plugins',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'}],
+        consumes=[
+            "application/json"
+        ]
+    )
     @util.validate_json(
         {"type": "object",
          "properties": {
@@ -182,11 +362,21 @@ class ApprovedPluginsFromFile(restful.Resource):
 
 
 class ApprovedPluginsId(restful.Resource):
+    @swagger.operation(
+        nickname="seleteApprovedPlugin",
+        notes="Delete approved plugin record.",
+        parameters=[{'name': 'id',
+                     'description': 'Approved plugin id',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'path'}]
+    )
     def delete(self, name):
         logger.debug("Entering ApprovedPlugins.delete method.")
-        logger.info("Delete keystore_url_limit.")
+        logger.info("Delete plugin.")
         from walle_api_server.db import models
-        plugin = models.ApprovedPlugins.find_by(name=name)
+        plugin = models.ApprovedPlugins.find_by(id=id)
         if plugin:
             plugin.delete()
             return "Deleted"

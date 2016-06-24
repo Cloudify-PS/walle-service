@@ -41,11 +41,11 @@ def _add_from_file(client, route, from_file):
 
 
 def _delete(client, route, **kwargs):
-    name = kwargs.get('name')
-    if not name:
-        client.logger.info('Please specify "name" parameter.')
+    plugin_id = kwargs.get('plugin_id')
+    if not plugin_id:
+        client.logger.info('Please specify "plugin_id" parameter.')
         return
-    print_dict(client.delete(route, name))
+    print_dict(client.delete(route, plugin_id))
 
 
 def _list(client, route, **kwargs):

@@ -62,7 +62,9 @@ def login(ctx, user, password, walle_host):
 @click.option('--source')
 @click.option('--type')
 @click.option('--from-file')
-def approved_plugins(ctx, operation, name, source, type, from_file):
+@click.option('--id')
+def approved_plugins(ctx, operation, name, source, type, from_file,
+                     plugin_id):
     logger = ctx.obj[LOGGER]
     logger.debug('manage')
     config = load_config(logger)
@@ -70,8 +72,8 @@ def approved_plugins(ctx, operation, name, source, type, from_file):
     if not client:
         return
     proceed_approved_plugins(client, operation, name=name,
-                             source=source,
-                             type=type, from_file=from_file)
+                             source=source, type=type,
+                             from_file=from_file, plugin_id=plugin_id)
 
 
 @cli.command()
