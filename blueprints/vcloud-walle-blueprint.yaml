@@ -52,11 +52,11 @@ inputs:
         description: >
             Version of api, for now 5.6
 
-    score_ssh:
+    walle_ssh:
         type: string
         default: 22
         description: >
-            Ssh port for score host
+            Ssh port for walle host
 
     nginx_ssh:
         type: string
@@ -130,12 +130,12 @@ inputs:
             Ip allocation type for case when you doesn't set public ip
             for nodes and want auto allocate ip
 
-    score_ip_address:
+    walle_ip_address:
         type: string
         default: ''
         description: >
             For 'ondemand' service type, the value of
-            score_ip_address can be empty
+            walle_ip_address can be empty
 
     postgresql_ip_address:
         type: string
@@ -189,20 +189,20 @@ inputs:
         description: >
             Prefix for nodes
 
-    score_package_url:
+    walle_package_url:
         type: string
         description: >
-            Score TAR.GZ package
+            Walle TAR.GZ package
 
-    score_nginx_configuration_url:
+    walle_nginx_configuration_url:
         type: string
         description: >
-            Score-related nginx configuration
+            Walle-related nginx configuration
 
-    score_ui_package_url:
+    walle_ui_package_url:
         type: string
         description: >
-            Score UI package
+            Walle UI package
 
     manager_server_ip:
         type: string
@@ -210,23 +210,23 @@ inputs:
 
     postgresql_db_name:
         type: string
-        default: 'score'
+        default: 'walle'
 
     postgresql_db_user:
         type: string
-        default: 'score'
+        default: 'walle'
 
     postgresql_db_pass:
         type: string
 
-    existing_score_db_url:
+    existing_walle_db_url:
         type: string
         default: ''
         description: >
             postgresql URL that points to existing database
             example - postgresql://DB_USER:DB_PASS@DB_IP/DB_NAME
 
-    use_existing_score_db_node:
+    use_existing_walle_db_node:
         type: boolean
         default: false
         description: >
@@ -250,11 +250,11 @@ inputs:
         description: >
             use existing Nginx node NAT
 
-    existing_score_db_node_name:
+    existing_walle_db_node_name:
         type: string
         default: ''
         description: >
-            Score DB node name
+            Walle DB node name
 
     use_existing_postgresql_node_nat:
         type: boolean
@@ -301,7 +301,7 @@ node_templates:
                 org_url: { get_input: vcloud_org_url }
                 edge_gateway: { get_input: edge_gateway }
 
-    score_host:
+    walle_host:
         type: agentless.nodes.ParentTypeServer
         properties:
             server:
@@ -315,7 +315,7 @@ node_templates:
         relationships:
             - target: common_keypair
               type: cloudify.vcloud.server_connected_to_keypair
-            - target: score_host_nat
+            - target: walle_host_nat
               type: cloudify.vcloud.server_connected_to_public_nat
             - target: node_security_group
               type: cloudify.vcloud.server_connected_to_security_group
@@ -348,8 +348,8 @@ node_templates:
     postgresql_host:
         type: agentless.nodes.ParentTypeServer
         properties:
-            use_external_resource: { get_input: use_existing_score_db_node }
-            resource_id:  { get_input: existing_score_db_node_name }
+            use_external_resource: { get_input: use_existing_walle_db_node }
+            resource_id:  { get_input: existing_walle_db_node_name }
             server:
                 catalog: { get_input: catalog }
                 template: { get_input: template }
@@ -418,16 +418,16 @@ node_templates:
                translated_port: 22
             vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
 
-    score_host_nat:
+    walle_host_nat:
         type: cloudify.vcloud.nodes.PublicNAT
         properties:
             nat:
                 edge_gateway: { get_input: edge_gateway }
-                public_ip: { get_input: score_ip_address }
+                public_ip: { get_input: walle_ip_address }
             rules:
              - type: DNAT
                protocol: tcp
-               original_port: { get_input: score_ssh }
+               original_port: { get_input: walle_ssh }
                translated_port: 22
             vcloud_config: { get_property: [vcloud_configuration, vcloud_config] }
 
@@ -457,7 +457,7 @@ node_templates:
                   destination_port: 8001
                   action: allow
                   description: >
-                        nginx to score
+                        nginx to walle
                   protocol: TCP
                 - source: any
                   destination: internal
@@ -468,10 +468,10 @@ node_templates:
                   protocol: TCP
                 - source: any
                   destination: internal
-                  destination_port: { get_input: score_ssh }
+                  destination_port: { get_input: walle_ssh }
                   action: allow
                   description: >
-                        ssh to score
+                        ssh to walle
                   protocol: TCP
                 - source: any
                   destination: internal
@@ -485,21 +485,21 @@ node_templates:
                   destination_port: 5432
                   action: allow
                   description: >
-                        score <-> postgresql connection
+                        walle <-> postgresql connection
                   protocol: TCP
                 - source: external
                   destination: internal
                   destination_port: 80
                   action: allow
                   description: >
-                        http to score
+                        http to walle
                   protocol: TCP
                 - source: external
                   destination: internal
                   destination_port: 443
                   action: allow
                   description: >
-                        https to score
+                        https to walle
                   protocol: TCP
                 - source: internal
                   destination: any
@@ -534,8 +534,8 @@ node_templates:
                 start:
                     inputs:
                         SKIP_INSTALLATION: { get_input: use_existing_nginx_node }
-                        WALLE_NGINX_CONFIGURATION_URL: { get_input: score_nginx_configuration_url }
-                        WALLE_INTERNAL_IP_ADDRESS: { get_attribute: [ score_host, ip] }
+                        WALLE_NGINX_CONFIGURATION_URL: { get_input: walle_nginx_configuration_url }
+                        WALLE_INTERNAL_IP_ADDRESS: { get_attribute: [ walle_host, ip] }
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
@@ -545,7 +545,7 @@ node_templates:
     gunicorn:
         type: agentless.nodes.GunicornServer
         relationships:
-          - target: score_host
+          - target: walle_host
             type: cloudify.relationships.contained_in
         interfaces:
             cloudify.interfaces.lifecycle:
@@ -554,8 +554,8 @@ node_templates:
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
-                            host_string: { get_attribute: [score_host_nat, public_ip] }
-                            port: { get_input: score_ssh }
+                            host_string: { get_attribute: [walle_host_nat, public_ip] }
+                            port: { get_input: walle_ssh }
 
     postgresqld:
         type: agentless.nodes.PostgreSqlDatabase
@@ -568,15 +568,15 @@ node_templates:
             cloudify.interfaces.lifecycle:
                 create:
                     inputs:
-                        SKIP_INSTALLATION: { get_input: use_existing_score_db_node }
+                        SKIP_INSTALLATION: { get_input: use_existing_walle_db_node }
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
                             host_string: { get_attribute: [postgresql_server_nat, public_ip] }
                             port: { get_input: postgresql_ssh }
 
-    postgresql_score:
-        type: agentless.nodes.ScorePostgreSql
+    postgresql_walle:
+        type: agentless.nodes.WallePostgreSql
         relationships:
           - target: postgresqld
             type: cloudify.relationships.contained_in
@@ -584,9 +584,9 @@ node_templates:
             cloudify.interfaces.lifecycle:
                 start:
                     inputs:
-                        SKIP_CONFIGURATION: { get_input: use_existing_score_db_node }
+                        SKIP_CONFIGURATION: { get_input: use_existing_walle_db_node }
                         DB_IP: { get_attribute: [postgresql_host, ip] }
-                        WALLE_IP: { get_attribute: [score_host, ip] }
+                        WALLE_IP: { get_attribute: [walle_host, ip] }
                         DB_USER: { get_input: postgresql_db_user }
                         DB_NAME: { get_input: postgresql_db_name }
                         DB_PASS: { get_input: postgresql_db_pass }
@@ -596,21 +596,21 @@ node_templates:
                             host_string: { get_attribute: [postgresql_server_nat, public_ip] }
                             port: { get_input: postgresql_ssh }
 
-    score:
-        type: agentless.nodes.score
+    walle:
+        type: agentless.nodes.walle
         interfaces:
             cloudify.interfaces.lifecycle:
                 create:
                     inputs:
-                        WALLE_PACKAGE_URL: { get_input: score_package_url }
+                        WALLE_PACKAGE_URL: { get_input: walle_package_url }
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
-                            host_string: { get_attribute: [score_host_nat, public_ip] }
-                            port: { get_input: score_ssh }
+                            host_string: { get_attribute: [walle_host_nat, public_ip] }
+                            port: { get_input: walle_ssh }
                 start:
                     inputs:
-                        WALLE_EXISTING_DB: { get_input: existing_score_db_url }
+                        WALLE_EXISTING_DB: { get_input: existing_walle_db_url }
                         DB_IP: { get_attribute: [postgresql_host, ip] }
                         DB_USER: { get_input: postgresql_db_user }
                         DB_NAME: { get_input: postgresql_db_name }
@@ -619,22 +619,22 @@ node_templates:
                         fabric_env:
                             user: { get_input: servers_user }
                             key_filename: { get_input: private_key_path }
-                            host_string: { get_attribute: [score_host_nat, public_ip] }
-                            port: { get_input: score_ssh }
+                            host_string: { get_attribute: [walle_host_nat, public_ip] }
+                            port: { get_input: walle_ssh }
         relationships:
           - type: cloudify.relationships.contained_in
             target: gunicorn
           - type: cloudify.relationships.connected_to
-            target: postgresql_score
+            target: postgresql_walle
 
 
-    score_ui:
-        type: agentless.nodes.score_ui
+    walle_ui:
+        type: agentless.nodes.walle_ui
         interfaces:
             cloudify.interfaces.lifecycle:
                 create:
                     inputs:
-                        WALLE_UI_PACKAGE_URL: { get_input: score_ui_package_url }
+                        WALLE_UI_PACKAGE_URL: { get_input: walle_ui_package_url }
                         WALLE_IP: { get_attribute: [nginx_host, ip] }
                         fabric_env:
                             user: { get_input: servers_user }
@@ -653,8 +653,8 @@ node_templates:
             target: nginx
 
 outputs:
-    score_ip:
+    walle_ip:
         value: { get_attribute: [nginx_host_nat, public_ip] }
 
-    score_port:
+    walle_port:
         value: 443

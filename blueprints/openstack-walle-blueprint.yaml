@@ -19,33 +19,33 @@ inputs:
     server_security_groups:
         default: ['All_ports_open']
 
-    score_package_url:
+    walle_package_url:
         type: string
         description: >
-            Score TAR.GZ package
+            Walle TAR.GZ package
 
-    score_nginx_configuration_url:
+    walle_nginx_configuration_url:
         type: string
         description: >
-            Score-related nginx configuration
+            Walle-related nginx configuration
 
-    score_ui_package_url:
+    walle_ui_package_url:
         type: string
         description: >
-            Score UI package
+            Walle UI package
 
     postgresql_db_name:
         type: string
-        default: 'score'
+        default: 'walle'
 
     postgresql_db_user:
         type: string
-        default: 'score'
+        default: 'walle'
 
     postgresql_db_pass:
         type: string
 
-    existing_score_db_url:
+    existing_walle_db_url:
         type: string
         default: ''
         description: >
@@ -58,7 +58,7 @@ inputs:
         description: >
             Indicates the purpose of the installation, production or staging
 
-    use_existing_score_db_node:
+    use_existing_walle_db_node:
         type: boolean
         default: false
         description: >
@@ -84,7 +84,7 @@ node_templates:
     nginx_ip:
         type: cloudify.openstack.nodes.FloatingIP
 
-    score_ip:
+    walle_ip:
         type: cloudify.openstack.nodes.FloatingIP
 
     postgresql_ip:
@@ -105,7 +105,7 @@ node_templates:
                   port_range_max: 65535
                   protocol: udp
 
-    score_host:
+    walle_host:
         type: cloudify.openstack.nodes.Server
         properties:
             cloudify_agent:
@@ -116,7 +116,7 @@ node_templates:
                 security_groups: { get_input: server_security_groups }
         relationships:
             -   type: cloudify.openstack.server_connected_to_floating_ip
-                target: score_ip
+                target: walle_ip
             -   type: cloudify.relationships.depends_on
                 target: All_ports_open
 
@@ -161,8 +161,8 @@ node_templates:
                     implementation: scripts/walle/configure_nginx.sh
                     inputs:
                         SKIP_INSTALLATION: { get_input: use_existing_nginx_node }
-                        WALLE_NGINX_CONFIGURATION_URL: { get_input: score_nginx_configuration_url }
-                        WALLE_INTERNAL_IP_ADDRESS: { get_attribute: [ score_host, ip] }
+                        WALLE_NGINX_CONFIGURATION_URL: { get_input: walle_nginx_configuration_url }
+                        WALLE_INTERNAL_IP_ADDRESS: { get_attribute: [ walle_host, ip] }
 
     gunicorn:
         type: cloudify.nodes.SoftwareComponent
@@ -171,7 +171,7 @@ node_templates:
               create:
                  implementation: scripts/walle/install_dependencies.sh
         relationships:
-          - target: score_host
+          - target: walle_host
             type: cloudify.relationships.contained_in
 
     postgresqld:
@@ -186,10 +186,10 @@ node_templates:
                 create:
                     implementation: scripts/install_postgresql.sh
                     inputs:
-                        SKIP_INSTALLATION: { get_input: use_existing_score_db_node }
+                        SKIP_INSTALLATION: { get_input: use_existing_walle_db_node }
 
 
-    postgresql_score:
+    postgresql_walle:
         type: cloudify.nodes.SoftwareComponent
         relationships:
           - target: postgresqld
@@ -199,25 +199,25 @@ node_templates:
                 start:
                     implementation: scripts/install_walle_postgresql.sh
                     inputs:
-                        SKIP_CONFIGURATION: { get_input: use_existing_score_db_node }
+                        SKIP_CONFIGURATION: { get_input: use_existing_walle_db_node }
                         DB_IP: { get_attribute: [postgresql_host, ip] }
-                        WALLE_IP: { get_attribute: [score_host, ip] }
+                        WALLE_IP: { get_attribute: [walle_host, ip] }
                         DB_USER: { get_input: postgresql_db_user }
                         DB_NAME: { get_input: postgresql_db_name }
                         DB_PASS: { get_input: postgresql_db_pass }
 
-    score:
+    walle:
         type: cloudify.nodes.SoftwareComponent
         interfaces:
             cloudify.interfaces.lifecycle:
                 create:
                     implementation: scripts/walle/install_walle.sh
                     inputs:
-                        WALLE_PACKAGE_URL: { get_input: score_package_url }
+                        WALLE_PACKAGE_URL: { get_input: walle_package_url }
                 start:
                     implementation: scripts/walle/configure.sh
                     inputs:
-                        WALLE_EXISTING_DB: { get_input: existing_score_db_url }
+                        WALLE_EXISTING_DB: { get_input: existing_walle_db_url }
                         DB_IP: { get_attribute: [postgresql_host, ip] }
                         DB_USER: { get_input: postgresql_db_user }
                         DB_NAME: { get_input: postgresql_db_name }
@@ -227,17 +227,17 @@ node_templates:
           - type: cloudify.relationships.contained_in
             target: gunicorn
           - type: cloudify.relationships.connected_to
-            target: postgresql_score
+            target: postgresql_walle
 
 
-    score_ui:
+    walle_ui:
         type: cloudify.nodes.SoftwareComponent
         interfaces:
             cloudify.interfaces.lifecycle:
                 create:
                     implementation: scripts/walle/install_walle_ui_and_dependencies.sh
                     inputs:
-                        WALLE_UI_PACKAGE_URL: { get_input: score_ui_package_url }
+                        WALLE_UI_PACKAGE_URL: { get_input: walle_ui_package_url }
                         WALLE_IP: { get_attribute: [nginx_host, ip] }
                 start:
                     implementation: scripts/walle/configure_ui.sh
@@ -249,11 +249,11 @@ outputs:
     nginx_ip:
         value: { get_attribute: [ nginx_ip, floating_ip_address ] }
 
-    score_ip:
-        value: { get_attribute: [ score_ip, floating_ip_address ] }
+    walle_ip:
+        value: { get_attribute: [ walle_ip, floating_ip_address ] }
 
     postgresql_ip:
         value: { get_attribute: [ postgresql_ip, floating_ip_address ] }
 
-    score_port:
+    walle_port:
         value: 443

@@ -47,7 +47,7 @@ node_types:
                             default: scripts/uninstall_postgresql.sh
 
 
-    agentless.nodes.ScorePostgreSql:
+    agentless.nodes.WallePostgreSql:
         derived_from: cloudify.nodes.ApplicationModule
         interfaces:
             cloudify.interfaces.lifecycle:
@@ -100,8 +100,8 @@ node_types:
                         script_path:
                             default: scripts/walle/configure_nginx.sh
 
-    #template for gunicorn application score
-    agentless.nodes.score:
+    #template for gunicorn application Walle
+    agentless.nodes.walle:
         derived_from: cloudify.nodes.ApplicationModule
         interfaces:
             cloudify.interfaces.lifecycle:
@@ -116,8 +116,8 @@ node_types:
                         script_path:
                             default: scripts/walle/configure.sh
 
-    # template node for Score UI
-    agentless.nodes.score_ui:
+    # template node for Walle UI
+    agentless.nodes.walle_ui:
         derived_from: cloudify.nodes.ApplicationModule
         interfaces:
             cloudify.interfaces.lifecycle:

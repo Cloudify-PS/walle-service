@@ -7,13 +7,13 @@ cd ~
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
-echo "Installing Score UI"
+echo "Installing Walle UI"
 
-mkdir -p score-ui-src
-tar -xvf score-ui-src.tar.gz -C score-ui-src
+mkdir -p walle-ui-src
+tar -xvf walle-ui-src.tar.gz -C walle-ui-src
 
 rm -fr www/*
 
-mv score-ui-src ~/www/score
+mv walle-ui-src ~/www/walle
 
 sudo service nginx restart
