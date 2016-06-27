@@ -31,7 +31,7 @@ In order to keep code quality at highest level as developers we MUST think of ne
 Code accepting
 --------------
 
-Score project follows next code accepting rules::
+Walle project follows next code accepting rules::
 
     * TWO +1's are required from other developers, excluding committee
 
@@ -83,7 +83,7 @@ Know the keywords and their syntax::
     Is there an APIImpact or SecurityImpact?
 
 
-The Score project encourages the guidelines (below)
+The Walle project encourages the guidelines (below)
 
 A rating of +1 on a code review is indicated if::
 

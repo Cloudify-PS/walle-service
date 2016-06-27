@@ -2,10 +2,10 @@
 # This Blueprint is for integration tests ONLY
 ###########################################################
 
-tosca_definitions_version: cloudify_dsl_1_0
+tosca_definitions_version: cloudify_dsl_1_2
 
 imports:
-  - http://s3.amazonaws.com/vcloud-score/types.yaml
+  - types/walle-types.yaml
   - file://filesomewhere
 
 node_types:

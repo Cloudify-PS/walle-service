@@ -22,11 +22,11 @@ else
     echo "Skipping installation, using existing Nginx."
 fi
 
-rm -f score-nginx-configration.tar.gz
-curl -o score-nginx-configration.tar.gz ${WALLE_NGINX_CONFIGURATION_URL} 2>&1
+rm -f walle-nginx-configration.tar.gz
+curl -o walle-nginx-configration.tar.gz ${WALLE_NGINX_CONFIGURATION_URL} 2>&1
 if [ "$?" -gt "0" ]; then
     echo "Download configuration."
-    wget -c ${WALLE_NGINX_CONFIGURATION_URL} -O score-nginx-configration.tar.gz 2>&1
+    wget -c ${WALLE_NGINX_CONFIGURATION_URL} -O walle-nginx-configration.tar.gz 2>&1
 fi
 
 if [ -d "walle-nginx-configuration" ]; then
@@ -35,7 +35,7 @@ fi
 
 mkdir -p walle-nginx-configuration
 
-tar -xvf score-nginx-configration.tar.gz -C walle-nginx-configuration 2>&1
+tar -xvf walle-nginx-configration.tar.gz -C walle-nginx-configuration 2>&1
 
 cd walle-nginx-configuration/
 if [ -d "~/www" ]; then

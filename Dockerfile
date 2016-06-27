@@ -48,7 +48,7 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 
 RUN service ssh restart
 
-# Setting up inputs file for local locablueprint execution including Score blueprint
+# Setting up inputs file for local locablueprint execution including Walle blueprint
 
 RUN cd /; touch inputs-cfy-local.yaml
 

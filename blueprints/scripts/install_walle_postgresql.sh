@@ -8,7 +8,7 @@ export LC_ALL=C
 
 if [ x"$SKIP_CONFIGURATION" != x"true" ]; then
 
-    echo "Configure postgresql for score."
+    echo "Configure postgresql for walle."
 
     echo -e "
     ALTER USER ${DB_USER} WITH PASSWORD '${DB_PASS}';
