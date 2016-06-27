@@ -55,7 +55,7 @@ node_types:
                     implementation: fabric.fabric_plugin.tasks.run_script
                     inputs:
                         script_path:
-                            default: scripts/install_score_postgresql.sh
+                            default: scripts/install_walle_postgresql.sh
 
     #template for nodejs application nodecellar
     agentless.nodes.nodecellar:
@@ -109,7 +109,7 @@ node_types:
                     implementation: fabric.fabric_plugin.tasks.run_script
                     inputs:
                         script_path:
-                            default: scripts/walle/install_score.sh
+                            default: scripts/walle/install_walle.sh
                 start:
                     implementation: fabric.fabric_plugin.tasks.run_script
                     inputs:
@@ -125,7 +125,7 @@ node_types:
                     implementation: fabric.fabric_plugin.tasks.run_script
                     inputs:
                         script_path:
-                            default: scripts/walle/install_score_ui_and_dependencies.sh
+                            default: scripts/walle/install_walle_ui_and_dependencies.sh
                 start:
                     implementation: fabric.fabric_plugin.tasks.run_script
                     inputs:

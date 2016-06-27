@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "please use 'score' as pass phrase"
+echo "please use 'walle' as pass phrase"
 openssl genrsa -des3 -out server.key 2048
 # Signing request
 openssl req -new -key server.key -out server.csr -batch
@@ -14,4 +14,4 @@ mkdir -p ../etc/keys
 mv server.crt server.key dhparam.pem ../etc/keys
 
 # ssh keys for login
-ssh-keygen -t rsa -b 4096 -C "score@getcloudify.org" -f key
+ssh-keygen -t rsa -b 4096 -C "walle@getcloudify.org" -f key

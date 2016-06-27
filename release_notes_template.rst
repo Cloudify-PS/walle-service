@@ -1,5 +1,5 @@
 ===============================
-Score {version} release process
+Walle {version} release process
 ===============================
 
 {version} name
@@ -18,13 +18,13 @@ ChangeLog for {version}
 
 # See: git log --oneline --decorate {version}..
 
-Components for Score {version}
+Components for Walle {version}
 ==============================
 
-{Components for Score {version}}
+{Components for Walle {version}}
 
 
-Requirements for Score {version}
+Requirements for Walle {version}
 ================================
 
 Common stack
@@ -38,11 +38,11 @@ Cloudify stack
 {cloudify stack}
 
 
-Testing requirements for Score {version}
+Testing requirements for Walle {version}
 ========================================
 
 
-External dependencies/requirements for Score {version}
+External dependencies/requirements for Walle {version}
 ======================================================
 
 VMware stack

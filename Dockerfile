@@ -26,7 +26,7 @@ RUN . /venv/bin/activate; pip install -r /walle-service/walle-api-server/cfy-req
 
 RUN cd /;tar -czf walle-service.tar.gz walle-service
 
-RUN cd /; tar -czf score-nginx-configuration.tar.gz walle-service/etc walle-service/www
+RUN cd /; tar -czf walle-nginx-configuration.tar.gz walle-service/etc walle-service/www
 
 RUN ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa
 

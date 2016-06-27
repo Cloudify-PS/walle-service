@@ -12,7 +12,7 @@ if [ x"$IS_PRODUCTION" != x"false" ]; then
 echo "Prodaction mode."
 # Report about exceeded org-ids
 
-PATHNAME="/opt/score/bin"
+PATHNAME="/opt/walle/bin"
 FILENAME="daily_exceeded_org-id.sh"
 
 sudo mkdir -p $PATHNAME
@@ -95,7 +95,7 @@ echo "/var/log/walle-api.log {
         su root root
         create 644 ubuntu adm
         prerotate
-                /opt/score/bin/daily_exceeded_org-id.sh
+                /opt/walle/bin/daily_exceeded_org-id.sh
         endscript
         postrotate
                 sudo initctl reload walle_api_server

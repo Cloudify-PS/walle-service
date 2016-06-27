@@ -197,7 +197,7 @@ node_templates:
         interfaces:
             cloudify.interfaces.lifecycle:
                 start:
-                    implementation: scripts/install_score_postgresql.sh
+                    implementation: scripts/install_walle_postgresql.sh
                     inputs:
                         SKIP_CONFIGURATION: { get_input: use_existing_score_db_node }
                         DB_IP: { get_attribute: [postgresql_host, ip] }
@@ -211,7 +211,7 @@ node_templates:
         interfaces:
             cloudify.interfaces.lifecycle:
                 create:
-                    implementation: scripts/walle/install_score.sh
+                    implementation: scripts/walle/install_walle.sh
                     inputs:
                         WALLE_PACKAGE_URL: { get_input: score_package_url }
                 start:
@@ -235,7 +235,7 @@ node_templates:
         interfaces:
             cloudify.interfaces.lifecycle:
                 create:
-                    implementation: scripts/walle/install_score_ui_and_dependencies.sh
+                    implementation: scripts/walle/install_walle_ui_and_dependencies.sh
                     inputs:
                         WALLE_UI_PACKAGE_URL: { get_input: score_ui_package_url }
                         WALLE_IP: { get_attribute: [nginx_host, ip] }

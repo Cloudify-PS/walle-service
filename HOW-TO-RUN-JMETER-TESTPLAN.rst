@@ -19,7 +19,7 @@ Defining user variables in property file
     $ vim myuser.properies
 
 NOTE: Property file should contain all of this variables:
-    - BASE_URL_SCORE=some_url
+    - BASE_URL_WALLE=some_url
     - WALLE_PORT=some_port
     - BLUEPRINT_ID=some_bp_id
     - APPLICATION_FILE_NAME=some_name_of_bp_yaml_file

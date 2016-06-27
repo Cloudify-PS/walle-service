@@ -29,15 +29,15 @@ if [ "$?" -gt "0" ]; then
     wget -c ${WALLE_NGINX_CONFIGURATION_URL} -O score-nginx-configration.tar.gz 2>&1
 fi
 
-if [ -d "score-nginx-configuration" ]; then
-    mv score-nginx-configuration score-nginx-configuration-`date +"%m-%d-%y-%H-%m-%S"`
+if [ -d "walle-nginx-configuration" ]; then
+    mv walle-nginx-configuration walle-nginx-configuration-`date +"%m-%d-%y-%H-%m-%S"`
 fi
 
-mkdir -p score-nginx-configuration
+mkdir -p walle-nginx-configuration
 
-tar -xvf score-nginx-configration.tar.gz -C score-nginx-configuration 2>&1
+tar -xvf score-nginx-configration.tar.gz -C walle-nginx-configuration 2>&1
 
-cd score-nginx-configuration/
+cd walle-nginx-configuration/
 if [ -d "~/www" ]; then
     mv ~/www ~/www-`date +"%m-%d-%y-%H-%m-%S"`
 fi

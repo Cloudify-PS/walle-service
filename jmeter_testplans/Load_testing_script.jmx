@@ -7,9 +7,9 @@
       <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
         <collectionProp name="Arguments.arguments">
-          <elementProp name="BASE_URL_SCORE" elementType="Argument">
-            <stringProp name="Argument.name">BASE_URL_SCORE</stringProp>
-            <stringProp name="Argument.value">${__property(BASE_URL_SCORE,BASE_URL_SCORE)}</stringProp>
+          <elementProp name="BASE_URL_WALLE" elementType="Argument">
+            <stringProp name="Argument.name">BASE_URL_WALLE</stringProp>
+            <stringProp name="Argument.value">${__property(BASE_URL_WALLE,BASE_URL_WALLE)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="WALLE_PORT" elementType="Argument">
@@ -138,7 +138,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+          <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
           <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -202,7 +202,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+          <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
           <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -256,7 +256,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+          <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
           <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -308,7 +308,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+            <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
             <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -383,7 +383,7 @@
                     </elementProp>
                   </collectionProp>
                 </elementProp>
-                <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+                <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
                 <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
                 <stringProp name="HTTPSampler.connect_timeout"></stringProp>
                 <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -437,7 +437,7 @@
                   </elementProp>
                 </collectionProp>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+              <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
               <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
               <stringProp name="HTTPSampler.connect_timeout"></stringProp>
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -486,7 +486,7 @@
                   </elementProp>
                 </collectionProp>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+              <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
               <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
               <stringProp name="HTTPSampler.connect_timeout"></stringProp>
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -533,7 +533,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+          <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
           <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -592,7 +592,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+            <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
             <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -638,7 +638,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+          <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
           <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -696,7 +696,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+          <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
           <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -743,7 +743,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+          <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
           <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -797,7 +797,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+          <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
           <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -842,7 +842,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+          <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
           <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -887,7 +887,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+          <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
           <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -950,7 +950,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+          <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
           <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1009,7 +1009,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+            <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
             <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1078,7 +1078,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+            <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
             <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1127,7 +1127,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+            <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
             <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1181,7 +1181,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+            <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
             <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1239,7 +1239,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+            <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
             <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1298,7 +1298,7 @@
                   </elementProp>
                 </collectionProp>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+              <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
               <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
               <stringProp name="HTTPSampler.connect_timeout"></stringProp>
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1363,7 +1363,7 @@
                   </elementProp>
                 </collectionProp>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+              <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
               <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
               <stringProp name="HTTPSampler.connect_timeout"></stringProp>
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1412,7 +1412,7 @@
                   </elementProp>
                 </collectionProp>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+              <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
               <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
               <stringProp name="HTTPSampler.connect_timeout"></stringProp>
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1466,7 +1466,7 @@
                   </elementProp>
                 </collectionProp>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+              <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
               <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
               <stringProp name="HTTPSampler.connect_timeout"></stringProp>
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1520,7 +1520,7 @@
                   </elementProp>
                 </collectionProp>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+              <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
               <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
               <stringProp name="HTTPSampler.connect_timeout"></stringProp>
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1579,7 +1579,7 @@
                     </elementProp>
                   </collectionProp>
                 </elementProp>
-                <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+                <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
                 <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
                 <stringProp name="HTTPSampler.connect_timeout"></stringProp>
                 <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1639,7 +1639,7 @@
                   </elementProp>
                 </collectionProp>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+              <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
               <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
               <stringProp name="HTTPSampler.connect_timeout"></stringProp>
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -1688,7 +1688,7 @@
                   </elementProp>
                 </collectionProp>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">${BASE_URL_SCORE}</stringProp>
+              <stringProp name="HTTPSampler.domain">${BASE_URL_WALLE}</stringProp>
               <stringProp name="HTTPSampler.port">${WALLE_PORT}</stringProp>
               <stringProp name="HTTPSampler.connect_timeout"></stringProp>
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
