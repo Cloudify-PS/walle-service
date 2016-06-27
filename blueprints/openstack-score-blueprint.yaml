@@ -158,7 +158,7 @@ node_templates:
         interfaces:
             cloudify.interfaces.lifecycle:
                 start:
-                    implementation: scripts/score/configure_nginx.sh
+                    implementation: scripts/walle/configure_nginx.sh
                     inputs:
                         SKIP_INSTALLATION: { get_input: use_existing_nginx_node }
                         WALLE_NGINX_CONFIGURATION_URL: { get_input: score_nginx_configuration_url }
@@ -169,7 +169,7 @@ node_templates:
         interfaces:
            cloudify.interfaces.lifecycle:
               create:
-                 implementation: scripts/score/install_dependencies.sh
+                 implementation: scripts/walle/install_dependencies.sh
         relationships:
           - target: score_host
             type: cloudify.relationships.contained_in
@@ -211,11 +211,11 @@ node_templates:
         interfaces:
             cloudify.interfaces.lifecycle:
                 create:
-                    implementation: scripts/score/install_score.sh
+                    implementation: scripts/walle/install_score.sh
                     inputs:
                         WALLE_PACKAGE_URL: { get_input: score_package_url }
                 start:
-                    implementation: scripts/score/configure.sh
+                    implementation: scripts/walle/configure.sh
                     inputs:
                         WALLE_EXISTING_DB: { get_input: existing_score_db_url }
                         DB_IP: { get_attribute: [postgresql_host, ip] }
@@ -235,12 +235,12 @@ node_templates:
         interfaces:
             cloudify.interfaces.lifecycle:
                 create:
-                    implementation: scripts/score/install_score_ui_and_dependencies.sh
+                    implementation: scripts/walle/install_score_ui_and_dependencies.sh
                     inputs:
                         WALLE_UI_PACKAGE_URL: { get_input: score_ui_package_url }
                         WALLE_IP: { get_attribute: [nginx_host, ip] }
                 start:
-                    implementation: scripts/score/configure_ui.sh
+                    implementation: scripts/walle/configure_ui.sh
         relationships:
           - type: cloudify.relationships.contained_in
             target: nginx

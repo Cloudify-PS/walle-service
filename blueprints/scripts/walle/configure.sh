@@ -35,9 +35,9 @@ Deployment quota exceeded for:"
 
 mkdir -p /tmp/\$TMP_DIR
 cd /tmp/\$TMP_DIR
-cp /var/log/score-api.log /tmp/\$TMP_DIR
+cp /var/log/walle-api.log /tmp/\$TMP_DIR
 
-cat score-api.log |
+cat walle-api.log |
 grep "Deployment quota exceeded for Org-ID:" |
 awk 'BEGIN { pattern="Org-ID:"}{if (match(\$21,pattern)) {str=substr(\$21,RSTART+RLENGTH);print substr(str, 0, length(str))}}' > exceeded_orgs.txt
 
@@ -85,7 +85,7 @@ sudo chmod 600 /root/.msmtp.pass
 echo "LLMtSs.3t" | sudo tee /root/.msmtp.pass
 
 # Logrotate file
-echo "/var/log/score-api.log {
+echo "/var/log/walle-api.log {
         daily
         size 10M
         rotate 10
@@ -115,7 +115,7 @@ echo -e "export WALLE_HOST=127.0.0.1
 export WALLE_PORT=8001
 export WALLE_WORKERS=4
 export WALLE_DB=${WALLE_EXISTING_DB:=postgresql://${DB_USER}:${DB_PASS}@${DB_IP}/${DB_NAME}}
-export WALLE_LOGGING_FILE=~/score_logs/score-api.log
+export WALLE_LOGGING_FILE=~/score_logs/walle-api.log
 export WALLE_GUNICORN_LOGGING_FILE=~/score_logs/score_gunicorn.log
 export WALLE_LOGGING_LEVEL=DEBUG
 " >> ~/score.rc
@@ -123,9 +123,9 @@ export WALLE_LOGGING_LEVEL=DEBUG
 rm -f ~/walle_api_server.conf
 
 sudo touch /var/log/gunicorn_score.log
-sudo touch /var/log/score-api.log
-sudo chown ubuntu:ubuntu /var/log/gunicorn_score.log /var/log/score-api.log
-sudo chmod 660 /var/log/gunicorn_score.log /var/log/score-api.log
+sudo touch /var/log/walle-api.log
+sudo chown ubuntu:ubuntu /var/log/gunicorn_score.log /var/log/walle-api.log
+sudo chmod 660 /var/log/gunicorn_score.log /var/log/walle-api.log
 
 echo -e "description 'score service'
 # used to be: start on startup
