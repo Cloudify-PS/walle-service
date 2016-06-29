@@ -85,7 +85,7 @@ class DeploymentsId(restful.Resource):
             logger.info("Cloudify deployment get: {0}.".format(str(result)))
             filtere_workflows = []
             for _workflow in result['workflows']:
-                if not _workflow['name'].startswith('score'):
+                if not _workflow['name'].startswith('walle'):
                     if _workflow['parameters'].get('session_token'):
                         del _workflow['parameters']['session_token']
                     if _workflow['parameters'].get('org_url'):

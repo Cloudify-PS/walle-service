@@ -45,7 +45,7 @@ class Executions(restful.Resource):
             filtered = [util.remove_org_prefix(e) for e in executions
                         if g.tenant_id in e['deployment_id']]
             for ex in filtered:
-                if ex['workflow_id'].startswith('score'):
+                if ex['workflow_id'].startswith('walle'):
                     ex['workflow_id'] = ex['workflow_id'][5:]
 
             return filtered
@@ -115,10 +115,10 @@ class Executions(restful.Resource):
                 deploy_dict = plan_dict['deployment_plugins_to_install']
                 workflow_dict = plan_dict['workflow_plugins_to_install']
                 for plugin in workflow_dict + deploy_dict:
-                    # openstack and vcloud have support of 'score' prefix
+                    # openstack and vcloud have support of 'walle' prefix
                     # so strictly use such prefix
                     if plugin['name'] in ('vcloud', 'openstack'):
-                        return "score"
+                        return "walle"
                 return ""
 
             deployment_id = util.add_org_prefix(json['deployment_id'])
@@ -188,7 +188,7 @@ class ExecutionsId(restful.Resource):
                 execution_id)
             result = g.cc.executions.get(execution_id)
             if (result['workflow_id'] and
-                    result['workflow_id'].startswith("score")):
+                    result['workflow_id'].startswith("walle")):
                 result['workflow_id'] = result['workflow_id'][5:]
             logger.debug("Done. Exiting ExecutionsId.get method.")
             return util.remove_org_prefix(result)
@@ -226,7 +226,7 @@ class ExecutionsId(restful.Resource):
             self.get(execution_id=execution_id)
             result = g.cc.executions.cancel(execution_id, force)
             if (result['workflow_id'] and
-                    result['workflow_id'].startswith("score")):
+                    result['workflow_id'].startswith("walle")):
                 result['workflow_id'] = result['workflow_id'][5:]
             logger.debug("Done. Exiting Executions.put method.")
             return util.remove_org_prefix(result)

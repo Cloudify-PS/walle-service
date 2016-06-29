@@ -23,7 +23,7 @@ class Events(restful.Resource):
                                      json.get('include_logs', False))
             logger.info("Cloudify events: {0}.".format(str(result)))
             for event in result[0]:
-                if event['context']['workflow_id'].startswith('score'):
+                if event['context']['workflow_id'].startswith('walle'):
                     event['context']['workflow_id'] = (
                         event['context']['workflow_id'][5:])
                 event['context'] = util.remove_org_prefix(
@@ -40,17 +40,17 @@ class Events(restful.Resource):
             return util.make_response_from_exception(e)
 
     def _filter_messages(self, events):
-        scoreinstall = 'scoreinstall'
-        scoreuninstall = 'scoreuninstall'
+        walleinstall = 'walleinstall'
+        walleuninstall = 'walleuninstall'
         for event in events:
             if isinstance(event, dict):
                 text_message = event['message']['text']
-                if scoreinstall in text_message:
+                if walleinstall in text_message:
                     text_message = event['message']['text'].replace(
-                        scoreinstall, 'install')
-                elif scoreuninstall in text_message:
+                        walleinstall, 'install')
+                elif walleuninstall in text_message:
                     text_message = event['message']['text'].replace(
-                        scoreuninstall, 'uninstall')
+                        walleuninstall, 'uninstall')
                 event['message']['text'] = text_message
         return events
 
