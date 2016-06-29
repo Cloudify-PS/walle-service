@@ -15,4 +15,4 @@ tar -xvf walle-service.tar.gz -C walle-service 2>&1
 cd walle-service/
 git init
 cd walle-api-server/
-sudo pip install -r requirements.txt && sudo python setup.py install 2>&1
+sudo python setup.py install 2>&1
