@@ -43,8 +43,8 @@ setup(
         'requests==2.7.0',
         'PyYAML==3.10',
         'pyvcloud>=15rc1',
-        'cloudify-rest-client==3.4a4',
-        'cloudify-dsl-parser==3.4a4',
+        'cloudify-rest-client==3.4rc1',
+        'cloudify-dsl-parser==3.4rc1',
         'oslo.config',
         'psycopg2',
         'Flask-SQLAlchemy',
@@ -53,7 +53,8 @@ setup(
         'PrettyTable>=0.7,<0.8',
         'functools32',
         'jsonschema',
-        'python-keystoneclient'
+        # last version with requests 2.7.0 support
+        'python-keystoneclient>=1.6.0,<2.0.0'
     ],
     classifiers=[
         'Intended Audience :: Information Technology',
