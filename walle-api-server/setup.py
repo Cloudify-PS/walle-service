@@ -35,27 +35,6 @@ setup(
             'walle-manage = walle_api_server.cli.manage:main'
         ]
     },
-    install_requires=[
-        'pbr>=0.11,<2.0',
-        'Flask==0.10.1',
-        'flask-restful==0.2.12',
-        'flask-restful-swagger==0.12',
-        'requests==2.7.0',
-        'PyYAML==3.10',
-        'pyvcloud>=15rc1',
-        'cloudify-rest-client==3.4rc1',
-        'cloudify-dsl-parser==3.4rc1',
-        'oslo.config',
-        'psycopg2',
-        'Flask-SQLAlchemy',
-        'Flask-Migrate',
-        'oslo.utils',
-        'PrettyTable>=0.7,<0.8',
-        'functools32',
-        'jsonschema',
-        # last version with requests 2.7.0 support
-        'python-keystoneclient>=1.6.0,<2.0.0'
-    ],
     classifiers=[
         'Intended Audience :: Information Technology',
         'Intended Audience :: System Administrators',
