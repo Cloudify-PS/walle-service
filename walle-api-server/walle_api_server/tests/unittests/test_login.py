@@ -6,7 +6,7 @@ import mock
 import testtools
 
 import walle_api_server
-from walle_api_server.resources import login
+from walle_api_server.resources import login_vcloud
 
 
 class TestBase(testtools.TestCase):
@@ -25,62 +25,78 @@ class TestBase(testtools.TestCase):
             self.setup_context()
 
     def test_local_functions(self):
-        self.assertTrue(login._is_ondemand('ondemand'))
-        self.assertTrue(login._is_subscription('subscription'))
-        self.assertEqual(login._add_prefix('host'), 'https://host')
-        self.assertEqual(login._add_prefix('https://test'), 'https://test')
-        self.assertEqual(login._set_host('host', 'ondemand'), 'https://host')
-        self.assertEqual(login._set_host('', 'ondemand'),
+        self.assertTrue(login_vcloud._is_ondemand('ondemand'))
+        self.assertTrue(login_vcloud._is_subscription('subscription'))
+        self.assertEqual(login_vcloud._add_prefix('host'),
+                         'https://host')
+        self.assertEqual(login_vcloud._add_prefix('https://test'),
+                         'https://test')
+        self.assertEqual(login_vcloud._set_host('host', 'ondemand'),
+                         'https://host')
+        self.assertEqual(login_vcloud._set_host('', 'ondemand'),
                          'https://vca.vmware.com')
-        self.assertEqual(login._set_host('', 'subscription'),
+        self.assertEqual(login_vcloud._set_host('', 'subscription'),
                          'https://vchs.vmware.com')
-        self.assertEqual(login._set_version('5.0', 'ondemand'), '5.0')
-        self.assertEqual(login._set_version('', 'ondemand'), '5.7')
-        self.assertEqual(login._set_version('', 'subscription'), '5.6')
+        self.assertEqual(login_vcloud._set_version('5.0', 'ondemand'),
+                         '5.0')
+        self.assertEqual(login_vcloud._set_version('', 'ondemand'),
+                         '5.7')
+        self.assertEqual(login_vcloud._set_version('', 'subscription'),
+                         '5.6')
 
-    @mock.patch('walle_api_server.resources.login.VCA')
+    @mock.patch('walle_api_server.resources.login_vcloud.VCA')
     def test_login_user_to_service(self, mock_vca):
         fake_vca = mock.MagicMock()
         mock_vca.return_value = fake_vca
 
         fake_vca.login = mock.MagicMock(return_value=False)
-        self.assertFalse(login._login_user_to_service(1, 2, 3, 4, 5, 6, 7, 8))
+        self.assertFalse(login_vcloud._login_user_to_service(
+            1, 2, 3, 4, 5, 6, 7, 8
+        ))
 
         fake_vca.login = mock.MagicMock(return_value=True)
         fake_vca.login_to_instance = mock.MagicMock(return_value=True)
-        self.assertTrue(login._login_user_to_service(1, 2, 3, 'ondemand',
-                                                     5, 6, 7, 8))
+        self.assertTrue(login_vcloud._login_user_to_service(
+            1, 2, 3, 'ondemand', 5, 6, 7, 8
+        ))
 
         fake_vca.instances = False
-        self.assertFalse(login._login_user_to_service(1, 2, 3, 'ondemand',
-                                                      5, None, 7, 8))
+        self.assertFalse(login_vcloud._login_user_to_service(
+            1, 2, 3, 'ondemand', 5, None, 7, 8
+        ))
 
         fake_vca.login_to_instance = mock.MagicMock(return_value=False)
-        self.assertFalse(login._login_user_to_service(1, 2, 3, 'ondemand',
-                                                      5, 6, 7, 8))
+        self.assertFalse(login_vcloud._login_user_to_service(
+            1, 2, 3, 'ondemand', 5, 6, 7, 8
+        ))
 
         fake_vca.login_to_org = mock.MagicMock(return_value=True)
-        self.assertTrue(login._login_user_to_service(1, 2, 3, 'subscription',
-                                                     5, 6, 7, 8))
+        self.assertTrue(login_vcloud._login_user_to_service(
+            1, 2, 3, 'subscription', 5, 6, 7, 8
+        ))
 
         fake_vca.services = False
         fake_vca.services = mock.MagicMock()
         fake_vca.services.get_Service = mock.MagicMock(return_value=False)
-        self.assertFalse(login._login_user_to_service(1, 2, 3, 'subscription',
-                                                      5, 6, None, None))
+        self.assertFalse(login_vcloud._login_user_to_service(
+            1, 2, 3, 'subscription', 5, 6, None, None
+        ))
 
-        self.assertTrue(login._login_user_to_service(1, 2, 3, 'subscription',
-                                                     5, 6, None, 8))
+        self.assertTrue(login_vcloud._login_user_to_service(
+            1, 2, 3, 'subscription', 5, 6, None, 8
+        ))
+
         fake_vca.login_to_org = mock.MagicMock(return_value=False)
-        self.assertFalse(login._login_user_to_service(1, 2, 3, 'subscription',
-                                                      5, 6, 7, 8))
+        self.assertFalse(login_vcloud._login_user_to_service(
+            1, 2, 3, 'subscription', 5, 6, 7, 8
+        ))
 
         fake_vca.login_to_org.side_effect = Exception(404)
-        self.assertRaises(Exception, login._login_user_to_service,
+        self.assertRaises(Exception, login_vcloud._login_user_to_service,
                           1, 2, 3, 4, 5, 6, 7, 8)
 
     def test_post(self):
-        testlogin = login.Login()
+        testlogin = login_vcloud.LoginVcloud()
         data = {
             'user': 'user',
             'password': 'password',
@@ -94,13 +110,13 @@ class TestBase(testtools.TestCase):
                                            data=json.dumps(data),
                                            content_type='application/'
                                            'json'):
-            with mock.patch.object(walle_api_server.resources.login,
+            with mock.patch.object(walle_api_server.resources.login_vcloud,
                                    '_login_user_to_service') as fake_login:
-                with mock.patch.object(walle_api_server.common.org_limit,
-                                       'check_org_id') as mock.MagicMock:
+                with mock.patch.object(walle_api_server.common.service_limit,
+                                       'check_service_url') as mock.MagicMock:
                     with mock.patch.object(
-                            walle_api_server.common.org_limit,
-                            'get_org_id_limits') as mock.MagicMock:
+                            walle_api_server.common.service_limit,
+                            'get_service_url_limits') as mock.MagicMock:
                         token = 1
                         org_url = 'url'
                         version = 5
@@ -124,7 +140,7 @@ class TestBase(testtools.TestCase):
                                            data=json.dumps(data),
                                            content_type='application/'
                                            'json'):
-            with mock.patch.object(walle_api_server.resources.login,
+            with mock.patch.object(walle_api_server.resources.login_vcloud,
                                    '_login_user_to_service') as fake_login:
                 token = 1
                 org_url = 'url'
