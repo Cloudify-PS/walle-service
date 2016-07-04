@@ -71,6 +71,12 @@ class LoginOpenStack(restful.Resource):
         except Exception as e:
             logger.error("Login failed: %s.", str(e))
         if openstack_logined:
+            logger.info("Authorizing tenant {0}.".format(tenant_name))
+            logger.info("Org-ID registered object {0}".format(
+                service_limit.check_service_url(auth_url, tenant_name)))
+            logger.info("Org-ID registered limit{0}".format(
+                service_limit.get_service_url_limits(auth_url, tenant_name)))
+
             if service_limit.get_service_url_limits(auth_url, tenant_name):
                 reply = {
                     'x-openstack-authorization': g.token,
