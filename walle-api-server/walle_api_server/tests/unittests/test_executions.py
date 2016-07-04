@@ -30,8 +30,10 @@ class TestBase(testtools.TestCase):
         with self.app.app_context():
             self.setup_context()
             flask.g.cc.executions.list = (lambda deployment_id:
-                                          [{'deployment_id': deployment_id},
-                                           {'deployment_id': 'test'}])
+                                          [{'deployment_id': deployment_id,
+                                            'workflow_id': 'wallyinstall'},
+                                           {'deployment_id': 'test',
+                                            'workflow_id': 'wallyinstall'}])
             deployment = '123'
             with self.app.test_request_context('/executions?deployment_id={}'.
                                                format(deployment)):
@@ -67,8 +69,12 @@ class TestBase(testtools.TestCase):
     def test_cancel_executions(self):
         with self.app.app_context():
             self.setup_context()
-            flask.g.cc.executions.get = lambda _: {}
-            flask.g.cc.executions.cancel = lambda _, a: {'force': a}
+            flask.g.cc.executions.get = lambda _: {
+                'workflow_id': 'walleinstall'
+            }
+            flask.g.cc.executions.cancel = lambda _, a: {
+                'force': a, 'workflow_id': 'walleinstall'
+            }
             execution = 1
             force = False
             data = {'force': force}
@@ -79,4 +85,6 @@ class TestBase(testtools.TestCase):
                                                content_type='application/'
                                                'json'):
                 execution = self.executions_id.post()
-                self.assertEqual(execution, data)
+                self.assertEqual(execution, {
+                    'workflow_id': 'install', 'force': False
+                })
