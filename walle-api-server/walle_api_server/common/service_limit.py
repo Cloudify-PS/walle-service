@@ -17,5 +17,6 @@ def get_service_url_limits(service_url, tenant):
         ServiceUrlToCloudifyAssociationWithLimits, AllowedServiceUrl)
     service = AllowedServiceUrl.find_by(service_url=service_url,
                                         tenant=tenant)
-    return ServiceUrlToCloudifyAssociationWithLimits.find_by(
-        serviceurl_id=service.id)
+    if service:
+        return ServiceUrlToCloudifyAssociationWithLimits.find_by(
+            serviceurl_id=service.id)
