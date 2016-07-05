@@ -60,3 +60,6 @@ venv/
 .idea/*
 .venv/*
 local-storage/*
+
+# editor backups
+*~
