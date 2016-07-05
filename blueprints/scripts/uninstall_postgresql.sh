@@ -2,7 +2,7 @@
 set -e
 set -o xtrace
 
-cd ~
+cd $HOME
 
 export DEBIAN_FRONTEND=noninteractive
 

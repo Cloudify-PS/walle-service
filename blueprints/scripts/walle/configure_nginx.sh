@@ -3,7 +3,7 @@
 set -e
 set -o xtrace
 
-cd ~
+cd $HOME
 
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
@@ -38,10 +38,10 @@ mkdir -p walle-nginx-configuration
 tar -xvf walle-nginx-configration.tar.gz -C walle-nginx-configuration 2>&1
 
 cd walle-nginx-configuration/
-if [ -d "~/www" ]; then
-    mv ~/www ~/www-`date +"%m-%d-%y-%H-%m-%S"`
+if [ -d "$HOME/www" ]; then
+    mv $HOME/www $HOME/www-`date +"%m-%d-%y-%H-%m-%S"`
 fi
-mv www ~/www
+mv www $HOME/www
 
 sed "s/127.0.0.1/${WALLE_INTERNAL_IP_ADDRESS}/g" -i etc/nginx/vca_io
 

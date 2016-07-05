@@ -3,7 +3,7 @@
 set -e
 set -o xtrace
 
-cd ~
+cd $HOME
 
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive

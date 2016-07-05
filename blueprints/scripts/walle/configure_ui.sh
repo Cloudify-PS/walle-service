@@ -2,7 +2,7 @@
 set -e
 set -o xtrace
 
-cd ~
+cd $HOME
 
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
@@ -14,6 +14,6 @@ tar -xvf walle-ui-src.tar.gz -C walle-ui-src
 
 rm -fr www/*
 
-mv walle-ui-src ~/www/walle
+mv walle-ui-src $HOME/www/walle
 
 sudo service nginx restart
