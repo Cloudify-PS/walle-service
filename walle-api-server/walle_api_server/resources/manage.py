@@ -8,38 +8,44 @@ from walle_api_server.resources import responses
 logger = util.setup_logging(__name__)
 
 
-class ServiceUrls(restful.Resource):
+class Endpoints(restful.Resource):
 
     @swagger.operation(
-        nickname="getServiceUrls",
+        nickname="getEndpoints",
         notes="Return full list of registered service urls, "
               "does't have any parameters.",
     )
     def get(self):
-        logger.debug("Entering ServiceUrls.get method.")
-        logger.info("Listing all service_url.")
+        logger.info("Listing all endpoint urls.")
 
-        from walle_api_server.db import models
-        keystore_url = models.AllowedServiceUrl.list()
-        return [u.to_dict() for u in keystore_url]
+        from walle_api_server.common import manage_limits
+
+        status, value = manage_limits.endpoint_list()
+        return [u.to_dict() for u in value]
 
     @swagger.operation(
-        responseClass=responses.ServiceUrl,
-        nickname="RegisterServiceUrl",
-        notes="Register new service url in system.",
-        parameters=[{'name': 'service_url',
-                     'description': 'Service Url',
+        responseClass=responses.Endpoint,
+        nickname="registerEndpoint",
+        notes="Register new endpoint in system.",
+        parameters=[{'name': 'endpoint_url',
+                     'description': 'Endpoint Url',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
                      'paramType': 'body'},
-                    {'name': 'tenant',
-                     'description': 'Tenant name',
+                    {'name': 'type',
+                     'description': 'Enpoint type(openstack, vcloud)',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
                      'paramType': 'body'},
-                    {'name': 'info',
+                    {'name': 'version',
+                     'description': 'Service version',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'description',
                      'description': 'Descrition for service url',
                      'required': False,
                      'allowMultiple': False,
@@ -52,74 +58,77 @@ class ServiceUrls(restful.Resource):
     @util.validate_json(
         {"type": "object",
          "properties": {
-             "service_url": {"type": "string", "minLength": 1},
-             "tenant": {"type": "string", "minLength": 1},
-             "info": {"type": ["string", "null"]},
+             "endpoint_url": {"type": "string", "minLength": 1},
+             "type": {"type": "string", "minLength": 1},
+             "version": {"type": ["string", "null"]},
+             "description": {"type": ["string", "null"]},
          },
-         "required": ["service_url", "tenant"]}
+         "required": ["endpoint_url", "type"]}
     )
     def post(self, json):
-        logger.debug("Entering ServiceUrls.post method.")
-        logger.info("Update keystore_url.")
-        from walle_api_server.db import models
-        service = models.AllowedServiceUrl.find_by(
-            service_url=json['service_url'],
-            tenant=json['tenant'])
-        if service:
-            return "Sorry, Already exist"
-        url = models.AllowedServiceUrl(
-            json['service_url'], json['tenant'], info=json['info']
-        )
-        return url.to_dict()
+        logger.info("Update endpoint.")
+
+        from walle_api_server.common import manage_limits
+        status, value = manage_limits.endpoint_add(
+            json['endpoint_url'], json['type'],
+            json['version'], json['description'])
+
+        if status:
+            return value.to_dict()
+        else:
+            return value
 
 
-class ServiceUrlsId(restful.Resource):
+class EndpointsId(restful.Resource):
     @swagger.operation(
-        nickname="DeleteServiceUrl",
-        notes="Delete service url from system.",
+        nickname="DeleteEndpoint",
+        notes="Delete endpoint url from system.",
         parameters=[{'name': 'id',
-                     'description': 'Service Url ID',
+                     'description': 'Endpoint Url ID',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
                      'paramType': 'path'}]
     )
     def delete(self, id):
-        logger.debug("Entering ServiceUrlsId.delete method.")
-        logger.info("Delete service_url.")
-        from walle_api_server.db import models
-        service = models.AllowedServiceUrl.find_by(id=id)
-        if service:
-            service.delete()
-            return "OK"
-        else:
-            return "ERROR: keystore_url not found"
+        logger.info("Delete  endpoint url.")
 
+        from walle_api_server.common import manage_limits
+        _, value = manage_limits.endpoint_delete_id(id)
 
-class ServiceUrlLimits(restful.Resource):
+        return value
+
+class Tenants(restful.Resource):
     @swagger.operation(
-        nickname="getServiceUrlLimits",
-        notes="Return full list of registered service urls "
-              "with limits.",
+        nickname="getTenants",
+        notes="Return full list of registered tenants with relation to "
+              "cloudify manager.",
     )
     def get(self):
-        logger.debug("Entering OrgIdLimitss.get method.")
-        logger.info("Listing all keystore_url_limit.")
-        from walle_api_server.db import models
-        limits = models.ServiceUrlToCloudifyAssociationWithLimits.list()
-        return [l.to_dict() for l in limits]
+        logger.info("Listing all tenants.")
+
+        from walle_api_server.common import manage_limits
+
+        _, tenants = manage_limits.tenant_list()
+        return [l.to_dict() for l in tenants]
 
     @swagger.operation(
-        responseClass=responses.ServiceUrlLimit,
-        nickname="RegisterServiceUrlLimit",
-        notes="Set quota limits for service url.",
-        parameters=[{'name': 'service_url',
-                     'description': 'Service Url',
+        responseClass=responses.Tenant,
+        nickname="RegisterTenant",
+        notes="Add relation tenant to cloudify manager and endpoint",
+        parameters=[{'name': 'endpoint_url',
+                     'description': 'Endpoint Url',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
                      'paramType': 'body'},
-                    {'name': 'tenant',
+                    {'name': 'type',
+                     'description': 'Enpoint type(openstack, vcloud)',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'tenant_name',
                      'description': 'Tenant name',
                      'required': True,
                      'allowMultiple': False,
@@ -137,11 +146,11 @@ class ServiceUrlLimits(restful.Resource):
                      'allowMultiple': False,
                      'dataType': 'integer',
                      'paramType': 'body'},
-                    {'name': 'deployment_limits',
-                     'description': 'deployment limits',
-                     'required': True,
+                    {'name': 'description',
+                     'description': 'Descrition for service url',
+                     'required': False,
                      'allowMultiple': False,
-                     'dataType': 'integer',
+                     'dataType': 'string',
                      'paramType': 'body'}],
         consumes=[
             "application/json"
@@ -150,44 +159,55 @@ class ServiceUrlLimits(restful.Resource):
     @util.validate_json(
         {"type": "object",
          "properties": {
-             "service_url": {"type": "string", "minLength": 1},
-             "tenant": {"type": "string", "minLength": 1},
+             "endpoint_url": {"type": "string", "minLength": 1},
+             "type": {"type": "string", "minLength": 1},
+             "tenant_name": {"type": "string", "minLength": 1},
              "cloudify_host": {"type": "string", "minLength": 1},
              "cloudify_port": {"type": "string", "minLength": 1},
-             "deployment_limits": {"type": "string", "minLength": 1},
+             "description": {"type": ["string", "null"]},
          },
-         "required": ["service_url", "tenant", "cloudify_host",
-                      "cloudify_port", "deployment_limits"]}
+         "required": ["endpoint_url", "type", "tenant_name", "cloudify_host",
+                      "cloudify_port"]}
     )
     def post(self, json):
-        logger.debug("Entering ServiceUrlLimits.post method.")
-        logger.info("Create org_id_limits.")
-        from walle_api_server.db import models
-        service = models.AllowedServiceUrl.find_by(
-            service_url=json['service_url'],
-            tenant=json['tenant'])
-        if not service:
-            return "ERROR: No such Service url."
-        limit = models.ServiceUrlToCloudifyAssociationWithLimits.find_by(
-            serviceurl_id=service.id)
-        if limit:
-            return "Sorry, Already exist"
+        logger.info("Create tenant.")
+        from walle_api_server.common import manage_limits
 
-        limit = models.ServiceUrlToCloudifyAssociationWithLimits(
-            service.id,
-            json['cloudify_host'],
-            json['cloudify_port'],
-            json['deployment_limits'],
+        status, value = manage_limits.tenant_add(
+            json['endpoint_url'], json['type'], json['tenant_name'],
+            json['cloudify_host'], json['cloudify_port'],
+            json['description']
         )
-        return limit.to_dict()
+        if status:
+            return value.to_dict()
+        else:
+            return value
 
     @swagger.operation(
-        responseClass=responses.ServiceUrlLimit,
-        nickname="UpdateServiceUrlLimit",
-        notes="Update quota limits for service url.",
+        responseClass=responses.Tenant,
+        nickname="UpdateTenant",
+        notes="Update tenant.",
         parameters=[{'name': 'id',
-                     'description': 'Service Url Limit id',
+                     'description': 'Tenant id',
                      'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'endpoint_url',
+                     'description': 'Endpoint Url',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'type',
+                     'description': 'Enpoint type(openstack, vcloud)',
+                     'required': False,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'tenant_name',
+                     'description': 'Tenant name',
+                     'required': False,
                      'allowMultiple': False,
                      'dataType': 'string',
                      'paramType': 'body'},
@@ -203,17 +223,11 @@ class ServiceUrlLimits(restful.Resource):
                      'allowMultiple': False,
                      'dataType': 'integer',
                      'paramType': 'body'},
-                    {'name': 'deployment_limits',
-                     'description': 'deployment limits',
+                    {'name': 'description',
+                     'description': 'Descrition for service url',
                      'required': False,
                      'allowMultiple': False,
-                     'dataType': 'integer',
-                     'paramType': 'body'},
-                    {'name': 'number_of_deployments',
-                     'description': 'current number of deployments',
-                     'required': False,
-                     'allowMultiple': False,
-                     'dataType': 'integer',
+                     'dataType': 'string',
                      'paramType': 'body'}],
         consumes=[
             "application/json"
@@ -223,66 +237,203 @@ class ServiceUrlLimits(restful.Resource):
         {"type": "object",
          "properties": {
              "id": {"type": "string", "minLength": 1},
+             "endpoint_url": {"type": ["string", "null"]},
+             "type": {"type": ["string", "null"]},
+             "tenant_name": {"type": ["string", "null"]},
              "cloudify_host": {"type": ["string", "null"]},
              "cloudify_port": {"type": ["string", "null"]},
-             "deployment_limits": {"type": ["string", "null"]},
-             "number_of_deployments": {"type": ["string", "null"]},
+             "description": {"type": ["string", "null"]},
          },
          "required": ["id"]}
     )
     def put(self, json):
-        logger.debug("Entering ServiceUrlLimits.put method.")
         logger.info("Update keystore_url.")
-        from walle_api_server.db import models
-        update_json = {}
-        limit_id = json["id"]
 
-        keys = ["cloudify_host", "cloudify_port",
-                "deployment_limits", "number_of_deployments"]
+        from walle_api_server.common import manage_limits
 
-        for key in keys:
-            if json.get(key):
-                update_json.update({key: json.get(key)})
-
-        if not limit_id:
-            return "ERROR: ID required."
-
-        limit = models.ServiceUrlToCloudifyAssociationWithLimits.find_by(
-            id=limit_id)
-        if not limit:
-            return "No such keystore_url limit entity."
+        status, value = manage_limits.tenant_update(**json)
+        if status:
+            return value.to_dict()
         else:
-            limit.update(**update_json)
-            updated_limit = (
-                models.ServiceUrlToCloudifyAssociationWithLimits.find_by(
-                    id=limit_id))
-            return updated_limit.to_dict()
+            return value
 
 
-class ServiceUrlLimitsId(restful.Resource):
+class TenantsId(restful.Resource):
     @swagger.operation(
-        nickname="deleteServiceUrlLimit",
-        notes="Delete quota limits for service url.",
+        nickname="deleteTenant",
+        notes="Delete tenant.",
         parameters=[{'name': 'id',
-                     'description': 'Service Url Limit id',
+                     'description': 'Tenant id',
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
                      'paramType': 'path'}]
     )
     def delete(self, id):
-        logger.debug("Entering ServiceUrlLimitsId.delete method.")
-        logger.info("Delete keystore_url_limit.")
-        from walle_api_server.db import models
-        limit = models.ServiceUrlToCloudifyAssociationWithLimits.find_by(
-            id=id
-        )
-        if not limit:
-            return "ERROR: No such keystore_url_limit entity."
-        else:
-            limit.delete()
-            return "OK"
+        logger.info("Delete tenant.")
 
+        from walle_api_server.common import manage_limits
+
+        _, value = manage_limits.tenant_delete(id)
+        return value
+
+
+class Limits(restful.Resource):
+
+    @swagger.operation(
+        nickname="getLimits",
+        notes="Return full list of limits.",
+    )
+    def get(self):
+        logger.info("Listing all limits.")
+
+        from walle_api_server.common import manage_limits
+
+        _, limits = manage_limits.limit_list()
+        return [l.to_dict() for l in limits]
+
+    @swagger.operation(
+        responseClass=responses.Limit,
+        nickname="RegisterLimit",
+        notes="Add relation tenant to cloudify manager and endpoint",
+        parameters=[{'name': 'endpoint_url',
+                     'description': 'Endpoint Url',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'type',
+                     'description': 'Enpoint type(openstack, vcloud)',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'tenant_name',
+                     'description': 'Tenant name',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'hard',
+                     'description': 'hard limit',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'soft',
+                     'description': 'soft limit',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'integer',
+                     'paramType': 'body'},
+                    {'name': 'limit_type',
+                     'description': 'Limit type',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'}],
+        consumes=[
+            "application/json"
+        ]
+    )
+    @util.validate_json(
+        {"type": "object",
+         "properties": {
+             "endpoint_url": {"type": "string", "minLength": 1},
+             "type": {"type": "string", "minLength": 1},
+             "tenant_name": {"type": "string", "minLength": 1},
+             "soft": {"type": "string", "minLength": 1},
+             "hard": {"type": "string", "minLength": 1},
+             "limit_type": {"type": "string", "minLength": 1},
+         },
+         "required": ["endpoint_url", "type", "tenant_name", "hard",
+                      "soft", "limit_type"]}
+    )
+    def post(self, json):
+        logger.info("Create limit.")
+        from walle_api_server.common import manage_limits
+
+        status, value = manage_limits.limit_add(
+            json['endpoint_url'], json['type'], json['tenant_name'],
+            json['limit_type'], json['soft'],
+            json['hard']
+        )
+        if status:
+            return value.to_dict()
+        else:
+            return value
+
+    @swagger.operation(
+        responseClass=responses.Limit,
+        nickname="UpdateLimit",
+        notes="Update limit.",
+        parameters=[{'name': 'id',
+                     'description': 'Limit id',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'hard',
+                     'description': 'hard limit',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'},
+                    {'name': 'soft',
+                     'description': 'soft limit',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'integer',
+                     'paramType': 'body'},
+                    {'name': 'limit_type',
+                     'description': 'Limit type',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'body'}],
+        consumes=[
+            "application/json"
+        ]
+    )
+    @util.validate_json(
+        {"type": "object",
+         "properties": {
+             "id": {"type": "string", "minLength": 1},
+             "hard": {"type": ["string", "null"]},
+             "soft": {"type": ["string", "null"]},
+             "limit_type": {"type": ["string", "null"]},
+         },
+         "required": ["id"]}
+    )
+    def put(self, json):
+        logger.info("Update limit.")
+
+        from walle_api_server.common import manage_limits
+
+        status, value = manage_limits.limit_update(**json)
+        if status:
+            return value.to_dict()
+        else:
+            return value
+
+
+class LimitsId(restful.Resource):
+    @swagger.operation(
+        nickname="deleteTenantLimit",
+        notes="Delete quota limits for tenant.",
+        parameters=[{'name': 'id',
+                     'description': 'Tenant Limit id',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'path'}]
+    )
+    def delete(self, id):
+        logger.info("Delete limit.")
+        from walle_api_server.common import manage_limits
+
+        _, value = manage_limits.limit_delete(id)
+        return value
 
 class ApprovedPlugins(restful.Resource):
     @swagger.operation(

@@ -7,6 +7,7 @@ from flask import g
 from flask_restful_swagger import swagger
 
 from walle_api_server.common import util
+from walle_api_server.common import service_limit
 from walle_api_server.resources import responses
 
 logger = util.setup_logging(__name__)
@@ -38,19 +39,21 @@ class DeploymentsId(restful.Resource):
 
     def update_quota(self, increment_or_decrement):
         logger.debug("Entering Deployments.update_qouta method.")
-        g.current_account_limits = g.current_account_limits.update(
+        current_account_limits = service_limit.get_tenant_limit(g.current_tenant.id, service_limit.DEPLOYMENT_LIMIT)
+        current_account_limits = current_account_limits.update(
             number_of_deployments=(
-                g.current_account_limits.number_of_deployments
+                current_account_limits.value
                 + increment_or_decrement))
-        g.current_account_limits.save()
+        current_account_limits.save()
         logger.debug("Done. Exiting Deployments.update_qouta method.")
 
     def can_do_deployment(self):
         logger.debug(
             "Entering Deployments.can_do_deployment method.")
-        if g.current_account_limits.deployment_limits == -1 or (
-           g.current_account_limits.deployment_limits >
-           g.current_account_limits.number_of_deployments):
+        current_account_limits = service_limit.get_tenant_limit(g.current_tenant.id, service_limit.DEPLOYMENT_LIMIT)
+        if current_account_limits.hard == -1 or (
+           current_account_limits.hard >
+           current_account_limits.value):
             # When deployment limit set to -1 users
             # can deploy infinite number of blueprints.
             # Or deployment limits still greater than number of deployments

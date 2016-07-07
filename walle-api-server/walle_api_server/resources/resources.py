@@ -35,13 +35,17 @@ def setup_resources(api):
     api.add_resource(login_vcloud.LoginVcloud, '/login_vcloud')
     api.add_resource(login_openstack.LoginOpenStack, '/login_openstack')
     api.add_resource(login_walle.LoginWalle, '/login_walle')
-    api.add_resource(manage.ServiceUrls, '/manage/service_urls')
-    api.add_resource(manage.ServiceUrlsId,
-                     '/manage/service_urls/<string:id>/')
-    api.add_resource(manage.ServiceUrlLimits,
-                     '/manage/service_url_limits')
-    api.add_resource(manage.ServiceUrlLimitsId,
-                     '/manage/service_url_limits/<string:id>')
+    api.add_resource(manage.Endpoints, '/manage/endpoints')
+    api.add_resource(manage.EndpointsId,
+                     '/manage/endpoints/<string:id>/')
+    api.add_resource(manage.Tenants,
+                     '/manage/tenants')
+    api.add_resource(manage.TenantsId,
+                     '/manage/tenants/<string:id>')
+    api.add_resource(manage.Limits,
+                     '/manage/limits')
+    api.add_resource(manage.LimitsId,
+                     '/manage/limits/<string:id>')
     api.add_resource(manage.ApprovedPlugins, '/manage/approved_plugins')
     api.add_resource(manage.ApprovedPluginsFromFile,
                      '/manage/approved_plugins/from_file')

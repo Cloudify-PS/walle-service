@@ -32,79 +32,127 @@ class WalleAdministrators(base.BaseDatabaseModel, base.db.Model):
         }
 
 
-class AllowedServiceUrl(base.BaseDatabaseModel, base.db.Model):
-    __tablename__ = 'allowed_service_urls'
+class Endpoint(base.BaseDatabaseModel, base.db.Model):
+    __tablename__ = 'endpoints'
 
     id = base.db.Column(base.db.String(), primary_key=True)
-    service_url = base.db.Column(base.db.String())
-    tenant = base.db.Column(base.db.String())
-    info = base.db.Column(base.db.String())
+    endpoint = base.db.Column(base.db.String())
+    type = base.db.Column(base.db.String())
+    version = base.db.Column(base.db.String())
+    description = base.db.Column(base.db.String())
     created_at = base.db.Column(base.db.String())
     associations = base.db.relationship(
-        'ServiceUrlToCloudifyAssociationWithLimits', backref='service',
+        'Tenant', backref='endpoint',
         lazy='dynamic'
     )
 
-    def __init__(self, service_url, tenant, info=None):
-        self.service_url = service_url
-        self.tenant = tenant
-        self.info = info if info else ""
-        super(AllowedServiceUrl, self).__init__()
+    def __init__(self, endpoint, type=None, version=None, description=None):
+        self.endpoint = endpoint
+        self.type = type if type else "openstack"
+        self.version = version if version else "any"
+        self.description = description if description else ""
+        super(Endpoint, self).__init__()
         self.save()
 
     def __repr__(self):
         return '#{}: Allowed {} for {}'.format(
-            self.id, self.service_url, self.tenant
+            self.id, self.endpoint, self.type
         )
 
     def to_dict(self):
         return {
             "id": self.id,
-            "service_url": self.service_url,
-            "tenant": self.tenant,
-            "info": self.info,
+            "endpoint": self.endpoint,
+            "type": self.type,
+            "version": self.version,
+            "description": self.description,
             "created_at": self.created_at,
         }
 
 
-class ServiceUrlToCloudifyAssociationWithLimits(base.BaseDatabaseModel,
-                                                base.db.Model):
-    __tablename__ = 'service_url_to_cloudify_with_limits'
+class Tenant(base.BaseDatabaseModel, base.db.Model):
+    __tablename__ = 'tenants'
 
     id = base.db.Column(base.db.String(), primary_key=True)
-    deployment_limits = base.db.Column(base.db.Integer())
-    number_of_deployments = base.db.Column(base.db.Integer())
+    tenant_name = base.db.Column(base.db.String())
+    description = base.db.Column(base.db.String())
+    endpoint_id = base.db.Column(
+        base.db.String(),
+        base.db.ForeignKey('endpoints.id')
+    )
     cloudify_host = base.db.Column(base.db.String())
     cloudify_port = base.db.Column(base.db.String())
     created_at = base.db.Column(base.db.String())
     updated_at = base.db.Column(base.db.String())
-    serviceurl_id = base.db.Column(
-        base.db.String(),
-        base.db.ForeignKey('allowed_service_urls.id')
+    associations = base.db.relationship(
+        'Limit', backref='tenant',
+        lazy='dynamic'
     )
 
-    def __init__(self, serviceurl_id, cloudify_host,
-                 cloudify_port, deployment_limits=0):
-        self.serviceurl_id = serviceurl_id
+    def __init__(self, endpoint_id, tenant_name, cloudify_host,
+                 cloudify_port, description=None):
+        self.endpoint_id = endpoint_id
+        self.tenant_name = tenant_name
         self.cloudify_host = cloudify_host
         self.cloudify_port = cloudify_port
-        self.deployment_limits = deployment_limits
-        self.number_of_deployments = 0
-        super(ServiceUrlToCloudifyAssociationWithLimits, self).__init__()
+        self.description = description if description else ""
+        super(Tenant, self).__init__()
+        self.save()
+
+    def __repr__(self):
+        return '#{}: Allowed {} for {}'.format(
+            self.id, self.endpoint_id, self.tenant_name
+        )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "endpoint_id": self.endpoint_id,
+            "tenant_name": self.tenant_name,
+            "endpoint": self.endpoint.endpoint,
+            "type": self.endpoint.type,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "cloudify_host": self.cloudify_host,
+            "cloudify_port": self.cloudify_port,
+            "description": self.description
+        }
+
+
+class Limit(base.BaseDatabaseModel, base.db.Model):
+    __tablename__ = 'limits'
+
+    id = base.db.Column(base.db.String(), primary_key=True)
+    tenant_id = base.db.Column(
+        base.db.String(),
+        base.db.ForeignKey('tenants.id')
+    )
+    soft = base.db.Column(base.db.Integer())
+    hard = base.db.Column(base.db.Integer())
+    value = base.db.Column(base.db.Integer())
+    type = base.db.Column(base.db.String())
+    created_at = base.db.Column(base.db.String())
+    updated_at = base.db.Column(base.db.String())
+
+    def __init__(self, tenant_id, soft=0, hard=0, type=None, value=0):
+        self.tenant_id = tenant_id
+        self.soft = soft
+        self.hard = hard
+        self.type = type if type else "deployments"
+        self.value = value
+        super(Limit, self).__init__()
         self.save()
 
     def to_dict(self):
         return {
             "id": self.id,
-            "serviceurl_id": self.serviceurl_id,
-            "service_tenant": self.service.tenant,
-            "service_url": self.service.service_url,
-            "deployment_limits": self.deployment_limits,
-            "number_of_deployments": self.number_of_deployments,
+            "tenant_id": self.tenant_id,
+            "soft": self.soft,
+            "hard": self.hard,
+            "type": self.type,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
-            "cloudify_host": self.cloudify_host,
-            "cloudify_port": self.cloudify_port
+            "value": self.value
         }
 
 

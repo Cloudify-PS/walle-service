@@ -73,11 +73,11 @@ class LoginOpenStack(restful.Resource):
         if openstack_logined:
             logger.info("Authorizing tenant {0}.".format(tenant_name))
             logger.info("Org-ID registered object {0}".format(
-                service_limit.check_service_url(auth_url, tenant_name)))
+                service_limit.check_endpoint_url(auth_url, 'openstack')))
             logger.info("Org-ID registered limit{0}".format(
-                service_limit.get_service_url_limits(auth_url, tenant_name)))
+                service_limit.get_endpoint_tenant(auth_url, 'openstack', tenant_name)))
 
-            if service_limit.get_service_url_limits(auth_url, tenant_name):
+            if service_limit.get_endpoint_tenant(auth_url, 'openstack', tenant_name):
                 reply = {
                     'x-openstack-authorization': g.token,
                     'x-openstack-keystore_url': auth_url

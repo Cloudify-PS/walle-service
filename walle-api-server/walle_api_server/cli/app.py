@@ -93,22 +93,22 @@ def check_authorization_openstack(
         return make_response("Unauthorized.", 401)
 
     g.keystore_url = openstack_keystore
-    if not service_limit.check_service_url(g.keystore_url, tenant_name):
+    if not service_limit.check_endpoint_url(g.keystore_url, 'openstack'):
         logger.error("Unauthorized. Aborting authorization "
                      "for Keystore Url: %s.", g.keystore_url)
         return make_response("Unauthorized.", 401)
 
     logger.info("Tenant id: %s.", str(g.tenant_id))
 
-    g.current_account_limits = service_limit.get_service_url_limits(
-        g.keystore_url, tenant_name
+    g.current_tenant = service_limit.get_endpoint_tenant(
+        g.keystore_url, 'openstack', tenant_name
     )
-    if g.current_account_limits:
+    if g.current_tenant:
         logger.info("Org-ID limits entity: %s",
-                    g.current_account_limits.to_dict())
+                    g.current_tenant.to_dict())
         logger.info("Limits for Keystore Url:%s were found.", g.keystore_url)
-        g.cc = CloudifyClient(host=g.current_account_limits.cloudify_host,
-                              port=g.current_account_limits.cloudify_port)
+        g.cc = CloudifyClient(host=g.current_tenant.cloudify_host,
+                              port=g.current_tenant.cloudify_port)
     else:
         logger.error(
             "No limits were defined for Keystore Url: %s/%s",
@@ -134,22 +134,22 @@ def check_authorization_vcloud(vcloud_org_url, vcloud_token, vcloud_version):
         g.token = vcloud_token
         g.org_url = vcloud_org_url
         logger.info("Org-ID: %s.", g.tenant_id)
-        if not service_limit.check_service_url(
-                vcloud_org_url, g.tenant_id
+        if not service_limit.check_endpoint_url(
+                vcloud_org_url, 'vcloud'
         ):
             logger.error("Unauthorized. Aborting authorization "
                          "for Org-ID: %s.", g.tenant_id)
             return make_response("Unauthorized.", 401)
 
-        g.current_account_limits = service_limit.get_service_url_limits(
+        g.current_tenant = service_limit.get_endpoint_tenant(
             vcloud_org_url, g.tenant_id
         )
-        if g.current_account_limits:
+        if g.current_tenant:
             logger.info("Org-ID limits entity: %s",
-                        g.current_account_limits.to_dict())
+                        g.current_tenant.to_dict())
             logger.info("Limits for Org-ID:%s were found.", g.tenant_id)
-            g.cc = CloudifyClient(host=g.current_account_limits.cloudify_host,
-                                  port=g.current_account_limits.cloudify_port)
+            g.cc = CloudifyClient(host=g.current_tenant.cloudify_host,
+                                  port=g.current_tenant.cloudify_port)
         else:
             logger.error("No limits were defined for Org-ID: %s", g.tenant_id)
             return make_response("Limits for Org-ID: %s were not defined. "

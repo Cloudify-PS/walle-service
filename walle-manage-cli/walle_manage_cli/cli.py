@@ -18,8 +18,9 @@ from walle_manage_cli import (get_logger, load_config, save_config,
 from login import login_to_walle
 from walle_manage_cli import get_walle_client
 from approved_plugins import proceed_approved_plugins
-from service_urls import proceed_service_urls
-from service_url_limits import proceed_service_url_limits
+from endpoint_urls import proceed_endpoint_urls
+from tenants import proceed_tenants
+from limits import proceed_limits
 
 default_operation = 'list'
 LOGGER = 'logger'
@@ -83,18 +84,19 @@ def approved_plugins(ctx, operation, name, source, type, from_file,
 @click.argument('operation', default=default_operation,
                 metavar='[list | add | delete]',
                 type=click.Choice(['list', 'add', 'delete']))
-@click.option('--service-url')
-@click.option('--tenant')
-@click.option('--info', metavar='<info>', help='Organization info')
-def service_urls(ctx, operation, service_url, tenant, info):
+@click.option('--endpoint-url', metavar='<endpoint_url>', help='Endpoint url')
+@click.option('--type', metavar='<type>', help='Endpoint type')
+@click.option('--version', metavar='<version>', help='Endpoint version')
+@click.option('--description', metavar='<description>', help='Organization info')
+@click.option('--id', metavar='<id>', help='Endpoint id')
+def endpoint_urls(ctx, operation, endpoint_url, type, version, description, id):
     logger = ctx.obj[LOGGER]
     logger.debug('manage')
     config = load_config(logger)
     client = _get_walle_client(config, logger)
     if not client:
         return
-    proceed_service_urls(client, operation, service_url=service_url,
-                         tenant=tenant, info=info)
+    proceed_endpoint_urls(client, operation, endpoint_url=endpoint_url, type=type, version=version, description=description, id=id)
 
 
 @cli.command()
@@ -102,30 +104,49 @@ def service_urls(ctx, operation, service_url, tenant, info):
 @click.argument('operation', default=default_operation,
                 metavar='[list | add | update | delete]',
                 type=click.Choice(['list', 'add', 'update', 'delete']))
-@click.option('--service-url')
-@click.option('--tenant')
+@click.option('--endpoint-url')
+@click.option('--type')
+@click.option('--tenant-name')
 @click.option('--cloudify-host')
 @click.option('--cloudify-port')
-@click.option('--deployment-limits')
+@click.option('--description')
 @click.option('--id')
-@click.option('--number-of-deployments')
-def service_url_limits(ctx, operation, service_url, tenant, cloudify_host,
-                       cloudify_port, deployment_limits, id,
-                       number_of_deployments):
+def tenants(ctx, operation, endpoint_url, type, tenant_name,
+            cloudify_host, cloudify_port, description, id):
     logger = ctx.obj[LOGGER]
     logger.debug('manage')
     config = load_config(logger)
     client = _get_walle_client(config, logger)
     if not client:
         return
-    proceed_service_url_limits(client, operation,
-                               service_url=service_url,
-                               tenant=tenant,
-                               cloudify_host=cloudify_host,
-                               cloudify_port=cloudify_port,
-                               deployment_limits=deployment_limits,
-                               id=id,
-                               number_of_deployments=number_of_deployments)
+    proceed_tenants(client, operation, endpoint_url=endpoint_url,
+                    type=type, tenant_name=tenant_name,
+                    cloudify_host=cloudify_host, cloudify_port=cloudify_port,
+                    description=description, id=id)
+
+
+@cli.command()
+@click.pass_context
+@click.argument('operation', default=default_operation,
+                metavar='[list | add | update | delete]',
+                type=click.Choice(['list', 'add', 'update', 'delete']))
+@click.option('--endpoint-url')
+@click.option('--type')
+@click.option('--tenant')
+@click.option('--hard')
+@click.option('--soft')
+@click.option('--limit-type')
+@click.option('--id')
+def limits(ctx, operation, endpoint_url, type, tenant, hard, soft, limit_type, id):
+    logger = ctx.obj[LOGGER]
+    logger.debug('manage')
+    config = load_config(logger)
+    client = _get_walle_client(config, logger)
+    if not client:
+        return
+    proceed_limits(client, operation, endpoint_url=endpoint_url,
+        type=type, tenant=tenant, hard=hard, soft=soft,
+        limit_type=limit_type, id=id)
 
 
 def _get_walle_client(config, logger):

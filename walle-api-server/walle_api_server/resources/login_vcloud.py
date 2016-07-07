@@ -103,11 +103,10 @@ class LoginVcloud(restful.Resource):
             org_id = vca.vcloud_session.org_url.split('/')[-1]
             logger.info("Authorizing Org-ID {0}.".format(org_id))
             logger.info("Org-ID registered object {0}".format(
-                service_limit.check_service_url(host, org_id)))
+                service_limit.check_endpoint_url(host, 'vcloud')))
             logger.info("Org-ID registered limit{0}".format(
-                service_limit.get_service_url_limits(host, org_id)))
-            if (service_limit.check_service_url(host, org_id) and
-                    service_limit.get_service_url_limits(host, org_id)):
+                service_limit.get_endpoint_tenant(host, 'vcloud', org_id)))
+            if (service_limit.get_endpoint_tenant(host, 'vcloud', org_id)):
                 reply["x_vcloud_authorization"] = vca.vcloud_session.token
                 reply["x_vcloud_org_url"] = vca.vcloud_session.org_url
                 reply["x_vcloud_version"] = vca.version

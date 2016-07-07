@@ -173,49 +173,76 @@ class LoginWalle(object):
 
 
 @swagger.model
-class ServiceUrl(object):
+class Endpoint(object):
 
     resource_fields = {
         "id": fields.String,
-        "service_url": fields.String,
-        "tenant": fields.String,
-        "info": fields.String,
+        "endpoint": fields.String,
+        "type": fields.String,
+        "version": fields.String,
+        "description": fields.String,
         "created_at": fields.DateTime
     }
 
     def __init__(self, **kwargs):
         self.id = kwargs['id']
-        self.service_url = kwargs['service_url']
-        self.tenant = kwargs['tenant']
-        self.info = kwargs['info']
+        self.endpoint = kwargs['endpoint']
+        self.type = kwargs['type']
+        self.version = kwargs['version']
+        self.description = kwargs['description']
         self.created_at = kwargs['created_at']
 
 
 @swagger.model
-class ServiceUrlLimit(object):
+class Tenant(object):
 
     resource_fields = {
         "id": fields.String,
-        "service_tenant": fields.String,
-        "service_url": fields.String,
-        "deployment_limits": fields.Integer,
-        "number_of_deployments": fields.Integer,
+        "endpoint_id": fields.String,
+        "tenant_name": fields.String,
+        "type": fields.String,
         "created_at": fields.DateTime,
         "updated_at": fields.DateTime,
         "cloudify_host": fields.String,
-        "cloudify_port": fields.Integer
+        "cloudify_port": fields.Integer,
+        "description": fields.String
     }
 
     def __init__(self, **kwargs):
         self.id = kwargs['id']
-        self.service_tenant = kwargs['service_tenant']
-        self.service_url = kwargs['service_url']
-        self.deployment_limits = kwargs['deployment_limits']
-        self.number_of_deployments = kwargs['number_of_deployments']
+        self.endpoint_id = kwargs['endpoint_id']
+        self.tenant_name = kwargs['tenant_name']
+        self.type = kwargs['type']
         self.created_at = kwargs['created_at']
         self.updated_at = kwargs['updated_at']
         self.cloudify_host = kwargs['cloudify_host']
         self.cloudify_port = kwargs['cloudify_port']
+        self.description = kwargs['description']
+
+
+@swagger.model
+class Limit(object):
+
+    resource_fields = {
+        "id": fields.String,
+        "tenant_id": fields.String,
+        "soft": fields.Integer,
+        "hard": fields.Integer,
+        "type": fields.String,
+        "created_at": fields.DateTime,
+        "updated_at": fields.DateTime,
+        "value": fields.Integer,
+    }
+
+    def __init__(self, **kwargs):
+        self.id = kwargs['id']
+        self.tenant_id = kwargs['tenant_id']
+        self.soft = kwargs['soft']
+        self.hard = kwargs['hard']
+        self.type = kwargs['type']
+        self.created_at = kwargs['created_at']
+        self.updated_at = kwargs['updated_at']
+        self.value = kwargs['value']
 
 
 @swagger.model

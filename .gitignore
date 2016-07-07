@@ -63,3 +63,4 @@ local-storage/*
 
 # editor backups
 *~
+.walle-manage

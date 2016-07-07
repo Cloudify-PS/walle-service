@@ -5,9 +5,9 @@ import uuid
 
 from walle_api_server.common import service_limit
 from walle_api_server.cli import app
-from walle_api_server.db.models import AllowedServiceUrl
+from walle_api_server.db.models import Endpoint
 from walle_api_server.db.models import (
-    ServiceUrlToCloudifyAssociationWithLimits)
+    Tenant)
 
 from walle_api_server.tests.unittests import base
 
@@ -24,8 +24,8 @@ class CommonOrgLimitTest(base.BaseTestCaseWihtBackend):
 
     def _create_limit_orgs(self):
         # add some values
-        org = AllowedServiceUrl('some_url', self.prefix + "some_id")
-        k_org = AllowedServiceUrl('some_url', self.prefix + "k_id")
+        org = Endpoint('some_url', self.prefix + "some_id")
+        k_org = Endpoint('some_url', self.prefix + "k_id")
         self.obj_list.append(k_org)
         self.obj_list.append(org)
 
@@ -35,20 +35,20 @@ class CommonOrgLimitTest(base.BaseTestCaseWihtBackend):
         with app.app.app_context():
             # check value for current existed
             flask.g.tenant_id = self.prefix + "some_id"
-            limit = service_limit.check_service_url('some_url',
+            limit = service_limit.check_endpoint_url('some_url',
                                                     flask.g.tenant_id)
             self.assertTrue(limit)
             self.assertIn(self.prefix + "some_id",
                           limit.tenant)
             # check count
             flask.g.tenant_id = self.prefix + "k_id"
-            limit = service_limit.check_service_url('some_url',
+            limit = service_limit.check_endpoint_url('some_url',
                                                     flask.g.tenant_id)
             self.assertTrue(limit)
             self.assertIn(self.prefix + "k_id", limit.tenant)
             # no orgs
             flask.g.tenant_id = self.prefix + "some_other_id"
-            limit = service_limit.check_service_url('some_url',
+            limit = service_limit.check_endpoint_url('some_url',
                                                     flask.g.tenant_id)
             self.assertFalse(limit)
 
@@ -57,7 +57,7 @@ class TestDeploymentLimitsDBModel(base.BaseTestCaseWihtBackend):
 
     def setUp(self):
         super(TestDeploymentLimitsDBModel, self).setUp()
-        self.allowed_service_url = AllowedServiceUrl(
+        self.allowed_service_url = Endpoint(
             'some_url',
             str(uuid.uuid4()),
             info="test_org_id"
@@ -68,7 +68,7 @@ class TestDeploymentLimitsDBModel(base.BaseTestCaseWihtBackend):
         super(TestDeploymentLimitsDBModel, self).tearDown()
 
     def create_limit(self):
-        return ServiceUrlToCloudifyAssociationWithLimits(
+        return Tenant(
             self.allowed_service_url.id,
             "127.0.0.1",
             "80",
@@ -78,9 +78,9 @@ class TestDeploymentLimitsDBModel(base.BaseTestCaseWihtBackend):
         successful_limit = self.create_limit()
 
         self.assertIsNotNone(successful_limit)
-        self.assertIsNotNone(successful_limit.serviceurl_id)
+        self.assertIsNotNone(successful_limit.endpoint_id)
         self.assertEqual(self.allowed_service_url.id,
-                         successful_limit.serviceurl_id)
+                         successful_limit.endpoint_id)
         self.assertIsNotNone(successful_limit.id)
         self.assertIsNotNone(successful_limit.created_at)
         self.assertIsNotNone(successful_limit.updated_at)
@@ -94,12 +94,12 @@ class TestDeploymentLimitsDBModel(base.BaseTestCaseWihtBackend):
         limit = self.create_limit()
 
         self.assertRaises(Exception,
-                          ServiceUrlToCloudifyAssociationWithLimits.__init__,
+                          Tenant.__init__,
                           self.allowed_service_url.id,
                           "127.0.0.1",
                           "80")
         self.assertRaises(Exception,
-                          ServiceUrlToCloudifyAssociationWithLimits.__init__,
+                          Tenant.__init__,
                           self.allowed_service_url.id,
                           "127.0.0.2",
                           "8889")
@@ -109,7 +109,7 @@ class TestDeploymentLimitsDBModel(base.BaseTestCaseWihtBackend):
     def test_list_limits(self):
         limit = self.create_limit()
 
-        limits = ServiceUrlToCloudifyAssociationWithLimits.list()
+        limits = Tenant.list()
         self.assertNotEqual(0, len(limits))
 
         limit.delete()
@@ -117,10 +117,10 @@ class TestDeploymentLimitsDBModel(base.BaseTestCaseWihtBackend):
     def test_find_by(self):
         limit = self.create_limit()
 
-        limit_by_id = ServiceUrlToCloudifyAssociationWithLimits.find_by(
+        limit_by_id = Tenant.find_by(
             id=limit.id)
-        limit_by_org_id = ServiceUrlToCloudifyAssociationWithLimits.find_by(
-            serviceurl_id=limit.serviceurl_id)
+        limit_by_org_id = Tenant.find_by(
+            endpoint_id=limit.endpoint_id)
         self.assertEqual(limit_by_id.created_at, limit_by_org_id.created_at)
 
         limit.delete()
@@ -131,7 +131,7 @@ class TestDeploymentLimitsDBModel(base.BaseTestCaseWihtBackend):
         patched_limit = limit.update(cloudify_host="127.0.0.100",
                                      deployment_limits=100,
                                      number_of_deployments=99)
-        self.assertEqual(limit.serviceurl_id, patched_limit.serviceurl_id)
+        self.assertEqual(limit.endpoint_id, patched_limit.endpoint_id)
         self.assertEqual(limit.id, patched_limit.id)
 
         patched_limit.delete()
@@ -142,10 +142,10 @@ class TestDeploymentLimitsDBModel(base.BaseTestCaseWihtBackend):
         with app.app.app_context():
             flask.g.tenant_id = self.allowed_service_url.tenant
             _limit = (
-                service_limit.get_service_url_limits('some_url',
+                service_limit.get_endpoint_tenant('some_url',
                                                      flask.g.tenant_id))
             self.assertEqual(limit.cloudify_host,
                              _limit.cloudify_host)
             self.assertEqual(limit.cloudify_port,
                              _limit.cloudify_port)
-            self.assertEqual(limit.serviceurl_id, _limit.serviceurl_id)
+            self.assertEqual(limit.endpoint_id, _limit.endpoint_id)

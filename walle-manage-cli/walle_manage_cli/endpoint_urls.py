@@ -1,8 +1,8 @@
 from walle_manage_cli import print_dict
 
 
-def proceed_service_urls(client, operation, **kwargs):
-    route = 'service_urls'
+def proceed_endpoint_urls(client, operation, **kwargs):
+    route = 'endpoints'
     operations = {'add': _add,
                   'delete': _delete,
                   'list': _list}
@@ -13,26 +13,28 @@ def proceed_service_urls(client, operation, **kwargs):
 
 
 def _add(client, route, **kwargs):
-    service_url = kwargs.get('service_url')
-    tenant = kwargs.get('tenant')
-    info = kwargs.get('info')
-    if not service_url or not tenant:
-        client.logger.info('Please specify "service_url"/"tenant" parameters.')
+    endpoint_url = kwargs.get('endpoint_url')
+    otype = kwargs.get('type')
+    version = kwargs.get('version')
+    description = kwargs.get('description')
+    if not endpoint_url or not otype:
+        client.logger.info('Please specify "endpoint_url"/"type" parameters.')
         return
     data = {
-        'tenant': tenant,
-        'service_url': service_url,
-        'info': info
+        'type': otype,
+        'endpoint_url': endpoint_url,
+        'version': version,
+        'description': description
     }
     print_dict(client.add(route, data))
 
 
 def _delete(client, route, **kwargs):
-    id = kwargs.get('id')
-    if not id:
+    oid = kwargs.get('id')
+    if not oid:
         client.logger.info('Please specify "id" parameter.')
         return
-    print_dict(client.delete(route, id))
+    print_dict(client.delete(route, oid))
 
 
 def _list(client, route, **kwargs):

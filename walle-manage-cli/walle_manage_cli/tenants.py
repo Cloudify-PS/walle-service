@@ -1,8 +1,8 @@
 from walle_manage_cli import print_dict
 
 
-def proceed_service_url_limits(client, operation, **kwargs):
-    route = 'service_url_limits'
+def proceed_tenants(client, operation, **kwargs):
+    route = 'tenants'
     operations = {'add': _add,
                   'delete': _delete,
                   'update': _update,
@@ -14,22 +14,26 @@ def proceed_service_url_limits(client, operation, **kwargs):
 
 
 def _add(client, route, **kwargs):
-    service_url = kwargs.get('service_url')
-    tenant = kwargs.get('tenant')
+
+    endpoint_url= kwargs.get('endpoint_url')
+    type = kwargs.get('type')
+    tenant_name = kwargs.get('tenant_name')
     cloudify_host = kwargs.get('cloudify_host')
     cloudify_port = kwargs.get('cloudify_port')
-    deployment_limits = kwargs.get('deployment_limits')
-    if not service_url or not tenant:
+    description = kwargs.get('description')
+
+    if not endpoint_url or not tenant_name:
         client.logger.info(
-            'Please specify "service_url"/"service" parameters.'
+            'Please specify "endpoint_url"/"tenant_name" parameters.'
         )
         return
     data = {
-        'service_url': service_url,
-        'tenant': tenant,
+        'endpoint_url': endpoint_url,
+        'type': type,
+        'tenant_name': tenant_name,
         'cloudify_host': cloudify_host,
         'cloudify_port': cloudify_port,
-        'deployment_limits': deployment_limits
+        'description': description
     }
     print_dict(client.add(route, data))
 
@@ -44,23 +48,23 @@ def _delete(client, route, **kwargs):
 
 def _update(client, route, **kwargs):
     id = kwargs.get('id')
-    service_url = kwargs.get('service_url')
-    tenant = kwargs.get('tenant')
+    endpoint_url= kwargs.get('endpoint_url')
+    type = kwargs.get('type')
+    tenant_name = kwargs.get('tenant_name')
     cloudify_host = kwargs.get('cloudify_host')
     cloudify_port = kwargs.get('cloudify_port')
-    deployment_limits = kwargs.get('deployment_limits')
-    number_of_deployments = kwargs.get('number_of_deployments')
+    description = kwargs.get('description')
     if not id:
         client.logger.info('Please specify "id" parameter.')
         return
     data = {
         'id': id,
-        'service_url': service_url,
-        'tenant': tenant,
+        'endpoint_url': endpoint_url,
+        'type': type,
+        'tenant_name': tenant_name,
         'cloudify_host': cloudify_host,
         'cloudify_port': cloudify_port,
-        'deployment_limits': deployment_limits,
-        'number_of_deployments': number_of_deployments
+        'description': description
     }
     print_dict(client.update(route, data))
 

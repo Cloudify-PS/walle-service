@@ -113,10 +113,10 @@ class TestBase(testtools.TestCase):
             with mock.patch.object(walle_api_server.resources.login_vcloud,
                                    '_login_user_to_service') as fake_login:
                 with mock.patch.object(walle_api_server.common.service_limit,
-                                       'check_service_url') as mock.MagicMock:
+                                       'check_endpoint_url') as mock.MagicMock:
                     with mock.patch.object(
                             walle_api_server.common.service_limit,
-                            'get_service_url_limits') as mock.MagicMock:
+                            'get_endpoint_tenant') as mock.MagicMock:
                         token = 1
                         org_url = 'url'
                         version = 5
