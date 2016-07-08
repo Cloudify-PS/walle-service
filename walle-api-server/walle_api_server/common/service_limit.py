@@ -1,7 +1,7 @@
 # Copyright (c) 2016 VMware. All rights reserved
 # Copyright (c) 2016 GigaSpaces Technologies 2016, All Rights Reserved.
 
-DEPLOYMENT_LIMIT = 'deployment'
+DEPLOYMENT_LIMIT = 'deployments'
 
 
 def check_endpoint_url(endpoint_url, type):
