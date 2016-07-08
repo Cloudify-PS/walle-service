@@ -39,34 +39,44 @@ class DeploymentsId(restful.Resource):
 
     def update_quota(self, increment_or_decrement):
         logger.debug("Entering Deployments.update_qouta method.")
-        current_account_limits = service_limit.get_tenant_limit(g.current_tenant.id, service_limit.DEPLOYMENT_LIMIT)
-        current_account_limits = current_account_limits.update(
-            number_of_deployments=(
-                current_account_limits.value
-                + increment_or_decrement))
-        current_account_limits.save()
+        current_account_limits = service_limit.get_tenant_limit(
+            g.current_tenant.id, service_limit.DEPLOYMENT_LIMIT
+        )
+        if current_account_limits:
+            current_account_limits = current_account_limits.update(
+                number_of_deployments=(
+                    current_account_limits.value
+                    + increment_or_decrement))
+            current_account_limits.save()
         logger.debug("Done. Exiting Deployments.update_qouta method.")
 
     def can_do_deployment(self):
         logger.debug(
             "Entering Deployments.can_do_deployment method.")
-        current_account_limits = service_limit.get_tenant_limit(g.current_tenant.id, service_limit.DEPLOYMENT_LIMIT)
-        if current_account_limits.hard == -1 or (
-           current_account_limits.hard >
-           current_account_limits.value):
-            # When deployment limit set to -1 users
-            # can deploy infinite number of blueprints.
-            # Or deployment limits still greater than number of deployments
-            logger.info(
-                "Success. Deployment can be done for Org-ID:%s .", g.tenant_id)
-            logger.debug(
-                "Done. Exiting Deployments.can_do_deployment method.")
-            return True
-        else:
-            logger.debug("Deployment quota exceeded for Org-ID:%s.",
-                         g.tenant_id)
-            raise exceptions.CloudifyClientError(
-                "Deployment quota exceeded.", status_code=403)
+        current_account_limits = service_limit.get_tenant_limit(
+            g.current_tenant.id, service_limit.DEPLOYMENT_LIMIT
+        )
+        if current_account_limits:
+            if current_account_limits.hard == -1 or (
+               current_account_limits.hard >
+               current_account_limits.value):
+                # When deployment limit set to -1 users
+                # can deploy infinite number of blueprints.
+                # Or deployment limits still greater than number of deployments
+                logger.info(
+                    "Success. Deployment can be done for Org-ID:%s .",
+                    g.tenant_id
+                )
+                logger.debug(
+                    "Done. Exiting Deployments.can_do_deployment method."
+                )
+                return True
+
+        logger.debug("Deployment quota exceeded for Org-ID:%s.",
+                     g.tenant_id)
+        raise exceptions.CloudifyClientError(
+            "Deployment quota exceeded.", status_code=403
+        )
 
     @swagger.operation(
         responseClass=responses.Deployment,

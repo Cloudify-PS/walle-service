@@ -14,8 +14,7 @@ def proceed_limits(client, operation, **kwargs):
 
 
 def _add(client, route, **kwargs):
-
-    endpoint_url= kwargs.get('endpoint_url')
+    endpoint_url = kwargs.get('endpoint_url')
     type = kwargs.get('type')
     tenant_name = kwargs.get('tenant')
     hard = kwargs.get('hard')

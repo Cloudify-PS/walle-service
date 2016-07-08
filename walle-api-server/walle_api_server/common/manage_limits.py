@@ -47,7 +47,8 @@ def endpoint_list():
     return True, models.Endpoint.list()
 
 
-def tenant_add(endpoint_url, type, tenant_name, cloudify_host, cloudify_port, description):
+def tenant_add(endpoint_url, type, tenant_name, cloudify_host,
+               cloudify_port, description):
 
     if not cloudify_host or not cloudify_port:
         return False, "ERROR: Cloudify host and port are required."
@@ -67,11 +68,14 @@ def tenant_add(endpoint_url, type, tenant_name, cloudify_host, cloudify_port, de
 
     return True, tenant
 
+
 def tenant_list():
     return True, models.Tenant.list()
 
 
 def tenant_update(**kwargs):
+
+    update_kwargs = {}
 
     tenant_id = kwargs["id"]
 
@@ -107,17 +111,22 @@ def tenant_delete(id):
     tenant.delete()
     return True, "OK"
 
+
 def limit_add(endpoint_url, type, tenant_name, limit_type, soft, hard):
 
     endpoint = service_limit.check_endpoint_url(endpoint_url, type)
     if not endpoint:
         return False, "ERROR: No such endpoint/type."
 
-    tenant = service_limit.get_endpoint_tenant(endpoint_url, type, tenant_name)
+    tenant = service_limit.get_endpoint_tenant(
+        endpoint_url, type, tenant_name
+    )
     if not tenant:
         return False, "ERROR: No such tenant."
 
-    tenant_limit = service_limit.get_endpoint_tenant_limit(endpoint_url, type, tenant_name, limit_type)
+    tenant_limit = service_limit.get_endpoint_tenant_limit(
+        endpoint_url, type, tenant_name, limit_type
+    )
     if tenant_limit:
         return False, "ERROR: already exist"
 
@@ -130,10 +139,14 @@ def limit_add(endpoint_url, type, tenant_name, limit_type, soft, hard):
 
     return True, limit
 
+
 def limit_list():
     return True, models.Limit.list()
 
+
 def limit_update(**kwargs):
+
+    update_kwargs = {}
 
     limit_id = kwargs["id"]
 
@@ -169,12 +182,10 @@ def limit_update(**kwargs):
 
 
 def limit_delete(id):
-    limit = models.Limit.find_by(
-        id=kwargs.get("id"))
+    limit = models.Limit.find_by(id=id)
 
     if not limit:
         return False, "ERROR: No such tenant entity."
 
     limit.delete()
     return True, "OK"
-

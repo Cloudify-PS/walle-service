@@ -98,6 +98,7 @@ class EndpointsId(restful.Resource):
 
         return value
 
+
 class Tenants(restful.Resource):
     @swagger.operation(
         nickname="getTenants",
@@ -434,6 +435,7 @@ class LimitsId(restful.Resource):
 
         _, value = manage_limits.limit_delete(id)
         return value
+
 
 class ApprovedPlugins(restful.Resource):
     @swagger.operation(

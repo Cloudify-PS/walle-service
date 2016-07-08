@@ -36,20 +36,20 @@ class CommonOrgLimitTest(base.BaseTestCaseWihtBackend):
             # check value for current existed
             flask.g.tenant_id = self.prefix + "some_id"
             limit = service_limit.check_endpoint_url('some_url',
-                                                    flask.g.tenant_id)
+                                                     flask.g.tenant_id)
             self.assertTrue(limit)
             self.assertIn(self.prefix + "some_id",
                           limit.tenant)
             # check count
             flask.g.tenant_id = self.prefix + "k_id"
             limit = service_limit.check_endpoint_url('some_url',
-                                                    flask.g.tenant_id)
+                                                     flask.g.tenant_id)
             self.assertTrue(limit)
             self.assertIn(self.prefix + "k_id", limit.tenant)
             # no orgs
             flask.g.tenant_id = self.prefix + "some_other_id"
             limit = service_limit.check_endpoint_url('some_url',
-                                                    flask.g.tenant_id)
+                                                     flask.g.tenant_id)
             self.assertFalse(limit)
 
 
@@ -143,7 +143,7 @@ class TestDeploymentLimitsDBModel(base.BaseTestCaseWihtBackend):
             flask.g.tenant_id = self.allowed_service_url.tenant
             _limit = (
                 service_limit.get_endpoint_tenant('some_url',
-                                                     flask.g.tenant_id))
+                                                  flask.g.tenant_id))
             self.assertEqual(limit.cloudify_host,
                              _limit.cloudify_host)
             self.assertEqual(limit.cloudify_port,

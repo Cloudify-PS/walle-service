@@ -1,7 +1,7 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
 import yaml
-#for security reason
+# for security reason
 import hashlib
 
 

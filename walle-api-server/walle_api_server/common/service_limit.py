@@ -3,6 +3,7 @@
 
 DEPLOYMENT_LIMIT = 'deployment'
 
+
 def check_endpoint_url(endpoint_url, type):
     """Checks endpoint for existence."""
     from walle_api_server.db.models import Endpoint
@@ -19,7 +20,9 @@ def get_endpoint_tenant(endpoint_url, type, tenant):
         return Tenant.find_by(
             endpoint_id=endpoint.id)
 
-def get_endpoint_tenant_limit(endpoint_url, type, tenant_name, limit_type):
+
+def get_endpoint_tenant_limit(endpoint_url, type, tenant_name,
+                              limit_type):
     """Gets tenants limit"""
     from walle_api_server.db.models import Limit
     tenant = get_endpoint_tenant(endpoint_url, type, tenant_name)
@@ -27,8 +30,8 @@ def get_endpoint_tenant_limit(endpoint_url, type, tenant_name, limit_type):
         return Limit.find_by(
             tenant_id=tenant.id, type=limit_type)
 
+
 def get_tenant_limit(tenant_id, limit_type):
     """Gets tenants limit"""
     from walle_api_server.db.models import Limit
     return Limit.find_by(tenant_id=tenant_id, type=limit_type)
-

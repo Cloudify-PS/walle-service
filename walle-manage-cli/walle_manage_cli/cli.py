@@ -84,19 +84,25 @@ def approved_plugins(ctx, operation, name, source, type, from_file,
 @click.argument('operation', default=default_operation,
                 metavar='[list | add | delete]',
                 type=click.Choice(['list', 'add', 'delete']))
-@click.option('--endpoint-url', metavar='<endpoint_url>', help='Endpoint url')
+@click.option('--endpoint-url', metavar='<endpoint_url>',
+              help='Endpoint url')
 @click.option('--type', metavar='<type>', help='Endpoint type')
-@click.option('--version', metavar='<version>', help='Endpoint version')
-@click.option('--description', metavar='<description>', help='Organization info')
+@click.option('--version', metavar='<version>',
+              help='Endpoint version')
+@click.option('--description', metavar='<description>',
+              help='Organization info')
 @click.option('--id', metavar='<id>', help='Endpoint id')
-def endpoint_urls(ctx, operation, endpoint_url, type, version, description, id):
+def endpoint_urls(ctx, operation, endpoint_url, type, version,
+                  description, id):
     logger = ctx.obj[LOGGER]
     logger.debug('manage')
     config = load_config(logger)
     client = _get_walle_client(config, logger)
     if not client:
         return
-    proceed_endpoint_urls(client, operation, endpoint_url=endpoint_url, type=type, version=version, description=description, id=id)
+    proceed_endpoint_urls(client, operation, endpoint_url=endpoint_url,
+                          type=type, version=version,
+                          description=description, id=id)
 
 
 @cli.command()
@@ -121,7 +127,8 @@ def tenants(ctx, operation, endpoint_url, type, tenant_name,
         return
     proceed_tenants(client, operation, endpoint_url=endpoint_url,
                     type=type, tenant_name=tenant_name,
-                    cloudify_host=cloudify_host, cloudify_port=cloudify_port,
+                    cloudify_host=cloudify_host,
+                    cloudify_port=cloudify_port,
                     description=description, id=id)
 
 
@@ -137,7 +144,8 @@ def tenants(ctx, operation, endpoint_url, type, tenant_name,
 @click.option('--soft')
 @click.option('--limit-type')
 @click.option('--id')
-def limits(ctx, operation, endpoint_url, type, tenant, hard, soft, limit_type, id):
+def limits(ctx, operation, endpoint_url, type, tenant, hard, soft,
+           limit_type, id):
     logger = ctx.obj[LOGGER]
     logger.debug('manage')
     config = load_config(logger)
@@ -145,8 +153,8 @@ def limits(ctx, operation, endpoint_url, type, tenant, hard, soft, limit_type, i
     if not client:
         return
     proceed_limits(client, operation, endpoint_url=endpoint_url,
-        type=type, tenant=tenant, hard=hard, soft=soft,
-        limit_type=limit_type, id=id)
+                   type=type, tenant=tenant, hard=hard, soft=soft,
+                   limit_type=limit_type, id=id)
 
 
 def _get_walle_client(config, logger):

@@ -15,7 +15,7 @@ def proceed_tenants(client, operation, **kwargs):
 
 def _add(client, route, **kwargs):
 
-    endpoint_url= kwargs.get('endpoint_url')
+    endpoint_url = kwargs.get('endpoint_url')
     type = kwargs.get('type')
     tenant_name = kwargs.get('tenant_name')
     cloudify_host = kwargs.get('cloudify_host')
@@ -48,7 +48,7 @@ def _delete(client, route, **kwargs):
 
 def _update(client, route, **kwargs):
     id = kwargs.get('id')
-    endpoint_url= kwargs.get('endpoint_url')
+    endpoint_url = kwargs.get('endpoint_url')
     type = kwargs.get('type')
     tenant_name = kwargs.get('tenant_name')
     cloudify_host = kwargs.get('cloudify_host')
