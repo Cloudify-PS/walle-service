@@ -44,7 +44,7 @@ class DeploymentsId(restful.Resource):
         )
         if current_account_limits:
             current_account_limits = current_account_limits.update(
-                number_of_deployments=(
+                value=(
                     current_account_limits.value
                     + increment_or_decrement))
             current_account_limits.save()
