@@ -45,7 +45,7 @@ class LoginWalle(restful.Resource):
         walle_logined = False
         from walle_api_server.db.models import WalleAdministrators
         admin = WalleAdministrators.find_by(name=user)
-        if admin and admin.password == password:
+        if admin and admin.password_check(password):
             expire_time = _get_expire_time()
             g.token = _generate_token(password, expire_time)
             admin.update(token=g.token, expire=expire_time)

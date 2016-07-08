@@ -1,6 +1,9 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
 import yaml
+#for security reason
+import hashlib
+
 
 from walle_api_server.db import base
 
@@ -8,19 +11,23 @@ from walle_api_server.db import base
 class WalleAdministrators(base.BaseDatabaseModel, base.db.Model):
     __tablename__ = 'walle_admins'
 
-    id = base.db.Column(base.db.String(), primary_key=True)
-    name = base.db.Column(base.db.String(), unique=True)
-    password = base.db.Column(base.db.String())
-    token = base.db.Column(base.db.String())
-    expire = base.db.Column(base.db.String())
+    id = base.db.Column(base.db.String(36), primary_key=True)
+    name = base.db.Column(base.db.String(16), unique=True)
+    # md5(id + raw_password)
+    password = base.db.Column(base.db.String(32))
+    token = base.db.Column(base.db.String(32))
+    expire = base.db.Column(base.db.Integer())
 
-    def __init__(self, name, password, token='', expire=''):
+    def __init__(self, name, password, token='', expire=0):
         self.name = name
-        self.password = password
         self.token = token
         self.expire = expire
         super(WalleAdministrators, self).__init__()
+        self.password = hashlib.md5(self.id + password).hexdigest()
         self.save()
+
+    def password_check(self, password):
+        return self.password == hashlib.md5(self.id + password).hexdigest()
 
     def to_dict(self):
         return {
@@ -35,12 +42,13 @@ class WalleAdministrators(base.BaseDatabaseModel, base.db.Model):
 class Endpoint(base.BaseDatabaseModel, base.db.Model):
     __tablename__ = 'endpoints'
 
-    id = base.db.Column(base.db.String(), primary_key=True)
-    endpoint = base.db.Column(base.db.String())
-    type = base.db.Column(base.db.String())
-    version = base.db.Column(base.db.String())
-    description = base.db.Column(base.db.String())
-    created_at = base.db.Column(base.db.String())
+    id = base.db.Column(base.db.String(36), primary_key=True)
+    # url ~ 128
+    endpoint = base.db.Column(base.db.String(128))
+    type = base.db.Column(base.db.String(24))
+    version = base.db.Column(base.db.String(16))
+    description = base.db.Column(base.db.String(1024))
+    created_at = base.db.Column(base.db.DateTime())
     associations = base.db.relationship(
         'Tenant', backref='endpoint',
         lazy='dynamic'
@@ -66,24 +74,24 @@ class Endpoint(base.BaseDatabaseModel, base.db.Model):
             "type": self.type,
             "version": self.version,
             "description": self.description,
-            "created_at": self.created_at,
+            "created_at": str(self.created_at),
         }
 
 
 class Tenant(base.BaseDatabaseModel, base.db.Model):
     __tablename__ = 'tenants'
 
-    id = base.db.Column(base.db.String(), primary_key=True)
-    tenant_name = base.db.Column(base.db.String())
-    description = base.db.Column(base.db.String())
+    id = base.db.Column(base.db.String(36), primary_key=True)
+    tenant_name = base.db.Column(base.db.String(16))
+    description = base.db.Column(base.db.String(1024))
     endpoint_id = base.db.Column(
-        base.db.String(),
+        base.db.String(36),
         base.db.ForeignKey('endpoints.id')
     )
-    cloudify_host = base.db.Column(base.db.String())
-    cloudify_port = base.db.Column(base.db.String())
-    created_at = base.db.Column(base.db.String())
-    updated_at = base.db.Column(base.db.String())
+    cloudify_host = base.db.Column(base.db.String(128))
+    cloudify_port = base.db.Column(base.db.Integer())
+    created_at = base.db.Column(base.db.DateTime())
+    updated_at = base.db.Column(base.db.DateTime())
     associations = base.db.relationship(
         'Limit', backref='tenant',
         lazy='dynamic'
@@ -111,8 +119,8 @@ class Tenant(base.BaseDatabaseModel, base.db.Model):
             "tenant_name": self.tenant_name,
             "endpoint": self.endpoint.endpoint,
             "type": self.endpoint.type,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at,
+            "created_at": str(self.created_at),
+            "updated_at": str(self.updated_at),
             "cloudify_host": self.cloudify_host,
             "cloudify_port": self.cloudify_port,
             "description": self.description
@@ -122,17 +130,17 @@ class Tenant(base.BaseDatabaseModel, base.db.Model):
 class Limit(base.BaseDatabaseModel, base.db.Model):
     __tablename__ = 'limits'
 
-    id = base.db.Column(base.db.String(), primary_key=True)
+    id = base.db.Column(base.db.String(36), primary_key=True)
     tenant_id = base.db.Column(
-        base.db.String(),
+        base.db.String(36),
         base.db.ForeignKey('tenants.id')
     )
     soft = base.db.Column(base.db.Integer())
     hard = base.db.Column(base.db.Integer())
     value = base.db.Column(base.db.Integer())
-    type = base.db.Column(base.db.String())
-    created_at = base.db.Column(base.db.String())
-    updated_at = base.db.Column(base.db.String())
+    type = base.db.Column(base.db.String(24))
+    created_at = base.db.Column(base.db.DateTime())
+    updated_at = base.db.Column(base.db.DateTime())
 
     def __init__(self, tenant_id, soft=0, hard=0, type=None, value=0):
         self.tenant_id = tenant_id
@@ -150,8 +158,8 @@ class Limit(base.BaseDatabaseModel, base.db.Model):
             "soft": self.soft,
             "hard": self.hard,
             "type": self.type,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at,
+            "created_at": str(self.created_at),
+            "updated_at": str(self.updated_at),
             "value": self.value
         }
 
@@ -161,10 +169,10 @@ class ApprovedPlugins(base.BaseDatabaseModel,
 
     __tablename__ = 'approved_plugins'
 
-    id = base.db.Column(base.db.String(), primary_key=True)
-    name = base.db.Column(base.db.String())
-    source = base.db.Column(base.db.String())
-    plugin_type = base.db.Column(base.db.String())
+    id = base.db.Column(base.db.String(36), primary_key=True)
+    name = base.db.Column(base.db.String(64))
+    source = base.db.Column(base.db.String(255))
+    plugin_type = base.db.Column(base.db.String(32))
 
     def __init__(self, name, source, plugin_type):
         """Creates an approved plugin entity for blueprints

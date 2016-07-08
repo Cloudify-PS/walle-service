@@ -295,7 +295,7 @@ class Limits(restful.Resource):
     @swagger.operation(
         responseClass=responses.Limit,
         nickname="RegisterLimit",
-        notes="Add relation tenant to cloudify manager and endpoint",
+        notes="Add limit for tenant",
         parameters=[{'name': 'endpoint_url',
                      'description': 'Endpoint Url',
                      'required': True,
