@@ -13,8 +13,8 @@ logger = util.setup_logging(__name__)
 class LoginOpenStack(restful.Resource):
     @swagger.operation(
         responseClass=responses.LoginOpenStack,
-        nickname="login_vcloud",
-        notes="Returns information for authorization in vCloud.",
+        nickname="login_openstack",
+        notes="Returns information for authorization in OpenStack.",
         parameters=[{'name': 'user',
                      'description': 'User login.',
                      'required': True,
