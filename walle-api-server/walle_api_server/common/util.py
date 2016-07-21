@@ -13,6 +13,16 @@ from walle_api_server.common import cfg
 CONF = cfg.CONF
 
 
+def filter_list_response(response):
+    response.items = [remove_org_prefix(item) for item in response
+                      if item.id.startswith(g.tenant_id + '_')]
+    return response
+
+
+def list_response_to_dict(response):
+    return {"items": response.items, "metadata": response.metadata}
+
+
 def add_org_prefix(name):
     if not isinstance(name, basestring) or not name:
         raise ValueError("Name must be nonempty instance of basestring.")
