@@ -12,6 +12,7 @@ oslo.config
 psycopg2
 Flask-SQLAlchemy
 Flask-Migrate
+flask-cors
 oslo.utils
 PrettyTable>=0.7,<0.8
 functools32

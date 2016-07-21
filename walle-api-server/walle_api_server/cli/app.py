@@ -5,6 +5,7 @@ from flask.ext import restful
 from flask import request, g, make_response
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.migrate import Migrate
+from flask.ext.cors import CORS
 
 # vcloud air
 from pyvcloud.vcloudsession import VCS
@@ -21,6 +22,7 @@ from urlparse import urlparse
 
 
 app = Flask(__name__)
+CORS(app)
 api = restful.Api(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)

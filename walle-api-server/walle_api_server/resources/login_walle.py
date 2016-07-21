@@ -33,14 +33,14 @@ class LoginWalle(restful.Resource):
     @util.validate_json(
         {"type": "object",
          "properties": {
-             "user": {"type": "string", "minLength": 1},
+             "username": {"type": "string", "minLength": 1},
              "password": {"type": "string", "minLength": 1}
          },
-         "required": ["user", "password"]}
+         "required": ["username", "password"]}
     )
     def post(self, json):
         logger.debug("Entering Login.get method.")
-        user = json.get('user')
+        user = json.get('username')
         password = json.get('password')
         walle_logined = False
         from walle_api_server.db.models import WalleAdministrators
