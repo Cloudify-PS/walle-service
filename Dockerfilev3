@@ -1,0 +1,35 @@
+#access2 via docker exec -it [container-id] bash
+#access3 via docker run -t -i mysnapshot /bin/bash
+
+FROM pre-walle
+RUN echo -e '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d
+RUN apt-get install -y supervisor emacs24-nox curl
+RUN mkdir -p /var/run/sshd /var/log/supervisor
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+RUN . /venv/bin/activate;
+ENV DB_IP=0.0.0.0 \
+    WALLE_IP=0.0.0.0 \
+    DB_USER=walle \
+    DB_NAME=walle \
+    DB_PASS=supersecret \
+    IS_PRODUCTION=false \
+    SKIP_INSTALLATION=false
+#WALLE_EXISTING_DB=172.17.0.2 \
+
+#setup DB part 1
+RUN /walle-service/blueprints/scripts/install_postgresql.sh
+RUN chmod 777 /root
+RUN /etc/init.d/postgresql start && /walle-service/blueprints/scripts/install_walle_postgresql.sh
+
+#setup walle part 2
+RUN /walle-service/blueprints/scripts/walle/install_dependencies.sh
+RUN pip install -r /walle-service/walle-api-server/requirements.txt && pip install /walle-service/walle-api-server
+#debug
+RUN useradd -m ubuntu
+RUN /walle-service/blueprints/scripts/walle/configure.sh
+
+
+
+#EXPOSE 80
+CMD ["/usr/bin/supervisord"]
