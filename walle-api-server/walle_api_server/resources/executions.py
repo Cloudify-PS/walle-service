@@ -1,6 +1,6 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
-from flask import g
+from flask import g, request
 from flask.ext import restful
 from flask.ext.restful import reqparse
 from flask_restful_swagger import swagger
@@ -33,22 +33,27 @@ class Executions(restful.Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('deployment_id', type=str, default='',
                             help='Deployment ID')
+        parser.add_argument('status', action='append')
+        parser.add_argument('_include', type=str, default='')
         parsed = parser.parse_args()
         try:
+            _include = parsed['_include'].split(',')
             deployment_id = util.add_prefix_to_deployment(
                 parsed['deployment_id'])
             logger.info("Listing executions for deployment %s .",
                         deployment_id)
-            executions = g.cc.executions.list(deployment_id)
+            executions = g.cc.executions.list(deployment_id,
+                                              _include=_include,
+                                              status=parsed['status'])
             logger.info("Cloudify executions list: {0}.".format(
                 str(executions)))
-            filtered = [util.remove_org_prefix(e) for e in executions
+            executions.items = [util.remove_org_prefix(e) for e in executions
                         if g.tenant_id in e['deployment_id']]
-            for ex in filtered:
+            for ex in executions.items:
                 if ex['workflow_id'].startswith('walle'):
                     ex['workflow_id'] = ex['workflow_id'][5:]
 
-            return filtered
+            return util.list_response_to_dict(executions)
         except exceptions.CloudifyClientError as e:
             return util.make_response_from_exception(e)
 

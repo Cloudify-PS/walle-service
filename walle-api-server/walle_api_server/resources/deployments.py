@@ -3,7 +3,7 @@
 from cloudify_rest_client import exceptions
 
 from flask.ext import restful
-from flask import g
+from flask import g, request
 from flask_restful_swagger import swagger
 
 from walle_api_server.common import util
@@ -23,14 +23,12 @@ class Deployments(restful.Resource):
     def get(self):
         logger.debug("Entering Deployments.get method.")
         try:
+            _include = request.args.get("_include", "").split(",")
             logger.info("Listing all deployments.")
-            deployments = g.cc.deployments.list()
-            result = []
-            for deployment in deployments:
-                if deployment.id.startswith(g.tenant_id + '_'):
-                    result.append(util.remove_org_prefix(deployment))
+            deployments = g.cc.deployments.list(_include=_include)
+            result = util.filter_list_response(deployments)
             logger.debug("Done. Exiting Deployments.get method.")
-            return result
+            return util.list_response_to_dict(result)
         except exceptions.CloudifyClientError as e:
             return util.make_response_from_exception(e)
 
@@ -45,8 +43,8 @@ class DeploymentsId(restful.Resource):
         if current_account_limits:
             current_account_limits = current_account_limits.update(
                 value=(
-                    current_account_limits.value
-                    + increment_or_decrement))
+                    current_account_limits.value +
+                    increment_or_decrement))
             current_account_limits.save()
         logger.debug("Done. Exiting Deployments.update_qouta method.")
 
