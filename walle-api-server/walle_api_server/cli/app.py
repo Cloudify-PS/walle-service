@@ -16,6 +16,7 @@ from cloudify_rest_client.client import CloudifyClient
 
 from walle_api_server.common import cfg
 from walle_api_server.common import util
+from walle_api_server.common import client
 from walle_api_server.common import service_limit
 from walle_api_server.resources import resources
 from urlparse import urlparse
@@ -61,6 +62,7 @@ def check_authorization():
     openstack_keystore = request.headers.get("x-openstack-keystore-url")
     openstack_region = request.headers.get("x-openstack-keystore-region", "")
     tenant_name = request.headers.get("x-openstack-keystore-tenant", "")
+
     if (openstack_keystore and openstack_authorization):
         return check_authorization_openstack(
             openstack_authorization, openstack_keystore,
@@ -111,6 +113,7 @@ def check_authorization_openstack(
         logger.info("Limits for Keystore Url:%s were found.", g.keystore_url)
         g.cc = CloudifyClient(host=g.current_tenant.cloudify_host,
                               port=g.current_tenant.cloudify_port)
+        g.proxy = client.HTTPClient(g.current_tenant.cloudify_host)
     else:
         logger.error(
             "No limits were defined for Keystore Url: %s/%s",
