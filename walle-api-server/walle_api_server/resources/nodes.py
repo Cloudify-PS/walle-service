@@ -23,4 +23,6 @@ class NodeInstances(restful.Resource):
         logger.debug("Entering NodeInstances.get method.")
         result = g.proxy.get(request)
         logger.debug("Done. Exiting NodeInstances.get method.")
-        return util.remove_org_prefix(result)
+        items = [util.remove_org_prefix(item) for item in result['items']]
+        result['items'] = items
+        return result
