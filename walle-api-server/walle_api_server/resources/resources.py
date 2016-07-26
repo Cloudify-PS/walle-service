@@ -11,6 +11,8 @@ from walle_api_server.resources import login_vcloud
 from walle_api_server.resources import login_openstack
 from walle_api_server.resources import login_walle
 from walle_api_server.resources import manage
+from walle_api_server.resources import service
+from walle_api_server.resources import nodes
 
 
 def setup_resources(api):
@@ -27,6 +29,7 @@ def setup_resources(api):
                      '/deployments/<string:deployment_id>')
     api.add_resource(deployments.DeploymentOutputs,
                      '/deployments/<string:deployment_id>/outputs')
+    api.add_resource(deployments.DeploymentsUpdates, '/deployment-updates')
     api.add_resource(executions.Executions, '/executions')
     api.add_resource(executions.ExecutionsId,
                      '/executions/<string:execution_id>')
@@ -51,3 +54,6 @@ def setup_resources(api):
                      '/manage/approved_plugins/from_file')
     api.add_resource(manage.ApprovedPluginsId,
                      '/manage/approved_plugins/<string:name>')
+    api.add_resource(service.Maintenance, '/maintenance')
+    api.add_resource(nodes.Nodes, '/nodes')
+    api.add_resource(nodes.NodeInstances, '/node-instances')

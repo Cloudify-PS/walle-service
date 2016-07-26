@@ -21,6 +21,7 @@ class HTTPException(Exception):
     def __str__(self):
         return self.text
 
+
 def _check_exception(response):
     if response.status_code != requests.codes.ok:
         raise HTTPException(response.content)
@@ -39,13 +40,17 @@ class HTTPClient(object):
         if not self.headers.get('Content-type'):
             self.headers['Content-type'] = 'application/json'
 
-    def get(self, path,  request_args):
-        parameters = dict(request_args)
-        if request_args.get('blueprint_id'):
-            bpid = request_args['blueprint_id']
+    def get(self, request):
+        path = request.path
+        parameters = dict(request.args)
+        if request.args.get('id'):
+            id = request.args['id']
+            parameters['id'] = [util.add_org_prefix(id)]
+        if request.args.get('blueprint_id'):
+            bpid = request.args['blueprint_id']
             parameters['blueprint_id'] = [util.add_org_prefix(bpid)]
-        if request_args.get('deployment_id'):
-            did = request_args['deployment_id']
+        if request.args.get('deployment_id'):
+            did = request.args['deployment_id']
             parameters['deployment_id'] = [util.add_org_prefix(did)]
         response = requests.get(self.url + path,
                                 params=parameters,

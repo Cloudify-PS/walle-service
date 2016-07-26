@@ -23,12 +23,11 @@ class Deployments(restful.Resource):
     def get(self):
         logger.debug("Entering Deployments.get method.")
         try:
-            _include = request.args.get("_include", "").split(",")
             logger.info("Listing all deployments.")
-            deployments = g.cc.deployments.list(_include=_include)
-            result = util.filter_list_response(deployments)
+            deployments = g.proxy.get(request)
+            util.filter_response(deployments)
             logger.debug("Done. Exiting Deployments.get method.")
-            return util.list_response_to_dict(result)
+            return deployments
         except exceptions.CloudifyClientError as e:
             return util.make_response_from_exception(e)
 
@@ -92,7 +91,9 @@ class DeploymentsId(restful.Resource):
         try:
             logger.info("Seeking for deplyment %s .",
                         deployment_id)
-            result = g.cc.deployments.get(util.add_org_prefix(deployment_id))
+            _include = request.args.get("_include", "").split(",")
+            result = g.cc.deployments.get(util.add_org_prefix(deployment_id),
+                                          _include=_include)
             logger.info("Cloudify deployment get: {0}.".format(str(result)))
             filtere_workflows = []
             for _workflow in result['workflows']:
@@ -234,3 +235,12 @@ class DeploymentOutputs(restful.Resource):
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
             return util.make_response_from_exception(e)
+
+
+class DeploymentsUpdates(restful.Resource):
+
+    def get(self):
+        logger.debug("Entering DeploymentsUpdates.get method.")
+        result = g.proxy.get(request)
+        logger.debug("Done. Exiting Events.get method.")
+        return util.remove_org_prefix(result)
