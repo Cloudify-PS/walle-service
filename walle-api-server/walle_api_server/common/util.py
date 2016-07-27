@@ -13,9 +13,9 @@ from walle_api_server.common import cfg
 CONF = cfg.CONF
 
 
-def filter_response(response):
+def filter_response(response, field):
     response["items"] = [remove_org_prefix(item) for item in response["items"]
-                         if item.get("id", "").startswith(g.tenant_id + '_')]
+                         if item.get(field, "").startswith(g.tenant_id + '_')]
 
 
 def list_response_to_dict(response):

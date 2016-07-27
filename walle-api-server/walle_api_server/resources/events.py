@@ -88,6 +88,14 @@ class Events(restful.Resource):
     )
     def get(self):
         logger.debug("Entering Events.get method.")
+        args = request.args
+        if 'blueprint_id' not in args and 'deployment_id' not in args:
+            return {"items": [],
+                    "metadata": {
+                        "pagination": {
+                            "offset": 0,
+                            "size": 0,
+                            "total": 0}}}
         result = g.proxy.get(request)
         logger.debug("Done. Exiting Events.get method.")
         items = []
@@ -96,6 +104,6 @@ class Events(restful.Resource):
                item['context'].get('blueprint_id').startswith(g.tenant_id):
                 context = item['context']
                 item['context'] = util.remove_org_prefix(context)
-                items.append(item)
+            items.append(item)
         result['items'] = items
-        return util.remove_org_prefix(result)
+        return result

@@ -13,16 +13,16 @@ class Nodes(restful.Resource):
 
     def get(self):
         logger.debug("Entering Nodes.get method.")
-        result = g.proxy.get(request)
+        nodes = g.proxy.get(request)
+        util.filter_response(nodes, "deployment_id")
         logger.debug("Done. Exiting Nodes.get method.")
-        return util.remove_org_prefix(result)
+        return nodes
 
 
 class NodeInstances(restful.Resource):
     def get(self):
         logger.debug("Entering NodeInstances.get method.")
-        result = g.proxy.get(request)
+        instances = g.proxy.get(request)
         logger.debug("Done. Exiting NodeInstances.get method.")
-        items = [util.remove_org_prefix(item) for item in result['items']]
-        result['items'] = items
-        return result
+        util.filter_response(instances, "deployment_id")
+        return instances

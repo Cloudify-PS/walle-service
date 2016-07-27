@@ -81,7 +81,7 @@ class Blueprints(restful.Resource):
         try:
             logger.info("Listing all blueprints.")
             blueprints = g.proxy.get(request)
-            util.filter_response(blueprints)
+            util.filter_response(blueprints, "id")
             logger.debug("Done. Exiting Blueprints.get method.")
             return blueprints
         except exceptions.CloudifyClientError as e:

@@ -25,7 +25,7 @@ class Deployments(restful.Resource):
         try:
             logger.info("Listing all deployments.")
             deployments = g.proxy.get(request)
-            util.filter_response(deployments)
+            util.filter_response(deployments, "id")
             logger.debug("Done. Exiting Deployments.get method.")
             return deployments
         except exceptions.CloudifyClientError as e:
