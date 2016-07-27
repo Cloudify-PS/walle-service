@@ -27,7 +27,9 @@ RUN /walle-service/blueprints/scripts/walle/install_dependencies.sh
 RUN pip install -r /walle-service/walle-api-server/requirements.txt && pip install /walle-service/walle-api-server
 #debug
 RUN useradd -m ubuntu
-RUN /walle-service/blueprints/scripts/walle/configure.sh
+RUN apt-get remove -y python-requests
+ADD . /walle-service
+RUN . /venv/bin/activate; /etc/init.d/postgresql start; /walle-service/blueprints/scripts/walle/configure.sh
 
 
 

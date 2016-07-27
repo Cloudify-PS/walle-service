@@ -146,6 +146,9 @@ end script
 sudo cp $HOME/walle_api_server.conf /etc/init/walle_api_server.conf
 sudo chown root:root /etc/init/walle_api_server.conf
 
+pwd
+cd /
+
 source $HOME/walle.rc; walle-manage db upgrade head -d walle-service/walle-api-server/migrations/
 source $HOME/walle.rc; walle-manage approved-plugins add --from-file walle-service/approved_plugins/approved_plugins_description.yaml
 
