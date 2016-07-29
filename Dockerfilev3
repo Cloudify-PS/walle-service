@@ -25,13 +25,19 @@ RUN /etc/init.d/postgresql start && /walle-service/blueprints/scripts/install_wa
 #setup walle part 2
 RUN /walle-service/blueprints/scripts/walle/install_dependencies.sh
 RUN pip install -r /walle-service/walle-api-server/requirements.txt && pip install /walle-service/walle-api-server
-#debug
+
 RUN useradd -m ubuntu
-RUN apt-get remove -y python-requests
+RUN apt-get remove -y python-requests; wget https://bootstrap.pypa.io/get-pip.py; python get-pip.py;
+RUN pip install --upgrade requests
 ADD . /walle-service
 RUN . /venv/bin/activate; /etc/init.d/postgresql start; /walle-service/blueprints/scripts/walle/configure.sh
+ENV WALLE_DB=postgresql://walle:supersecret@0.0.0.0/walle
+
+#debug
+RUN pip uninstall -y walle-service
+RUN apt-get remove -y gunicorn
+RUN pip install gunicorn
 
 
-
-#EXPOSE 80
+EXPOSE 8001 5432
 CMD ["/usr/bin/supervisord"]
