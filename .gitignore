@@ -57,7 +57,7 @@ docs/_build/
 target/
 
 venv/
-.idea/*
+**/.idea/*
 .venv/*
 local-storage/*
 

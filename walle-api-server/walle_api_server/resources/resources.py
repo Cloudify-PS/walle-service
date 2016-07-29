@@ -16,7 +16,7 @@ from walle_api_server.resources import manage
 def setup_resources(api):
     api = swagger.docs(api,
                        apiVersion='0.1',
-                       basePath='http://localhost:5000')
+                       basePath='http://172.17.0.2:8001')
     api.add_resource(blueprints.Blueprints, '/blueprints')
     api.add_resource(blueprints.BlueprintsId,
                      '/blueprints/<string:blueprint_id>')

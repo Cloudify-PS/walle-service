@@ -1,3 +1,14 @@
+#INSTALL & BUILD IMAGE
+# install Docker, build pre image from first Dockerfile :
+# "sudo docker build -f Dockerfile -t pre-walle ."
+# then, build "sudo docker build -f Dockerfilev3 -t post-walle ."
+#
+#RUN A CONTAINER
+#
+#sudo docker run -v /pathto/walle-service:/walle-service:ro  post-walle
+#sudo docker run -v /mnt/data/Projects/cloudify/walle/walle-service:/walle-service:ro  post-walle
+#
+#
 #access2 via docker exec -it [container-id] bash
 #access3 via docker run -t -i mysnapshot /bin/bash
 
