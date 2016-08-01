@@ -78,6 +78,72 @@ class Endpoint(base.BaseDatabaseModel, base.db.Model):
         }
 
 
+# Rights/group/role for tenant
+class Rights(base.BaseDatabaseModel, base.db.Model):
+    __tablename__ = 'rights'
+
+    id = base.db.Column(base.db.String(36), primary_key=True)
+    name = base.db.Column(base.db.String(16))
+    description = base.db.Column(base.db.String(1024))
+    created_at = base.db.Column(base.db.DateTime())
+    updated_at = base.db.Column(base.db.DateTime())
+
+    def __init__(self, name, description=None):
+        self.name = name
+        self.description = description
+        super(Rights, self).__init__()
+        self.save()
+
+    def __repr__(self):
+        return '#{}: {} can be used for {}'.format(
+            self.id, self.name, self.description
+        )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description
+        }
+
+
+# Users with some special rights, like admin,
+# can be not admin in endpoint rights system
+class TenantRights(base.BaseDatabaseModel, base.db.Model):
+    __tablename__ = 'tenant_rights'
+
+    id = base.db.Column(base.db.String(36), primary_key=True)
+    tenant_id = base.db.Column(
+        base.db.String(36),
+        base.db.ForeignKey('tenants.id')
+    )
+    rights_id = base.db.Column(
+        base.db.String(36),
+        base.db.ForeignKey('rights.id')
+    )
+    created_at = base.db.Column(base.db.DateTime())
+    updated_at = base.db.Column(base.db.DateTime())
+
+    def __init__(self, endpoint_id, tenant_id, rights_id):
+        self.tenant_id = tenant_id
+        super(TenantRights, self).__init__()
+        self.save()
+
+    def __repr__(self):
+        return '#{}: Allowed {} for {}'.format(
+            self.id, self.rights_id, self.tenant_id
+        )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "rights_id": self.rights_id,
+            "tenant_id": self.tenant_id
+        }
+
+
+# Common users without any special rights, used only for create
+# relations between tenant user and cloudify manager host plus limits
 class Tenant(base.BaseDatabaseModel, base.db.Model):
     __tablename__ = 'tenants'
 
