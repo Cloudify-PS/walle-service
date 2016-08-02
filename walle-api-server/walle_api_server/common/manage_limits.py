@@ -6,7 +6,6 @@ def endpoint_add(endpoint_url, type, version, description):
 
     if not endpoint_url or not type:
         return False, "ERROR: endpoint/type is required"
-        return
 
     endpoint = service_limit.check_endpoint_url(endpoint_url, type)
     if endpoint:
@@ -188,4 +187,71 @@ def limit_delete(id):
         return False, "ERROR: No such tenant entity."
 
     limit.delete()
+    return True, "OK"
+
+
+def rights_add(name, description=None):
+    if not name:
+        return False, "ERROR: endpoint/type is required"
+
+    endpoint = service_limit.get_right(name)
+    if endpoint:
+        return False, "ERROR: already exist"
+
+    return True, models.Rights(name, description)
+
+
+def rights_delete(id):
+    rights = models.Rights.find_by(
+        id=id)
+
+    if not rights:
+        return False, "ERROR: No such rights entity."
+
+    tenant_rights = models.TenantRights.find_by(
+        rights_id=id)
+
+    if tenant_rights:
+        return False, "ERROR: we have some tenant with such role"
+
+    rights.delete()
+    return True, "OK"
+
+
+def rights_list():
+    return True, models.Rights.list()
+
+
+def tenant_rights_add(tenant_id, rights_id):
+
+    if not tenant_id or not rights_id:
+        return False, "ERROR: please set both params"
+
+    rights = models.Rights.find_by(
+        id=rights_id)
+
+    if not rights:
+        return False, "ERROR: we dont have such rights id"
+
+    tenant = models.Tenant.find_by(
+        id=tenant_id)
+
+    if not tenant:
+        return False, "ERROR: no such tenant"
+
+    return True, models.TenantRights(tenant_id, rights_id)
+
+
+def tenant_rights_list():
+    return True, models.TenantRights.list()
+
+
+def tenant_rights_delete(id):
+    tenant_rights = models.TenantRights.find_by(
+        id=id)
+
+    if not tenant_rights:
+        return False, "ERROR: No such rights/tenant entity."
+
+    tenant_rights.delete()
     return True, "OK"

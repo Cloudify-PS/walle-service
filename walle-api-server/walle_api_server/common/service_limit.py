@@ -35,3 +35,9 @@ def get_tenant_limit(tenant_id, limit_type):
     """Gets tenants limit"""
     from walle_api_server.db.models import Limit
     return Limit.find_by(tenant_id=tenant_id, type=limit_type)
+
+
+def get_right(rights_name):
+    from walle_api_server.db.models import Rights
+
+    return Rights.find_by(name=rights_name)

@@ -90,7 +90,7 @@ class Rights(base.BaseDatabaseModel, base.db.Model):
 
     def __init__(self, name, description=None):
         self.name = name
-        self.description = description
+        self.description = description if description else ""
         super(Rights, self).__init__()
         self.save()
 
@@ -124,8 +124,9 @@ class TenantRights(base.BaseDatabaseModel, base.db.Model):
     created_at = base.db.Column(base.db.DateTime())
     updated_at = base.db.Column(base.db.DateTime())
 
-    def __init__(self, endpoint_id, tenant_id, rights_id):
+    def __init__(self, tenant_id, rights_id):
         self.tenant_id = tenant_id
+        self.rights_id = rights_id
         super(TenantRights, self).__init__()
         self.save()
 
