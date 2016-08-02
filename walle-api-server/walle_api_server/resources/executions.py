@@ -1,6 +1,6 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
-from flask import g, request
+from flask import g
 from flask.ext import restful
 from flask.ext.restful import reqparse
 from flask_restful_swagger import swagger
@@ -48,7 +48,7 @@ class Executions(restful.Resource):
             logger.info("Cloudify executions list: {0}.".format(
                 str(executions)))
             executions.items = [util.remove_org_prefix(e) for e in executions
-                        if g.tenant_id in e['deployment_id']]
+                                if g.tenant_id in e.get('deployment_id', "")]
             for ex in executions.items:
                 if ex['workflow_id'].startswith('walle'):
                     ex['workflow_id'] = ex['workflow_id'][5:]
@@ -103,8 +103,8 @@ class Executions(restful.Resource):
              "deployment_id": {"type": "string", "minLength": 1},
              "workflow_id": {"type": "string", "minLength": 1},
              "parameters": {"type": ["object", "null"]},
-             "allow_custom_parameters": {"type": "boolean"},
-             "force": {"type": "boolean"},
+             "allow_custom_parameters": {"type": "string"},
+             "force": {"type": "string"},
          },
          "required": ["deployment_id", "workflow_id"]}
     )
@@ -141,7 +141,8 @@ class Executions(restful.Resource):
             if hasattr(g, 'tenant_name'):
                 parameters['tenant_name'] = g.tenant_name
             allow_custom_parameters = True
-            force = json.get('force', False)
+            force = json.get('force', "False")
+            force = "true" == force.lower()
             logger.info("Looking for deployment %s .", deployment_id)
 
             logger.info("Staring workflow %s for deployment %s.",
@@ -220,14 +221,13 @@ class ExecutionsId(restful.Resource):
     @util.validate_json(
         {"type": "object",
          "properties": {
-             "force": {"type": "boolean"},
-         },
-         "required": ["force"]}
+             "force": {"type": "string"}}}
     )
     def post(self, json, execution_id=None):
         logger.debug("Entering Execution.put method.")
         try:
-            force = json.get('force', False)
+            force = json.get('force', "False")
+            force = "true" == force.lower()
             self.get(execution_id=execution_id)
             result = g.cc.executions.cancel(execution_id, force)
             if (result['workflow_id'] and
