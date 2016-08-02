@@ -83,7 +83,7 @@ class Rights(base.BaseDatabaseModel, base.db.Model):
     __tablename__ = 'rights'
 
     id = base.db.Column(base.db.String(36), primary_key=True)
-    name = base.db.Column(base.db.String(16))
+    name = base.db.Column(base.db.String(32))
     description = base.db.Column(base.db.String(1024))
     created_at = base.db.Column(base.db.DateTime())
     updated_at = base.db.Column(base.db.DateTime())
@@ -149,7 +149,7 @@ class Tenant(base.BaseDatabaseModel, base.db.Model):
     __tablename__ = 'tenants'
 
     id = base.db.Column(base.db.String(36), primary_key=True)
-    tenant_name = base.db.Column(base.db.String(16))
+    tenant_name = base.db.Column(base.db.String(64))
     description = base.db.Column(base.db.String(1024))
     endpoint_id = base.db.Column(
         base.db.String(36),
