@@ -362,7 +362,7 @@ def list(db_uri=None):
 
 
 @RightsCommands.option("--id", dest="id",
-                         help="Rights by id")
+                       help="Rights by id")
 @RightsCommands.option("--db-uri", dest="db_uri", default=None)
 def delete(id, db_uri=None):
     """Deletes endpoint."""
@@ -375,9 +375,9 @@ def delete(id, db_uri=None):
 
 # Tenant Rights
 @TenantRightsCommands.option("--tenant-id", dest="tenant",
-                       help="Tenant id")
+                             help="Tenant id")
 @TenantRightsCommands.option("--right-id", dest="right",
-                       help="Rights Id")
+                             help="Rights Id")
 @TenantRightsCommands.option("--db-uri", dest="db_uri", default=None)
 def add(tenant, right, db_uri=None):
     """Adds walle role."""
@@ -405,7 +405,7 @@ def list(db_uri=None):
 
 
 @TenantRightsCommands.option("--id", dest="id",
-                         help="Delete Tenant/Right record by id")
+                             help="Delete Tenant/Right record by id")
 @TenantRightsCommands.option("--db-uri", dest="db_uri", default=None)
 def delete(id, db_uri=None):
     """Deletes endpoint."""

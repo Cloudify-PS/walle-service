@@ -1,7 +1,13 @@
 # Copyright (c) 2016 VMware. All rights reserved
 # Copyright (c) 2016 GigaSpaces Technologies 2016, All Rights Reserved.
+import time
 
 DEPLOYMENT_LIMIT = 'deployments'
+# User can edit tenant list on server
+TENANT_EDIT_RIGHT = 'tenants'
+# Have rights to see blueprint/deployments/executions,
+# users in  WalleAdministrators doesn't have such right
+USER_RIGHT = 'user'
 
 
 def check_endpoint_url(endpoint_url, type):
@@ -41,3 +47,38 @@ def get_right(rights_name):
     from walle_api_server.db.models import Rights
 
     return Rights.find_by(name=rights_name)
+
+
+def valid_walle_admin_token(token):
+    from walle_api_server.db.models import WalleAdministrators
+
+    walle_admin = WalleAdministrators.find_by(token=token)
+    if walle_admin and walle_admin.expire > time.time():
+        return True
+
+    return False
+
+
+def tenant_rights(tenant_id):
+    from walle_api_server.db.models import TenantRights
+
+    list = [USER_RIGHT]
+
+    rights = TenantRights.query.filter(
+        TenantRights.tenant_id == tenant_id
+    ).all()
+    for right in rights:
+        if right.right:
+            list += [right.right.name]
+
+    return list
+
+
+def cant_edit_tenants():
+
+    from flask import g, make_response
+
+    if TENANT_EDIT_RIGHT not in g.rights:
+        return make_response("Forbidden.", 403)
+
+    return False

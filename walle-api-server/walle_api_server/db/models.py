@@ -121,6 +121,9 @@ class TenantRights(base.BaseDatabaseModel, base.db.Model):
         base.db.String(36),
         base.db.ForeignKey('rights.id')
     )
+
+    right = base.db.relationship("Rights")
+
     created_at = base.db.Column(base.db.DateTime())
     updated_at = base.db.Column(base.db.DateTime())
 

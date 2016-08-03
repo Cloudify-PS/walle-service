@@ -10,6 +10,7 @@ from walle_api_server.resources import status
 from walle_api_server.resources import login_vcloud
 from walle_api_server.resources import login_openstack
 from walle_api_server.resources import login_walle
+from walle_api_server.resources import endpoints
 from walle_api_server.resources import manage
 from walle_api_server.resources import service
 from walle_api_server.resources import nodes
@@ -37,18 +38,18 @@ def setup_resources(api):
     api.add_resource(status.Status, '/status')
     api.add_resource(login_vcloud.LoginVcloud, '/login_vcloud')
     api.add_resource(login_openstack.LoginOpenStack, '/login_openstack')
+
+    # admin part, you must have rights for do operation from this section
+    # look to rights table, partial copy of manage section
+    api.add_resource(endpoints.Endpoints, '/endpoints')
+    api.add_resource(endpoints.EndpointsId, '/endpoints/<string:id>/')
+    api.add_resource(manage.Tenants, '/tenants')
+    api.add_resource(manage.TenantsId, '/tenants/<string:id>')
+    api.add_resource(manage.Limits, '/limits')
+    api.add_resource(manage.LimitsId, '/limits/<string:id>')
+
+    # walle admin part, will check walle auth
     api.add_resource(login_walle.LoginWalle, '/login_walle')
-    api.add_resource(manage.Endpoints, '/manage/endpoints')
-    api.add_resource(manage.EndpointsId,
-                     '/manage/endpoints/<string:id>/')
-    api.add_resource(manage.Tenants,
-                     '/manage/tenants')
-    api.add_resource(manage.TenantsId,
-                     '/manage/tenants/<string:id>')
-    api.add_resource(manage.Limits,
-                     '/manage/limits')
-    api.add_resource(manage.LimitsId,
-                     '/manage/limits/<string:id>')
     api.add_resource(manage.ApprovedPlugins, '/manage/approved_plugins')
     api.add_resource(manage.ApprovedPluginsFromFile,
                      '/manage/approved_plugins/from_file')
