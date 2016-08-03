@@ -3,6 +3,7 @@ from flask.ext import restful
 from flask_restful_swagger import swagger
 
 from walle_api_server.common import util
+from walle_api_server.common import service_limit
 from walle_api_server.resources import responses
 
 logger = util.setup_logging(__name__)
@@ -17,7 +18,6 @@ class Endpoints(restful.Resource):
     )
     def get(self):
         from walle_api_server.common import manage_limits
-        from walle_api_server.common import service_limit
 
         restricted = service_limit.cant_edit_tenants()
         if restricted:
@@ -72,7 +72,6 @@ class Endpoints(restful.Resource):
     )
     def post(self, json):
         from walle_api_server.common import manage_limits
-        from walle_api_server.common import service_limit
 
         restricted = service_limit.cant_edit_tenants()
         if restricted:
@@ -103,7 +102,6 @@ class EndpointsId(restful.Resource):
     )
     def delete(self, id):
         from walle_api_server.common import manage_limits
-        from walle_api_server.common import service_limit
 
         restricted = service_limit.cant_edit_tenants()
         if restricted:

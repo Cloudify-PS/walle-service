@@ -3,100 +3,10 @@ from flask.ext import restful
 from flask_restful_swagger import swagger
 
 from walle_api_server.common import util
+from walle_api_server.common import service_limit
 from walle_api_server.resources import responses
 
 logger = util.setup_logging(__name__)
-
-
-class Endpoints(restful.Resource):
-
-    @swagger.operation(
-        nickname="getEndpoints",
-        notes="Return full list of registered service urls, "
-              "does't have any parameters.",
-    )
-    def get(self):
-        logger.info("Listing all endpoint urls.")
-
-        from walle_api_server.common import manage_limits
-
-        status, value = manage_limits.endpoint_list()
-        return [u.to_dict() for u in value]
-
-    @swagger.operation(
-        responseClass=responses.Endpoint,
-        nickname="registerEndpoint",
-        notes="Register new endpoint in system.",
-        parameters=[{'name': 'endpoint_url',
-                     'description': 'Endpoint Url',
-                     'required': True,
-                     'allowMultiple': False,
-                     'dataType': 'string',
-                     'paramType': 'body'},
-                    {'name': 'type',
-                     'description': 'Enpoint type(openstack, vcloud)',
-                     'required': True,
-                     'allowMultiple': False,
-                     'dataType': 'string',
-                     'paramType': 'body'},
-                    {'name': 'version',
-                     'description': 'Service version',
-                     'required': False,
-                     'allowMultiple': False,
-                     'dataType': 'string',
-                     'paramType': 'body'},
-                    {'name': 'description',
-                     'description': 'Descrition for service url',
-                     'required': False,
-                     'allowMultiple': False,
-                     'dataType': 'string',
-                     'paramType': 'body'}],
-        consumes=[
-            "application/json"
-        ]
-    )
-    @util.validate_json(
-        {"type": "object",
-         "properties": {
-             "endpoint_url": {"type": "string", "minLength": 1},
-             "type": {"type": "string", "minLength": 1},
-             "version": {"type": ["string", "null"]},
-             "description": {"type": ["string", "null"]},
-         },
-         "required": ["endpoint_url", "type"]}
-    )
-    def post(self, json):
-        logger.info("Update endpoint.")
-
-        from walle_api_server.common import manage_limits
-        status, value = manage_limits.endpoint_add(
-            json['endpoint_url'], json['type'],
-            json['version'], json['description'])
-
-        if status:
-            return value.to_dict()
-        else:
-            return value
-
-
-class EndpointsId(restful.Resource):
-    @swagger.operation(
-        nickname="DeleteEndpoint",
-        notes="Delete endpoint url from system.",
-        parameters=[{'name': 'id',
-                     'description': 'Endpoint Url ID',
-                     'required': True,
-                     'allowMultiple': False,
-                     'dataType': 'string',
-                     'paramType': 'path'}]
-    )
-    def delete(self, id):
-        logger.info("Delete  endpoint url.")
-
-        from walle_api_server.common import manage_limits
-        _, value = manage_limits.endpoint_delete_id(id)
-
-        return value
 
 
 class Tenants(restful.Resource):
@@ -447,6 +357,11 @@ class ApprovedPlugins(restful.Resource):
         logger.info("Listing all keystore_url.")
 
         from walle_api_server.db import models
+
+        restricted = service_limit.cant_edit_plugins()
+        if restricted:
+            return restricted
+
         plugins = models.ApprovedPlugins.list()
         return [u.to_dict() for u in plugins]
 
@@ -489,6 +404,11 @@ class ApprovedPlugins(restful.Resource):
         logger.debug("Entering ApprovedPlugins.post method.")
         logger.info("Update keystore_url.")
         from walle_api_server.db import models
+
+        restricted = service_limit.cant_edit_plugins()
+        if restricted:
+            return restricted
+
         plugin = models.ApprovedPlugins(json["name"],
                                         json["source"], json["type"])
         return plugin.to_dict()
@@ -519,6 +439,11 @@ class ApprovedPluginsFromFile(restful.Resource):
         logger.debug("Entering ApprovedPluginsFromFile.post method.")
         logger.info("Update keystore_url.")
         from walle_api_server.db import models
+
+        restricted = service_limit.cant_edit_plugins()
+        if restricted:
+            return restricted
+
         for name, source, type in json['from_file']:
             models.ApprovedPlugins(name, source, type)
         return "Registered {} plugins".format(len(json['from_file']))
@@ -539,6 +464,11 @@ class ApprovedPluginsId(restful.Resource):
         logger.debug("Entering ApprovedPlugins.delete method.")
         logger.info("Delete plugin.")
         from walle_api_server.db import models
+
+        restricted = service_limit.cant_edit_plugins()
+        if restricted:
+            return restricted
+
         plugin = models.ApprovedPlugins.find_by(id=id)
         if plugin:
             plugin.delete()

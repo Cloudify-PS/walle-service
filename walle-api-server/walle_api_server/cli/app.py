@@ -82,7 +82,10 @@ def check_authorization_walle(token):
     if not service_limit.valid_walle_admin_token(token):
         return make_response("Unauthorized.", 401)
 
-    g.rights = [service_limit.TENANT_EDIT_RIGHT]
+    g.rights = [
+        service_limit.TENANT_EDIT_RIGHT,
+        service_limit.PLUGIN_EDIT_RIGHT
+    ]
 
 
 def check_authorization_openstack(

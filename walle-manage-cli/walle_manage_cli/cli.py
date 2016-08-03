@@ -65,7 +65,7 @@ def login(ctx, user, password, walle_host, verify):
 @click.option('--source')
 @click.option('--type')
 @click.option('--from-file')
-@click.option('--id')
+@click.option('--plugin-id')
 def approved_plugins(ctx, operation, name, source, type, from_file,
                      plugin_id):
     logger = ctx.obj[LOGGER]

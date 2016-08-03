@@ -8,6 +8,7 @@ from flask_restful_swagger import swagger
 from cloudify_rest_client import exceptions
 
 from walle_api_server.common import util
+from walle_api_server.common import service_limit
 from walle_api_server.resources import responses
 
 logger = util.setup_logging(__name__)
@@ -30,6 +31,9 @@ class Executions(restful.Resource):
     )
     def get(self):
         logger.debug("Entering Execution.get method.")
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
         parser = reqparse.RequestParser()
         parser.add_argument('deployment_id', type=str, default='',
                             help='Deployment ID')
@@ -110,6 +114,9 @@ class Executions(restful.Resource):
     )
     def post(self, json):
         logger.debug("Entering Execution.post method.")
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
         try:
             def _walle_tosca_prefix():
                 deployment_obj = g.cc.deployments.get(deployment_id)
@@ -188,6 +195,9 @@ class ExecutionsId(restful.Resource):
     )
     def get(self, execution_id=None):
         logger.debug("Entering ExecutionsId.get method.")
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
         try:
             logger.info(
                 "Seeking for executions by execution %s.",
@@ -225,6 +235,9 @@ class ExecutionsId(restful.Resource):
     )
     def post(self, json, execution_id=None):
         logger.debug("Entering Execution.put method.")
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
         try:
             force = json.get('force', "False")
             force = "true" == force.lower()

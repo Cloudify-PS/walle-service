@@ -5,6 +5,7 @@ from flask import g, request
 from flask_restful_swagger import swagger
 
 from walle_api_server.common import util
+from walle_api_server.common import service_limit
 
 from cloudify_rest_client import exceptions
 
@@ -87,6 +88,9 @@ class Events(restful.Resource):
         consumes=['application/json']
     )
     def get(self):
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
         logger.debug("Entering Events.get method.")
         args = request.args
         if 'blueprint_id' not in args and 'deployment_id' not in args:

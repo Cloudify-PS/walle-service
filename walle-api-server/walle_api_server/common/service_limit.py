@@ -5,6 +5,8 @@ import time
 DEPLOYMENT_LIMIT = 'deployments'
 # User can edit tenant list on server
 TENANT_EDIT_RIGHT = 'tenants'
+# User can change list of approved plugins
+PLUGIN_EDIT_RIGHT = 'plugins'
 # Have rights to see blueprint/deployments/executions,
 # users in  WalleAdministrators doesn't have such right
 USER_RIGHT = 'user'
@@ -79,6 +81,26 @@ def cant_edit_tenants():
     from flask import g, make_response
 
     if TENANT_EDIT_RIGHT not in g.rights:
+        return make_response("Forbidden.", 403)
+
+    return False
+
+
+def cant_edit_plugins():
+
+    from flask import g, make_response
+
+    if PLUGIN_EDIT_RIGHT not in g.rights:
+        return make_response("Forbidden.", 403)
+
+    return False
+
+
+def cant_see_blueprints():
+
+    from flask import g, make_response
+
+    if USER_RIGHT not in g.rights:
         return make_response("Forbidden.", 403)
 
     return False
