@@ -44,16 +44,16 @@ class LoginOpenStack(restful.Resource):
     @util.validate_json(
         {"type": "object",
          "properties": {
-             "user": {"type": "string", "minLength": 1},
+             "username": {"type": "string", "minLength": 1},
              "password": {"type": "string", "minLength": 1},
              "auth_url": {"type": "string"},
              "tenant_name": {"type": "string"},
          },
-         "required": ["user", "password", "auth_url", "tenant_name"]}
+         "required": ["username", "password", "auth_url", "tenant_name"]}
     )
     def post(self, json):
         logger.debug("Entering Login.get method.")
-        user = json.get('user')
+        user = json.get('username')
         password = json.get('password')
         auth_url = json.get('auth_url')
         tenant_name = json.get('tenant_name')

@@ -3,7 +3,7 @@
 from cloudify_rest_client import exceptions
 
 from flask.ext import restful
-from flask import g
+from flask import g, request
 from flask_restful_swagger import swagger
 
 from walle_api_server.common import util
@@ -24,13 +24,10 @@ class Deployments(restful.Resource):
         logger.debug("Entering Deployments.get method.")
         try:
             logger.info("Listing all deployments.")
-            deployments = g.cc.deployments.list()
-            result = []
-            for deployment in deployments:
-                if deployment.id.startswith(g.tenant_id + '_'):
-                    result.append(util.remove_org_prefix(deployment))
+            deployments = g.proxy.get(request)
+            util.filter_response(deployments, "id")
             logger.debug("Done. Exiting Deployments.get method.")
-            return result
+            return deployments
         except exceptions.CloudifyClientError as e:
             return util.make_response_from_exception(e)
 
@@ -45,8 +42,8 @@ class DeploymentsId(restful.Resource):
         if current_account_limits:
             current_account_limits = current_account_limits.update(
                 value=(
-                    current_account_limits.value
-                    + increment_or_decrement))
+                    current_account_limits.value +
+                    increment_or_decrement))
             current_account_limits.save()
         logger.debug("Done. Exiting Deployments.update_qouta method.")
 
@@ -94,7 +91,9 @@ class DeploymentsId(restful.Resource):
         try:
             logger.info("Seeking for deplyment %s .",
                         deployment_id)
-            result = g.cc.deployments.get(util.add_org_prefix(deployment_id))
+            _include = request.args.get("_include", "").split(",")
+            result = g.cc.deployments.get(util.add_org_prefix(deployment_id),
+                                          _include=_include)
             logger.info("Cloudify deployment get: {0}.".format(str(result)))
             filtere_workflows = []
             for _workflow in result['workflows']:
@@ -236,3 +235,12 @@ class DeploymentOutputs(restful.Resource):
         except exceptions.CloudifyClientError as e:
             logger.error(str(e))
             return util.make_response_from_exception(e)
+
+
+class DeploymentsUpdates(restful.Resource):
+
+    def get(self):
+        logger.debug("Entering DeploymentsUpdates.get method.")
+        result = g.proxy.get(request)
+        logger.debug("Done. Exiting Events.get method.")
+        return util.remove_org_prefix(result)

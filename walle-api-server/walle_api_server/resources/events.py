@@ -1,7 +1,7 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
 from flask.ext import restful
-from flask import g
+from flask import g, request
 from flask_restful_swagger import swagger
 
 from walle_api_server.common import util
@@ -86,18 +86,24 @@ class Events(restful.Resource):
                      'paramType': 'body'}],
         consumes=['application/json']
     )
-    @util.validate_json(
-        {"type": "object",
-         "properties": {
-             "execution_id": {"type": "string", "minLength": 1},
-             "from": {"type": "integer", "minimum": 0},
-             "size": {"type": "integer", "minimum": 1},
-             "include_logs": {"type": "boolean"}
-         },
-         "required": ["execution_id"]}
-    )
-    def get(self, json):
+    def get(self):
         logger.debug("Entering Events.get method.")
-        result = self.get_events(json)
+        args = request.args
+        if 'blueprint_id' not in args and 'deployment_id' not in args:
+            return {"items": [],
+                    "metadata": {
+                        "pagination": {
+                            "offset": 0,
+                            "size": 0,
+                            "total": 0}}}
+        result = g.proxy.get(request)
         logger.debug("Done. Exiting Events.get method.")
+        items = []
+        for item in result['items']:
+            if item['context'].get('blueprint_id') and \
+               item['context'].get('blueprint_id').startswith(g.tenant_id):
+                context = item['context']
+                item['context'] = util.remove_org_prefix(context)
+            items.append(item)
+        result['items'] = items
         return result

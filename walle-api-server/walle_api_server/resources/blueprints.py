@@ -80,13 +80,10 @@ class Blueprints(restful.Resource):
         logger.debug("Entering Blueprints.get method.")
         try:
             logger.info("Listing all blueprints.")
-            blueprints = g.cc.blueprints.list()
-            result = []
-            for blueprint in blueprints:
-                if blueprint.id.startswith(g.tenant_id + '_'):
-                    result.append(util.remove_org_prefix(blueprint))
+            blueprints = g.proxy.get(request)
+            util.filter_response(blueprints, "id")
             logger.debug("Done. Exiting Blueprints.get method.")
-            return result
+            return blueprints
         except exceptions.CloudifyClientError as e:
             logger.exception(str(e))
             return util.make_response_from_exception(e)
@@ -447,8 +444,9 @@ class BlueprintsId(restful.Resource):
         try:
             logger.info("Seeking for blueprint: %s.",
                         blueprint_id)
+            _include = request.args.get("_include", "").split(",")
             return util.remove_org_prefix(g.cc.blueprints.get(
-                util.add_org_prefix(blueprint_id)))
+                util.add_org_prefix(blueprint_id), _include=_include))
         except exceptions.CloudifyClientError as e:
             logger.exception(str(e))
             return util.make_response_from_exception(e)
