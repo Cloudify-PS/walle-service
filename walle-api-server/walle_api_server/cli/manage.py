@@ -374,17 +374,27 @@ def delete(id, db_uri=None):
 
 
 # Tenant Rights
-@TenantRightsCommands.option("--tenant-id", dest="tenant",
-                             help="Tenant id")
-@TenantRightsCommands.option("--right-id", dest="right",
-                             help="Rights Id")
+@TenantRightsCommands.option("--tenant-id", dest="tenant_id",
+                             help="Tenant id", default=None)
+@TenantRightsCommands.option("--endpoint-url", dest="endpoint_url",
+                             help="Endpoint url")
+@TenantRightsCommands.option("--type", dest="type",
+                             help="Endpoint type, e.g. openstack")
+@TenantRightsCommands.option("--tenant", dest="tenant_name",
+                             help="Adds tenant to Walle DB")
+@TenantRightsCommands.option("--right-id", dest="right_id",
+                             help="Rights Id", default=None)
+@TenantRightsCommands.option("--right", dest="right",
+                             help="Rights name", default=None)
 @TenantRightsCommands.option("--db-uri", dest="db_uri", default=None)
-def add(tenant, right, db_uri=None):
+def add(tenant_id, endpoint_url, type, tenant_name, right_id, right, db_uri=None):
     """Adds walle role."""
     if db_uri:
         flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 
-    status, value = manage_limits.tenant_rights_add(tenant, right)
+    status, value = manage_limits.tenant_rights_add(
+        tenant_id, endpoint_url, type, tenant_name, right_id, right
+    )
     if status:
         print_utils.print_dict(value.to_dict())
     else:

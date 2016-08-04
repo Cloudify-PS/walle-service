@@ -222,24 +222,34 @@ def rights_list():
     return True, models.Rights.list()
 
 
-def tenant_rights_add(tenant_id, rights_id):
+def tenant_rights_add(tenant_id, endpoint_url, endpoint_type, tenant_name,
+                      right_id, right):
+    rights = None
 
-    if not tenant_id or not rights_id:
-        return False, "ERROR: please set both params"
-
-    rights = models.Rights.find_by(
-        id=rights_id)
+    if right:
+        rights = models.Rights.find_by(name=right)
+    else:
+        rights = models.Rights.find_by(id=right_id)
 
     if not rights:
-        return False, "ERROR: we dont have such rights id"
+        return False, "ERROR: we dont have such rights"
 
-    tenant = models.Tenant.find_by(
-        id=tenant_id)
+    if endpoint_url and endpoint_type and tenant_name:
+        tenant = service_limit.get_endpoint_tenant(
+            endpoint_url, endpoint_type, tenant_name
+        )
+    else:
+        tenant = models.Tenant.find_by(
+            id=tenant_id)
 
     if not tenant:
         return False, "ERROR: no such tenant"
 
-    return True, models.TenantRights(tenant_id, rights_id)
+    tenantrights = models.TenantRights.find_by(tenant_id=tenant.id,
+                                               rights_id=rights.id)
+    if tenantrights:
+        return True, tenantrights
+    return True, models.TenantRights(tenant.id, rights.id)
 
 
 def tenant_rights_list():

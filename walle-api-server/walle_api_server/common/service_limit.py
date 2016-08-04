@@ -20,10 +20,10 @@ def check_endpoint_url(endpoint_url, type):
         return endpoint
 
 
-def get_endpoint_tenant(endpoint_url, type, tenant):
+def get_endpoint_tenant(endpoint_url, endpoint_type, tenant):
     """Gets Cloudify credentials and current tenant."""
     from walle_api_server.db.models import Tenant
-    endpoint = check_endpoint_url(endpoint_url, type)
+    endpoint = check_endpoint_url(endpoint_url, endpoint_type)
     if endpoint:
         return Tenant.find_by(
             endpoint_id=endpoint.id, tenant_name=tenant)
