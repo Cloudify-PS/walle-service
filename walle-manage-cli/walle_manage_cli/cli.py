@@ -116,9 +116,10 @@ def endpoint_urls(ctx, operation, endpoint_url, type, version,
 @click.option('--cloudify-host')
 @click.option('--cloudify-port')
 @click.option('--description')
+@click.option('--create')
 @click.option('--id')
 def tenants(ctx, operation, endpoint_url, type, tenant_name,
-            cloudify_host, cloudify_port, description, id):
+            cloudify_host, cloudify_port, description, create, id):
     logger = ctx.obj[LOGGER]
     logger.debug('manage')
     config = load_config(logger)
@@ -129,7 +130,7 @@ def tenants(ctx, operation, endpoint_url, type, tenant_name,
                     type=type, tenant_name=tenant_name,
                     cloudify_host=cloudify_host,
                     cloudify_port=cloudify_port,
-                    description=description, id=id)
+                    description=description, create=create, id=id)
 
 
 @cli.command()

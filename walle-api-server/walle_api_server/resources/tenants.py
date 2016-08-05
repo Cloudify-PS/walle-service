@@ -1,4 +1,4 @@
-
+from flask import request
 from flask.ext import restful
 from flask_restful_swagger import swagger
 
@@ -106,6 +106,13 @@ class Tenants(restful.Resource):
             return restricted
 
         logger.info("Create tenant.")
+
+        create_in_openstack = request.args.get("create", "false")
+
+        if str(create_in_openstack).lower() == 'true':
+            logger.info(
+                "User want to create tenant in openstack, but i can't"
+            )
 
         status, value = manage_limits.tenant_add(
             json['endpoint_url'], json['type'], json['tenant_name'],

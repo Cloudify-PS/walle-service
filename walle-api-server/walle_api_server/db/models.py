@@ -30,6 +30,7 @@ VERSION_SIZE = 16
 # Table version, for renerate all tables at once
 TABLES_VERSION = "_v1"
 
+
 class WalleAdministrators(base.BaseDatabaseModel, base.db.Model):
     __tablename__ = 'walle_admins' + TABLES_VERSION
 
@@ -208,8 +209,8 @@ class Tenant(base.BaseDatabaseModel, base.db.Model):
             "id": self.id,
             "endpoint_id": self.endpoint_id,
             "tenant_name": self.tenant_name,
-            "endpoint": self.endpoint.endpoint,
-            "type": self.endpoint.type,
+            "endpoint": self.endpoint.endpoint if self.endpoint else "",
+            "type": self.endpoint.type if self.endpoint else "",
             "created_at": str(self.created_at),
             "updated_at": str(self.updated_at),
             "cloudify_host": self.cloudify_host,

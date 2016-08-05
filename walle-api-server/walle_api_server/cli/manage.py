@@ -387,7 +387,8 @@ def delete(id, db_uri=None):
 @TenantRightsCommands.option("--right", dest="right",
                              help="Rights name", default=None)
 @TenantRightsCommands.option("--db-uri", dest="db_uri", default=None)
-def add(tenant_id, endpoint_url, type, tenant_name, right_id, right, db_uri=None):
+def add(tenant_id, endpoint_url, type, tenant_name, right_id, right,
+        db_uri=None):
     """Adds walle role."""
     if db_uri:
         flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
