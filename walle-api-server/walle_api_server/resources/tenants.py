@@ -107,7 +107,7 @@ class Tenants(restful.Resource):
 
         logger.info("Create tenant.")
 
-        create_in_openstack = request.args.get("create", "false")
+        create_in_openstack = json.get("create", "false")
 
         if str(create_in_openstack).lower() == 'true':
             logger.info(
@@ -258,6 +258,14 @@ class Tenants(restful.Resource):
         if restricted:
             return restricted
 
+        create_in_openstack = request.args.get("delete", "false")
+
+        if str(create_in_openstack).lower() == 'true':
+            logger.info(
+                "User want to create tenant in openstack, but i can't"
+            )
+
+
         logger.info("Delete tenant.")
 
         # Not implemented, receive tenant + endpoint url and admin endpoint
@@ -273,6 +281,12 @@ class TenantsId(restful.Resource):
                      'required': True,
                      'allowMultiple': False,
                      'dataType': 'string',
+                     'paramType': 'path'},
+                    {'name': 'delete',
+                     'description': 'Delete on VIM',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
                      'paramType': 'path'}]
     )
     def delete(self, id):
@@ -283,6 +297,13 @@ class TenantsId(restful.Resource):
             return restricted
 
         logger.info("Delete tenant.")
+
+        create_in_openstack = request.args.get("delete", "false")
+
+        if str(create_in_openstack).lower() == 'true':
+            logger.info(
+                "User want to create tenant in openstack, but i can't"
+            )
 
         _, value = manage_limits.tenant_delete(id)
         return value
