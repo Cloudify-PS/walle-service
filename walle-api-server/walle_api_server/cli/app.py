@@ -62,8 +62,7 @@ def check_authorization():
         )
 
     openstack_authorization = request.headers.get(
-        'x-openstack-authorization'
-    )
+        'x-openstack-authorization')
     openstack_keystore = request.headers.get("x-openstack-keystore-url")
     openstack_region = request.headers.get("x-openstack-keystore-region", "")
     tenant_name = request.headers.get("x-openstack-keystore-tenant", "")
@@ -71,8 +70,7 @@ def check_authorization():
     if (openstack_keystore and openstack_authorization):
         return check_authorization_openstack(
             openstack_authorization, openstack_keystore,
-            openstack_region, tenant_name
-        )
+            openstack_region, tenant_name)
     logger.error("Unauthorized. Aborting.")
     return make_response("Unauthorized.", 401)
 
@@ -82,21 +80,16 @@ def check_authorization_walle(token):
     if not service_limit.valid_walle_admin_token(token):
         return make_response("Unauthorized.", 401)
 
-    g.rights = [
-        service_limit.TENANT_EDIT_RIGHT,
-        service_limit.PLUGIN_EDIT_RIGHT
-    ]
-
+    g.rights = [ service_limit.TENANT_EDIT_RIGHT,
+                service_limit.PLUGIN_EDIT_RIGHT ]
 
 def check_authorization_openstack(
-    openstack_authorization, openstack_keystore, openstack_region, tenant_name
-):
+    openstack_authorization, openstack_keystore, openstack_region, tenant_name):
     openstack_logined = False
     try:
         keystone = ksclient.Client(
             auth_url=openstack_keystore, token=openstack_authorization,
-            project_name=tenant_name
-        )
+            project_name=tenant_name)
         g.token = keystone.auth_ref['token']['id']
         g.tenant_id = keystone.user_id
         g.openstack_region = openstack_region
@@ -130,10 +123,8 @@ def check_authorization_openstack(
                               port=g.current_tenant.cloudify_port)
         g.proxy = client.HTTPClient(g.current_tenant.cloudify_host)
     else:
-        logger.error(
-            "No limits were defined for Keystore Url: %s/%s",
-            g.keystore_url, tenant_name
-        )
+        logger.error( "No limits were defined for Keystore Url: %s/%s",
+                     g.keystore_url, tenant_name)
         return make_response("Limits for Org-ID: %s were not defined. "
                              "Please contact administrator."
                              % g.tenant_id, 403)
@@ -155,15 +146,13 @@ def check_authorization_vcloud(vcloud_org_url, vcloud_token, vcloud_version):
         g.org_url = vcloud_org_url
         logger.info("Org-ID: %s.", g.tenant_id)
         if not service_limit.check_endpoint_url(
-                vcloud_org_url, 'vcloud'
-        ):
+                vcloud_org_url, 'vcloud'):
             logger.error("Unauthorized. Aborting authorization "
                          "for Org-ID: %s.", g.tenant_id)
             return make_response("Unauthorized.", 401)
 
         g.current_tenant = service_limit.get_endpoint_tenant(
-            vcloud_org_url, g.tenant_id
-        )
+            vcloud_org_url, g.tenant_id)
         if g.current_tenant:
             logger.info("Tenant entity: %s",
                         g.current_tenant.to_dict())
@@ -199,6 +188,10 @@ def _can_skip_auth(path):
         logger.info("Skipping authorizations with request headers,"
                     " using user:password Walle authorization.")
         return True
+    elif name == 'backend':
+        logger.info("Skipping authorizations with request headers,"
+                    " using backend request.")
+        return True
     return False
 
 
@@ -211,7 +204,6 @@ def _is_valid_url(vcloud_org_url):
     return False
 
 resources.setup_resources(api)
-
 
 def main():
     host, port, workers = (CONF.server.host,
@@ -226,8 +218,7 @@ def main():
             port=port,
             processes=workers,
             debug=(True if CONF.logging.level ==
-                   "DEBUG" else False)
-        )
+                   "DEBUG" else False))
     except Exception as e:
         print(str(e))
 

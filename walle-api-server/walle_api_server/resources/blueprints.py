@@ -9,6 +9,8 @@ import os.path
 import requests
 import zipfile
 import contextlib
+import json
+
 
 from flask.ext import restful
 from flask import request, g, make_response
@@ -34,70 +36,68 @@ def decode(input_stream, buffer_size=8192):
 logger = util.setup_logging(__name__)
 
 
-class BlueprintArchive(restful.Resource):
-
-    @swagger.operation(
-        nickname="getArchive",
-        notes="Downloads blueprint as an archive.",
-        parameters=[{'name': 'blueprint_id',
-                     'description': 'Blueprint ID',
-                     'required': True,
-                     'allowMultiple': False,
-                     'dataType': 'string',
-                     'paramType': 'query'}]
-    )
-    def get(self, blueprint_id):
-        logger.debug("Entering BlueprintArchive.get method.")
-        restricted = service_limit.cant_see_blueprints()
-        if restricted:
-            return restricted
-        try:
-            uri = '/blueprints/{0}/archive'.format(
-                util.add_org_prefix(blueprint_id))
-            with contextlib.closing(
-                    g.cc.blueprints.api.get(
-                        uri, stream=True)) as streamed_response:
-
-                streamed_response._response.url = request.url
-                response = make_response()
-                heads = streamed_response.headers._store
-                disposition, content = list(heads['content-disposition'])
-                content = util.remove_org_prefix(
-                    {'blueprint_id': content})['blueprint_id']
-                heads['content-disposition'] = (disposition, content)
-                response.headers._list = heads.values()
-                response.data = streamed_response._response.content
-                return response
-        except (Exception, exceptions.CloudifyClientError) as e:
-            logger.exception(str(e))
-            return util.make_response_from_exception(e)
+def _get_archive_type(archive_path):
+    if zipfile.is_zipfile(archive_path):
+        return 'zip'
+    if tarfile.is_tarfile(archive_path):
+        return 'tar'
+    raise RuntimeError("Can't recognize archive type")
 
 
-class Blueprints(restful.Resource):
-
-    @swagger.operation(
-        responseClass='List[{0}]'.format(responses.BlueprintState.__name__),
-        nickname="list",
-        notes="Returns a list of uploaded blueprints."
-    )
-    def get(self):
-        logger.debug("Entering Blueprints.get method.")
-        restricted = service_limit.cant_see_blueprints()
-        if restricted:
-            return restricted
-        try:
-            logger.info("Listing all blueprints.")
-            blueprints = g.proxy.get(request)
-            util.filter_response(blueprints, "id")
-            logger.debug("Done. Exiting Blueprints.get method.")
-            return blueprints
-        except exceptions.CloudifyClientError as e:
-            logger.exception(str(e))
-            return util.make_response_from_exception(e)
+def _is_zip(archive_path):
+    return _get_archive_type(archive_path) == 'zip'
 
 
-# TODO(???): download blueprint
-class BlueprintsId(restful.Resource):
+def _is_tar(archive_path):
+    return _get_archive_type(archive_path) == 'tar'
+
+
+def _is_archive(filename):
+    return filename.endswith('.arc')
+
+
+def _upload_blueprint(application_file_name, blueprint_id,
+                      tempdir, save_function):
+    archive_file_name = os.path.join(tempdir,
+                                     util.add_org_prefix(blueprint_id)) + '.arc'
+    logger.info("Saving blueprint files locally.")
+    save_function(archive_file_name)
+    logger.debug("Extracting archive.")
+    if _is_tar(archive_file_name):
+        with tarfile.open(archive_file_name, 'r:gz') as tfile:
+            tfile.extractall(tempdir)
+    elif _is_zip(archive_file_name):
+        with zipfile.ZipFile(archive_file_name) as zfile:
+            zfile.extractall(tempdir)
+    else:
+        raise Exception("Unknown archive")
+    files = os.listdir(tempdir)
+    directory = None
+    for file in files:
+        if not _is_archive(file):
+            directory = file
+            break
+    bp_dir = os.path.join(tempdir, directory)
+    if not os.path.isdir(bp_dir):
+        raise exceptions.CloudifyClientError(
+            "Malformed blueprint archive structure. "
+            "Please take a look at TOSCA blueprints "
+            "documentation. ", status_code=403)
+
+    validator = BlueprintValidator()
+    validator.validate_blueprint_on_security_breaches(
+        application_file_name, bp_dir)
+
+    logger.info("Uploading blueprint to Cloudify manager.")
+    blueprint = g.cc.blueprints.upload(
+        os.path.join(tempdir, directory, application_file_name),
+        util.add_org_prefix(blueprint_id))
+    logger.debug("Done. Exiting BlueprintsUpload.post method.")
+    shutil.rmtree(tempdir, True)
+    return util.remove_org_prefix(blueprint)
+
+
+class BlueprintValidator(object):
 
     def filter_validation_exception(self, e):
         if str(e).startswith("Failed on import"):
@@ -417,23 +417,92 @@ class BlueprintsId(restful.Resource):
             "Done. Exiting BlueprintsId.validate_blueprint_"
             "on_security_breaches method.")
 
-    @staticmethod
-    def _get_archive_type(archive_path):
-        if zipfile.is_zipfile(archive_path):
-            return 'zip'
-        if tarfile.is_tarfile(archive_path):
-            return 'tar'
-        raise RuntimeError("Can't recognize archive type")
 
-    def _is_zip(self, archive_path):
-        return self._get_archive_type(archive_path) == 'zip'
+class BlueprintArchive(restful.Resource):
 
-    def _is_tar(self, archive_path):
-        return self._get_archive_type(archive_path) == 'tar'
+    @swagger.operation(
+        nickname="getArchive",
+        notes="Downloads blueprint as an archive.",
+        parameters=[{'name': 'blueprint_id',
+                     'description': 'Blueprint ID',
+                     'required': True,
+                     'allowMultiple': False,
+                     'dataType': 'string',
+                     'paramType': 'query'}]
+    )
+    def get(self, blueprint_id):
+        logger.debug("Entering BlueprintArchive.get method.")
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
+        try:
+            uri = '/blueprints/{0}/archive'.format(
+                util.add_org_prefix(blueprint_id))
+            with contextlib.closing(
+                    g.cc.blueprints.api.get(
+                        uri, stream=True)) as streamed_response:
 
-    @staticmethod
-    def _is_archive(filename):
-        return filename.endswith('.arc')
+                streamed_response._response.url = request.url
+                response = make_response()
+                heads = streamed_response.headers._store
+                disposition, content = list(heads['content-disposition'])
+                content = util.remove_org_prefix(
+                    {'blueprint_id': content})['blueprint_id']
+                heads['content-disposition'] = (disposition, content)
+                response.headers._list = heads.values()
+                response.data = streamed_response._response.content
+                return response
+        except (Exception, exceptions.CloudifyClientError) as e:
+            logger.exception(str(e))
+            return util.make_response_from_exception(e)
+
+
+class Blueprints(restful.Resource):
+
+    @swagger.operation(
+        responseClass='List[{0}]'.format(responses.BlueprintState.__name__),
+        nickname="list",
+        notes="Returns a list of uploaded blueprints."
+    )
+    def get(self):
+        logger.debug("Entering Blueprints.get method.")
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
+        try:
+            logger.info("Listing all blueprints.")
+            blueprints = g.proxy.get(request)
+            util.filter_response(blueprints, "id")
+            logger.debug("Done. Exiting Blueprints.get method.")
+            return blueprints
+        except exceptions.CloudifyClientError as e:
+            logger.exception(str(e))
+            return util.make_response_from_exception(e)
+
+
+class BlueprintsUpload(restful.Resource):
+
+    def post(self):
+        try:
+            logger.debug("Entering BlueprintsUpload.post method.")
+            opts = json.loads(request.form['opts'])
+            application_file_name = opts['params']['application_file_name']
+            blueprint_id = opts['blueprint_id']
+            tempdir = tempfile.mkdtemp()
+            return _upload_blueprint(application_file_name, blueprint_id,
+                                     tempdir,
+                                     request.files['application_archive'].save)
+        except (Exception, exceptions.CloudifyClientError) as e:
+            logger.exception(str(e))
+            status = (400 if not isinstance(e, exceptions.CloudifyClientError)
+                      else e.status_code)
+            logger.debug("Done. Error. Exiting Blueprints.put method.")
+            shutil.rmtree(tempdir, True)
+            return util.make_response_from_exception(e, status)
+
+
+# TODO(???): download blueprint
+class BlueprintsId(restful.Resource):
 
     @swagger.operation(
         responseClass=responses.BlueprintState,
@@ -509,45 +578,9 @@ class BlueprintsId(restful.Resource):
                     "Query parameter "
                     "'application_file_name' is empty", status_code=400)
             tempdir = tempfile.mkdtemp()
-            archive_file_name = os.path.join(
-                tempdir,
-                util.add_org_prefix(blueprint_id)) + '.arc'
-            logger.info("Saving blueprint files locally.")
-            self._save_file_locally(archive_file_name)
-            logger.debug("Extracting archive.")
-            if self._is_tar(archive_file_name):
-                with tarfile.open(archive_file_name, 'r:gz') as tfile:
-                    tfile.extractall(tempdir)
-            elif self._is_zip(archive_file_name):
-                with zipfile.ZipFile(archive_file_name) as zfile:
-                    zfile.extractall(tempdir)
-            else:
-                raise Exception("Unknown archive")
-            files = os.listdir(tempdir)
-            directory = None
-            for file in files:
-                if not self._is_archive(file):
-                    directory = file
-                    break
-
-            bp_dir = os.path.join(tempdir, directory)
-            if not os.path.isdir(bp_dir):
-                raise exceptions.CloudifyClientError(
-                    "Malformed blueprint archive structure. "
-                    "Please take a look at TOSCA blueprints "
-                    "documentation. ", status_code=403)
-
-            self.validate_blueprint_on_security_breaches(
-                application_file_name, bp_dir)
-
-            logger.info("Uploading blueprint to Cloudify manager.")
-            blueprint = g.cc.blueprints.upload(
-                os.path.join(tempdir, directory,
-                             request.args['application_file_name']),
-                util.add_org_prefix(blueprint_id))
-            logger.debug("Done. Exiting Blueprints.put method.")
-            shutil.rmtree(tempdir, True)
-            return util.remove_org_prefix(blueprint)
+            return _upload_blueprint(application_file_name, blueprint_id,
+                                     tempdir,
+                                     self._save_file_locally)
         except (Exception, exceptions.CloudifyClientError) as e:
             logger.exception(str(e))
             status = (400 if not isinstance(e, exceptions.CloudifyClientError)

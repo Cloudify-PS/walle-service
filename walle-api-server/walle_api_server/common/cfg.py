@@ -26,7 +26,7 @@ logging_opts = [
                default=os.getenv("WALLE_LOGGING_LEVEL", "DEBUG"),
                choices=("DEBUG", "INFO")),
     cfg.StrOpt("file", default=os.getenv("WALLE_LOGGING_FILE",
-                                         "/var/log/walle-api.log")),
+                                         "/tmp/walle-api.log")),
     cfg.StrOpt("formatter",
                default='[%(asctime)s] - '
                        'PID: %(process)s - '
