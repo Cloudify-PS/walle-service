@@ -25,6 +25,7 @@ from urlparse import urlparse
 app = Flask(__name__)
 CORS(app)
 api = restful.Api(app)
++app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 

@@ -18,7 +18,7 @@ def get_endpoint_tenant(endpoint_url, type, tenant):
     endpoint = check_endpoint_url(endpoint_url, type)
     if endpoint:
         return Tenant.find_by(
-            endpoint_id=endpoint.id)
+            endpoint_id=endpoint.id, tenant_name=tenant)
 
 
 def get_endpoint_tenant_limit(endpoint_url, type, tenant_name,
