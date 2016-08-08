@@ -265,7 +265,6 @@ class Tenants(restful.Resource):
                 "User want to create tenant in openstack, but i can't"
             )
 
-
         logger.info("Delete tenant.")
 
         # Not implemented, receive tenant + endpoint url and admin endpoint

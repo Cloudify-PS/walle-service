@@ -27,8 +27,9 @@ DESCRIPTION_SIZE = 1024
 TYPE_SIZE = 32
 # version string
 VERSION_SIZE = 16
-# Table version, for renerate all tables at once
-TABLES_VERSION = "_v1"
+# Table version, for renerate all tables at once, use some value before
+# regenerate all tables
+TABLES_VERSION = ""
 
 
 class WalleAdministrators(base.BaseDatabaseModel, base.db.Model):
