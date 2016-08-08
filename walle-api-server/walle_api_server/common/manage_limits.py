@@ -6,7 +6,6 @@ def endpoint_add(endpoint_url, type, version, description):
 
     if not endpoint_url or not type:
         return False, "ERROR: endpoint/type is required"
-        return
 
     endpoint = service_limit.check_endpoint_url(endpoint_url, type)
     if endpoint:
@@ -98,7 +97,7 @@ def tenant_update(**kwargs):
     updated_tenant = (
         models.Tenant.find_by(
             id=tenant_id))
-    return True, updated_tenant.to_dict()
+    return True, updated_tenant
 
 
 def tenant_delete(id):
@@ -188,4 +187,81 @@ def limit_delete(id):
         return False, "ERROR: No such tenant entity."
 
     limit.delete()
+    return True, "OK"
+
+
+def rights_add(name, description=None):
+    if not name:
+        return False, "ERROR: endpoint/type is required"
+
+    endpoint = service_limit.get_right(name)
+    if endpoint:
+        return False, "ERROR: already exist"
+
+    return True, models.Rights(name, description)
+
+
+def rights_delete(id):
+    rights = models.Rights.find_by(
+        id=id)
+
+    if not rights:
+        return False, "ERROR: No such rights entity."
+
+    tenant_rights = models.TenantRights.find_by(
+        rights_id=id)
+
+    if tenant_rights:
+        return False, "ERROR: we have some tenant with such role"
+
+    rights.delete()
+    return True, "OK"
+
+
+def rights_list():
+    return True, models.Rights.list()
+
+
+def tenant_rights_add(tenant_id, endpoint_url, endpoint_type, tenant_name,
+                      right_id, right):
+    rights = None
+
+    if right:
+        rights = models.Rights.find_by(name=right)
+    else:
+        rights = models.Rights.find_by(id=right_id)
+
+    if not rights:
+        return False, "ERROR: we dont have such rights"
+
+    if endpoint_url and endpoint_type and tenant_name:
+        tenant = service_limit.get_endpoint_tenant(
+            endpoint_url, endpoint_type, tenant_name
+        )
+    else:
+        tenant = models.Tenant.find_by(
+            id=tenant_id)
+
+    if not tenant:
+        return False, "ERROR: no such tenant"
+
+    tenantrights = models.TenantRights.find_by(tenant_id=tenant.id,
+                                               rights_id=rights.id)
+    if tenantrights:
+        return True, tenantrights
+    return True, models.TenantRights(tenant.id, rights.id)
+
+
+def tenant_rights_list():
+    return True, models.TenantRights.list()
+
+
+def tenant_rights_delete(id):
+    tenant_rights = models.TenantRights.find_by(
+        id=id)
+
+    if not tenant_rights:
+        return False, "ERROR: No such rights/tenant entity."
+
+    tenant_rights.delete()
     return True, "OK"

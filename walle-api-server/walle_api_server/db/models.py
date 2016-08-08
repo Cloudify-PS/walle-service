@@ -7,15 +7,39 @@ import hashlib
 
 from walle_api_server.db import base
 
+# uuid size
+ID_SIZE = 36
+# size of name fileds
+# look to limit in openstack
+# keystone "project" table
+# keystone/common/sql/migrate_repo/versions/067_kilo.py#L95
+NAME_SIZE = 64
+# look to limit in openstack
+# keystone "endpoint" table, we dont have any limits,
+# but for 2048 must be enough
+# keystone/common/sql/migrate_repo/versions/067_kilo.py#L65
+URL_SIZE = 2048
+# size for hash fields
+MD5_SIZE = 32
+# description size
+DESCRIPTION_SIZE = 1024
+# type size, some string that can describe object type
+TYPE_SIZE = 32
+# version string
+VERSION_SIZE = 16
+# Table version, for renerate all tables at once, use some value before
+# regenerate all tables
+TABLES_VERSION = ""
+
 
 class WalleAdministrators(base.BaseDatabaseModel, base.db.Model):
-    __tablename__ = 'walle_admins'
+    __tablename__ = 'walle_admins' + TABLES_VERSION
 
-    id = base.db.Column(base.db.String(36), primary_key=True)
-    name = base.db.Column(base.db.String(16), unique=True)
+    id = base.db.Column(base.db.String(ID_SIZE), primary_key=True)
+    name = base.db.Column(base.db.String(NAME_SIZE), unique=True)
     # md5(id + raw_password)
-    password = base.db.Column(base.db.String(32))
-    token = base.db.Column(base.db.String(32))
+    password = base.db.Column(base.db.String(MD5_SIZE))
+    token = base.db.Column(base.db.String(MD5_SIZE))
     expire = base.db.Column(base.db.Integer())
 
     def __init__(self, name, password, token='', expire=0):
@@ -40,14 +64,13 @@ class WalleAdministrators(base.BaseDatabaseModel, base.db.Model):
 
 
 class Endpoint(base.BaseDatabaseModel, base.db.Model):
-    __tablename__ = 'endpoints'
+    __tablename__ = 'endpoints' + TABLES_VERSION
 
-    id = base.db.Column(base.db.String(36), primary_key=True)
-    # url ~ 128
-    endpoint = base.db.Column(base.db.String(128))
-    type = base.db.Column(base.db.String(24))
-    version = base.db.Column(base.db.String(16))
-    description = base.db.Column(base.db.String(1024))
+    id = base.db.Column(base.db.String(ID_SIZE), primary_key=True)
+    endpoint = base.db.Column(base.db.String(URL_SIZE))
+    type = base.db.Column(base.db.String(TYPE_SIZE))
+    version = base.db.Column(base.db.String(VERSION_SIZE))
+    description = base.db.Column(base.db.String(DESCRIPTION_SIZE))
     created_at = base.db.Column(base.db.DateTime())
     associations = base.db.relationship(
         'Tenant', backref='endpoint',
@@ -78,17 +101,87 @@ class Endpoint(base.BaseDatabaseModel, base.db.Model):
         }
 
 
-class Tenant(base.BaseDatabaseModel, base.db.Model):
-    __tablename__ = 'tenants'
+# Rights/group/role for tenant
+class Rights(base.BaseDatabaseModel, base.db.Model):
+    __tablename__ = 'rights' + TABLES_VERSION
 
-    id = base.db.Column(base.db.String(36), primary_key=True)
-    tenant_name = base.db.Column(base.db.String(16))
-    description = base.db.Column(base.db.String(1024))
-    endpoint_id = base.db.Column(
-        base.db.String(36),
-        base.db.ForeignKey('endpoints.id')
+    id = base.db.Column(base.db.String(ID_SIZE), primary_key=True)
+    name = base.db.Column(base.db.String(NAME_SIZE))
+    description = base.db.Column(base.db.String(DESCRIPTION_SIZE))
+    created_at = base.db.Column(base.db.DateTime())
+    updated_at = base.db.Column(base.db.DateTime())
+
+    def __init__(self, name, description=None):
+        self.name = name
+        self.description = description if description else ""
+        super(Rights, self).__init__()
+        self.save()
+
+    def __repr__(self):
+        return '#{}: {} can be used for {}'.format(
+            self.id, self.name, self.description
+        )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description
+        }
+
+
+# Users with some special rights, like admin,
+# can be not admin in endpoint rights system
+class TenantRights(base.BaseDatabaseModel, base.db.Model):
+    __tablename__ = 'tenant_rights' + TABLES_VERSION
+
+    id = base.db.Column(base.db.String(ID_SIZE), primary_key=True)
+    tenant_id = base.db.Column(
+        base.db.String(ID_SIZE),
+        base.db.ForeignKey('tenants' + TABLES_VERSION + '.id')
     )
-    cloudify_host = base.db.Column(base.db.String(128))
+    rights_id = base.db.Column(
+        base.db.String(ID_SIZE),
+        base.db.ForeignKey('rights' + TABLES_VERSION + '.id')
+    )
+
+    right = base.db.relationship("Rights")
+
+    created_at = base.db.Column(base.db.DateTime())
+    updated_at = base.db.Column(base.db.DateTime())
+
+    def __init__(self, tenant_id, rights_id):
+        self.tenant_id = tenant_id
+        self.rights_id = rights_id
+        super(TenantRights, self).__init__()
+        self.save()
+
+    def __repr__(self):
+        return '#{}: Allowed {} for {}'.format(
+            self.id, self.rights_id, self.tenant_id
+        )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "rights_id": self.rights_id,
+            "tenant_id": self.tenant_id
+        }
+
+
+# Common users without any special rights, used only for create
+# relations between tenant user and cloudify manager host plus limits
+class Tenant(base.BaseDatabaseModel, base.db.Model):
+    __tablename__ = 'tenants' + TABLES_VERSION
+
+    id = base.db.Column(base.db.String(ID_SIZE), primary_key=True)
+    tenant_name = base.db.Column(base.db.String(NAME_SIZE))
+    description = base.db.Column(base.db.String(DESCRIPTION_SIZE))
+    endpoint_id = base.db.Column(
+        base.db.String(ID_SIZE),
+        base.db.ForeignKey('endpoints' + TABLES_VERSION + '.id')
+    )
+    cloudify_host = base.db.Column(base.db.String(URL_SIZE))
     cloudify_port = base.db.Column(base.db.Integer())
     created_at = base.db.Column(base.db.DateTime())
     updated_at = base.db.Column(base.db.DateTime())
@@ -117,8 +210,8 @@ class Tenant(base.BaseDatabaseModel, base.db.Model):
             "id": self.id,
             "endpoint_id": self.endpoint_id,
             "tenant_name": self.tenant_name,
-            "endpoint": self.endpoint.endpoint,
-            "type": self.endpoint.type,
+            "endpoint": self.endpoint.endpoint if self.endpoint else "",
+            "type": self.endpoint.type if self.endpoint else "",
             "created_at": str(self.created_at),
             "updated_at": str(self.updated_at),
             "cloudify_host": self.cloudify_host,
@@ -128,17 +221,17 @@ class Tenant(base.BaseDatabaseModel, base.db.Model):
 
 
 class Limit(base.BaseDatabaseModel, base.db.Model):
-    __tablename__ = 'limits'
+    __tablename__ = 'limits' + TABLES_VERSION
 
-    id = base.db.Column(base.db.String(36), primary_key=True)
+    id = base.db.Column(base.db.String(ID_SIZE), primary_key=True)
     tenant_id = base.db.Column(
-        base.db.String(36),
-        base.db.ForeignKey('tenants.id')
+        base.db.String(ID_SIZE),
+        base.db.ForeignKey('tenants' + TABLES_VERSION + '.id')
     )
     soft = base.db.Column(base.db.Integer())
     hard = base.db.Column(base.db.Integer())
     value = base.db.Column(base.db.Integer())
-    type = base.db.Column(base.db.String(24))
+    type = base.db.Column(base.db.String(TYPE_SIZE))
     created_at = base.db.Column(base.db.DateTime())
     updated_at = base.db.Column(base.db.DateTime())
 
@@ -167,12 +260,12 @@ class Limit(base.BaseDatabaseModel, base.db.Model):
 class ApprovedPlugins(base.BaseDatabaseModel,
                       base.db.Model):
 
-    __tablename__ = 'approved_plugins'
+    __tablename__ = 'approved_plugins' + TABLES_VERSION
 
-    id = base.db.Column(base.db.String(36), primary_key=True)
-    name = base.db.Column(base.db.String(64))
-    source = base.db.Column(base.db.String(255))
-    plugin_type = base.db.Column(base.db.String(32))
+    id = base.db.Column(base.db.String(ID_SIZE), primary_key=True)
+    name = base.db.Column(base.db.String(NAME_SIZE))
+    source = base.db.Column(base.db.String(URL_SIZE))
+    plugin_type = base.db.Column(base.db.String(TYPE_SIZE))
 
     def __init__(self, name, source, plugin_type):
         """Creates an approved plugin entity for blueprints

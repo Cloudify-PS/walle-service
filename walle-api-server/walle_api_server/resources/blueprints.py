@@ -19,6 +19,7 @@ from dsl_parser import parser
 from dsl_parser import exceptions as dsl_exceptions
 
 from walle_api_server.common import util
+from walle_api_server.common import service_limit
 from walle_api_server.resources import responses
 
 
@@ -47,6 +48,9 @@ class BlueprintArchive(restful.Resource):
     )
     def get(self, blueprint_id):
         logger.debug("Entering BlueprintArchive.get method.")
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
         try:
             uri = '/blueprints/{0}/archive'.format(
                 util.add_org_prefix(blueprint_id))
@@ -78,6 +82,9 @@ class Blueprints(restful.Resource):
     )
     def get(self):
         logger.debug("Entering Blueprints.get method.")
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
         try:
             logger.info("Listing all blueprints.")
             blueprints = g.proxy.get(request)
@@ -441,6 +448,9 @@ class BlueprintsId(restful.Resource):
     )
     def get(self, blueprint_id=None):
         logger.debug("Entering BlueprintsId.get method.")
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
         try:
             logger.info("Seeking for blueprint: %s.",
                         blueprint_id)
@@ -481,6 +491,9 @@ class BlueprintsId(restful.Resource):
         ]
     )
     def put(self, blueprint_id=None):
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
         try:
             logger.debug("Entering Blueprints.put method.")
             parser = restful.reqparse.RequestParser()
@@ -556,6 +569,9 @@ class BlueprintsId(restful.Resource):
     )
     def delete(self, blueprint_id=None):
         logger.debug("Entering Blueprints.delete method.")
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
         try:
             logger.info("Checking if blueprint exists.")
             self.get(blueprint_id)

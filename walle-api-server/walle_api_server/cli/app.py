@@ -44,6 +44,10 @@ def check_authorization():
     logger.debug("Request headers %s", str(request.headers))
     if _can_skip_auth(request.path):
         return
+
+    # doesn't have any rights
+    g.rights = []
+
     walle_token = request.headers.get('x-walle-authorization')
     vcloud_token = request.headers.get('x-vcloud-authorization')
     vcloud_org_url = request.headers.get('x-vcloud-org-url', '')
@@ -74,7 +78,14 @@ def check_authorization():
 
 
 def check_authorization_walle(token):
-    return
+
+    if not service_limit.valid_walle_admin_token(token):
+        return make_response("Unauthorized.", 401)
+
+    g.rights = [
+        service_limit.TENANT_EDIT_RIGHT,
+        service_limit.PLUGIN_EDIT_RIGHT
+    ]
 
 
 def check_authorization_openstack(
@@ -109,6 +120,9 @@ def check_authorization_openstack(
         g.keystore_url, 'openstack', tenant_name
     )
     if g.current_tenant:
+        g.rights = service_limit.tenant_rights(g.current_tenant.id)
+        logger.info("Have such rights: %s", str(g.rights))
+
         logger.info("Org-ID limits entity: %s",
                     g.current_tenant.to_dict())
         logger.info("Limits for Keystore Url:%s were found.", g.keystore_url)

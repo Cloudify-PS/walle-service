@@ -20,6 +20,10 @@ EndpointCommands = Manager(usage="Performs action related to "
                            "Endpoints URLs")
 TenantCommands = Manager(usage="Performs action related to "
                          "tenants")
+RightsCommands = Manager(usage="Performs action related to "
+                         "create new user role")
+TenantRightsCommands = Manager(usage="Performs action related to "
+                               "create new role to tenant")
 LimitCommands = Manager(usage="Performs action related to "
                         "tenants limits")
 ApprovedPluginsCommands = Manager(usage="Performs actions related to approved "
@@ -104,7 +108,7 @@ def add(endpoint_url, type, version, description, db_uri=None):
 
 
 @EndpointCommands.option("--endpoint-url", dest="endpoint-url",
-                         help="Adds endpoint-url to Walle DB")
+                         help="delete endpoint-url from Walle DB")
 @EndpointCommands.option("--type", dest="type",
                          help="Endpoint type, e.g. openstack")
 @EndpointCommands.option("--db-uri", dest="db_uri", default=None)
@@ -326,9 +330,108 @@ def delete(**kwargs):
     models.WalleAdministrators.find_by(name=user).delete()
 
 
+# Rights
+@RightsCommands.option("--name", dest="name",
+                       help="Adds new role/right")
+@RightsCommands.option("--description", dest="description",
+                       help="Some short description about role", default=None)
+@RightsCommands.option("--db-uri", dest="db_uri", default=None)
+def add(name, description, db_uri=None):
+    """Adds walle role."""
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+
+    status, value = manage_limits.rights_add(name, description)
+    if status:
+        print_utils.print_dict(value.to_dict())
+    else:
+        print (value)
+
+
+@RightsCommands.option("--db-uri", dest="db_uri", default=None)
+def list(db_uri=None):
+    """Lists avaible roles."""
+
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+
+    _, value = manage_limits.rights_list()
+    print_utils.print_list(
+        value, ["id", "name", "description", "created_at"]
+    )
+
+
+@RightsCommands.option("--id", dest="id",
+                       help="Rights by id")
+@RightsCommands.option("--db-uri", dest="db_uri", default=None)
+def delete(id, db_uri=None):
+    """Deletes endpoint."""
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+
+    _, value = manage_limits.rights_delete(id)
+    print(value)
+
+
+# Tenant Rights
+@TenantRightsCommands.option("--tenant-id", dest="tenant_id",
+                             help="Tenant id", default=None)
+@TenantRightsCommands.option("--endpoint-url", dest="endpoint_url",
+                             help="Endpoint url")
+@TenantRightsCommands.option("--type", dest="type",
+                             help="Endpoint type, e.g. openstack")
+@TenantRightsCommands.option("--tenant", dest="tenant_name",
+                             help="Adds tenant to Walle DB")
+@TenantRightsCommands.option("--right-id", dest="right_id",
+                             help="Rights Id", default=None)
+@TenantRightsCommands.option("--right", dest="right",
+                             help="Rights name", default=None)
+@TenantRightsCommands.option("--db-uri", dest="db_uri", default=None)
+def add(tenant_id, endpoint_url, type, tenant_name, right_id, right,
+        db_uri=None):
+    """Adds walle role."""
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+
+    status, value = manage_limits.tenant_rights_add(
+        tenant_id, endpoint_url, type, tenant_name, right_id, right
+    )
+    if status:
+        print_utils.print_dict(value.to_dict())
+    else:
+        print (value)
+
+
+@TenantRightsCommands.option("--db-uri", dest="db_uri", default=None)
+def list(db_uri=None):
+    """Lists avaible tenant/roles."""
+
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+
+    _, value = manage_limits.tenant_rights_list()
+    print_utils.print_list(
+        value, ["id", "rights_id", "tenant_id"]
+    )
+
+
+@TenantRightsCommands.option("--id", dest="id",
+                             help="Delete Tenant/Right record by id")
+@TenantRightsCommands.option("--db-uri", dest="db_uri", default=None)
+def delete(id, db_uri=None):
+    """Deletes endpoint."""
+    if db_uri:
+        flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+
+    _, value = manage_limits.tenant_rights_delete(id)
+    print(value)
+
+
 manager.add_command('approved-plugins', ApprovedPluginsCommands)
 manager.add_command('endpoints', EndpointCommands)
 manager.add_command('tenants', TenantCommands)
+manager.add_command('rights', RightsCommands)
+manager.add_command('tenantrights', TenantRightsCommands)
 manager.add_command('limits', LimitCommands)
 manager.add_command('users', AdminsCommands)
 manager.add_command('db', MigrateCommand)

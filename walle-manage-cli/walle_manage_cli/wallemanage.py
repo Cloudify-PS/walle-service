@@ -62,7 +62,7 @@ class WalleManage(object):
         self.logger.debug("Headers: {}\n Route:{}\nData:{}".
                           format(headers, route, data))
         self.response = requests.post(self.url +
-                                      '/manage/{0}'.format(route),
+                                      '/{0}'.format(route),
                                       data=json.dumps(data),
                                       headers=headers,
                                       verify=self.verify)
@@ -74,7 +74,7 @@ class WalleManage(object):
         self.logger.debug("Headers: {}\n Route:{}\nId:{}".
                           format(headers, route, id))
         self.response = requests.delete(
-            self.url + '/manage/{0}/{1}'.format(route, id),
+            self.url + '/{0}/{1}'.format(route, id),
             headers=headers,
             verify=self.verify)
         _check_exception(self.logger, self.response)
@@ -86,7 +86,7 @@ class WalleManage(object):
         self.logger.debug("Headers: {}\n Route:{}\nData:{}".
                           format(headers, route, data))
         self.response = requests.put(self.url +
-                                     '/manage/{0}'.format(route),
+                                     '/{0}'.format(route),
                                      data=json.dumps(data),
                                      headers=headers,
                                      verify=self.verify)
@@ -97,7 +97,7 @@ class WalleManage(object):
         headers = self.get_headers()
         self.logger.debug("Headers: {}\n Route:{}".format(headers, route))
         self.response = requests.get(self.url +
-                                     '/manage/{0}'.format(route),
+                                     '/{0}'.format(route),
                                      headers=headers,
                                      verify=self.verify)
         _check_exception(self.logger, self.response)

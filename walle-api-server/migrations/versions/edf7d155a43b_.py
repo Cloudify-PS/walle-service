@@ -48,7 +48,7 @@ def upgrade():
     )
     op.create_table('tenants',
     sa.Column('id', sa.String(length=36), nullable=False),
-    sa.Column('tenant_name', sa.String(length=16), nullable=True),
+    sa.Column('tenant_name', sa.String(length=64), nullable=True),
     sa.Column('description', sa.String(length=1024), nullable=True),
     sa.Column('endpoint_id', sa.String(length=36), nullable=True),
     sa.Column('cloudify_host', sa.String(length=128), nullable=True),

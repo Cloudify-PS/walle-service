@@ -22,6 +22,9 @@ class Deployments(restful.Resource):
     )
     def get(self):
         logger.debug("Entering Deployments.get method.")
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
         try:
             logger.info("Listing all deployments.")
             deployments = g.proxy.get(request)
@@ -88,6 +91,9 @@ class DeploymentsId(restful.Resource):
     )
     def get(self, deployment_id=None):
         logger.debug("Entering DeploymentsId.get method.")
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
         try:
             logger.info("Seeking for deplyment %s .",
                         deployment_id)
@@ -135,6 +141,9 @@ class DeploymentsId(restful.Resource):
     )
     def delete(self, deployment_id=None):
         logger.debug("Entering Deployments.delete method.")
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
         try:
             parser = restful.reqparse.RequestParser()
             parser.add_argument('ignore_live_nodes',
@@ -192,6 +201,9 @@ class DeploymentsId(restful.Resource):
     )
     def put(self, json, deployment_id=None):
         logger.debug("Entering Deployments.put method.")
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
         blueprint_id = json['blueprint_id']
         inputs = json.get('inputs')
         try:
@@ -226,6 +238,9 @@ class DeploymentOutputs(restful.Resource):
     )
     def get(self, deployment_id):
         logger.debug("Entering DeploymentOutputs.get method.")
+        restricted = service_limit.cant_see_blueprints()
+        if restricted:
+            return restricted
         try:
             logger.info("Output of the deployment.")
             output = g.cc.deployments.outputs.get(

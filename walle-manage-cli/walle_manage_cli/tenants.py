@@ -21,6 +21,7 @@ def _add(client, route, **kwargs):
     cloudify_host = kwargs.get('cloudify_host')
     cloudify_port = kwargs.get('cloudify_port')
     description = kwargs.get('description')
+    create = kwargs.get('create')
 
     if not endpoint_url or not tenant_name:
         client.logger.info(
@@ -33,7 +34,8 @@ def _add(client, route, **kwargs):
         'tenant_name': tenant_name,
         'cloudify_host': cloudify_host,
         'cloudify_port': cloudify_port,
-        'description': description
+        'description': description,
+        'create': create
     }
     print_dict(client.add(route, data))
 

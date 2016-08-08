@@ -3,7 +3,7 @@ import yaml
 
 
 def proceed_approved_plugins(client, operation, **kwargs):
-    route = 'approved_plugins'
+    route = 'manage/approved_plugins'
     operations = {'add': _add,
                   'delete': _delete,
                   'list': _list}
