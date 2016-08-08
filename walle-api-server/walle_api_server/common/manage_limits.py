@@ -97,7 +97,7 @@ def tenant_update(**kwargs):
     updated_tenant = (
         models.Tenant.find_by(
             id=tenant_id))
-    return True, updated_tenant.to_dict()
+    return True, updated_tenant
 
 
 def tenant_delete(id):
