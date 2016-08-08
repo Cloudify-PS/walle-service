@@ -104,3 +104,12 @@ def cant_see_blueprints():
         return make_response("Forbidden.", 403)
 
     return False
+
+
+def general_response_todict(status, value):
+    from flask import make_response
+
+    if status:
+        return value.to_dict()
+    else:
+        return make_response(value, 400)

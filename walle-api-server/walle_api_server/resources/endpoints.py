@@ -83,10 +83,7 @@ class Endpoints(restful.Resource):
             json['endpoint_url'], json['type'],
             json['version'], json['description'])
 
-        if status:
-            return value.to_dict()
-        else:
-            return value
+        return service_limit.general_response_todict(status, value)
 
 
 class EndpointsId(restful.Resource):

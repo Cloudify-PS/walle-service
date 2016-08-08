@@ -119,10 +119,7 @@ class Tenants(restful.Resource):
             json['cloudify_host'], json['cloudify_port'],
             json['description']
         )
-        if status:
-            return value.to_dict()
-        else:
-            return value
+        return service_limit.general_response_todict(status, value)
 
     @swagger.operation(
         responseClass=responses.Tenant,
@@ -197,10 +194,7 @@ class Tenants(restful.Resource):
         logger.info("Update tenant.")
 
         status, value = manage_limits.tenant_update(**json)
-        if status:
-            return value.to_dict()
-        else:
-            return value
+        return service_limit.general_response_todict(status, value)
 
     @swagger.operation(
         nickname="DeleteTenant",
