@@ -123,7 +123,7 @@ def check_authorization_openstack(
         g.rights = service_limit.tenant_rights(g.current_tenant.id)
         logger.info("Have such rights: %s", str(g.rights))
 
-        logger.info("Org-ID limits entity: %s",
+        logger.info("Tenant entity: %s",
                     g.current_tenant.to_dict())
         logger.info("Limits for Keystore Url:%s were found.", g.keystore_url)
         g.cc = CloudifyClient(host=g.current_tenant.cloudify_host,
@@ -165,9 +165,9 @@ def check_authorization_vcloud(vcloud_org_url, vcloud_token, vcloud_version):
             vcloud_org_url, g.tenant_id
         )
         if g.current_tenant:
-            logger.info("Org-ID limits entity: %s",
+            logger.info("Tenant entity: %s",
                         g.current_tenant.to_dict())
-            logger.info("Limits for Org-ID:%s were found.", g.tenant_id)
+            logger.info("Tenant for Org-ID:%s were found.", g.tenant_id)
             g.cc = CloudifyClient(host=g.current_tenant.cloudify_host,
                                   port=g.current_tenant.cloudify_port)
         else:

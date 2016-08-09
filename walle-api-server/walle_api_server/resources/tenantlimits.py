@@ -97,10 +97,7 @@ class Limits(restful.Resource):
             json['limit_type'], json['soft'],
             json['hard']
         )
-        if status:
-            return value.to_dict()
-        else:
-            return value
+        return service_limit.general_response_todict(status, value)
 
     @swagger.operation(
         responseClass=responses.Limit,
@@ -154,10 +151,7 @@ class Limits(restful.Resource):
         logger.info("Update limit.")
 
         status, value = manage_limits.limit_update(**json)
-        if status:
-            return value.to_dict()
-        else:
-            return value
+        return service_limit.general_response_todict(status, value)
 
 
 class LimitsId(restful.Resource):
