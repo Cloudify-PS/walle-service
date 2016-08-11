@@ -171,7 +171,11 @@ def check_authorization_vcloud(vcloud_org_url, vcloud_token, vcloud_version):
 
 
 def _can_skip_auth(path):
-    name = path.split('/')[1].lower()
+    name = path.split('/')
+    if len(name) > 2:
+        name = name[3].lower()
+    else:
+        return False
     if name == 'api':
         logger.info("Skipping authorizations with request headers,"
                     " show api specification.")

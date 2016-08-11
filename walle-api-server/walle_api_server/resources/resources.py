@@ -21,32 +21,33 @@ from walle_api_server.resources import backend
 def setup_resources(api):
     api = swagger.docs(api,
                        apiVersion='0.1')
-    api.add_resource(blueprints.Blueprints, '/blueprints')
-    api.add_resource(blueprints.BlueprintsUpload, '/backend/blueprints/upload')
-    api.add_resource(blueprints.BlueprintsId,
-                     '/blueprints/<string:blueprint_id>')
-    api.add_resource(blueprints.BlueprintArchive,
-                     '/blueprints/<string:blueprint_id>/archive')
-    api.add_resource(deployments.Deployments, '/deployments')
-    api.add_resource(deployments.DeploymentsId,
-                     '/deployments/<string:deployment_id>')
-    api.add_resource(deployments.DeploymentOutputs,
-                     '/deployments/<string:deployment_id>/outputs')
-    api.add_resource(deployments.DeploymentsUpdates, '/deployment-updates')
-    api.add_resource(executions.Executions, '/executions')
-    api.add_resource(executions.ExecutionsId,
-                     '/executions/<string:execution_id>')
-    api.add_resource(events.Events, '/events')
-    api.add_resource(service.Status, '/status')
-    api.add_resource(service.Maintenance, '/maintenance')
-    api.add_resource(service.Version, '/version')
-    api.add_resource(service.Context, '/provider/context')
-    api.add_resource(nodes.Nodes, '/nodes')
-    api.add_resource(nodes.NodeInstances, '/node-instances')
-    api.add_resource(login_vcloud.LoginVcloud, '/login_vcloud')
-    api.add_resource(login_openstack.LoginOpenStack, '/login_openstack')
+    _set_versioned_urls(api, blueprints.Blueprints, '/blueprints')
+    _set_versioned_urls(api, blueprints.BlueprintsId,
+                        '/blueprints/<string:blueprint_id>')
+    _set_versioned_urls(api, blueprints.BlueprintArchive,
+                        '/blueprints/<string:blueprint_id>/archive')
+    _set_versioned_urls(api, deployments.Deployments, '/deployments')
+    _set_versioned_urls(api, deployments.DeploymentsId,
+                        '/deployments/<string:deployment_id>')
+    _set_versioned_urls(api, deployments.DeploymentOutputs,
+                        '/deployments/<string:deployment_id>/outputs')
+    _set_versioned_urls(api, deployments.DeploymentsUpdates,
+                        '/deployment-updates')
+    _set_versioned_urls(api, executions.Executions, '/executions')
+    _set_versioned_urls(api, executions.ExecutionsId,
+                        '/executions/<string:execution_id>')
+    _set_versioned_urls(api, events.Events, '/events')
+    _set_versioned_urls(api, service.Status, '/status')
+    _set_versioned_urls(api, service.Maintenance, '/maintenance')
+    _set_versioned_urls(api, service.Version, '/version')
+    _set_versioned_urls(api, service.Context, '/provider/context')
+    _set_versioned_urls(api, nodes.Nodes, '/nodes')
+    _set_versioned_urls(api, nodes.NodeInstances, '/node-instances')
+    _set_versioned_urls(api, login_vcloud.LoginVcloud, '/login_vcloud')
+    _set_versioned_urls(api, login_openstack.LoginOpenStack, '/login_openstack')
 
     # backend part
+    api.add_resource(blueprints.BlueprintsUpload, '/backend/blueprints/upload')
     api.add_resource(backend.Ui, '/backend/versions/ui')
     api.add_resource(backend.Logined, '/backend/isLoggedIn')
     api.add_resource(backend.Latest, '/backend/version/latest')
@@ -54,17 +55,22 @@ def setup_resources(api):
 
     # admin part, you must have rights for do operation from this section
     # look to rights table, partial copy of manage section
-    api.add_resource(endpoints.Endpoints, '/endpoints')
-    api.add_resource(endpoints.EndpointsId, '/endpoints/<string:id>/')
-    api.add_resource(tenants.Tenants, '/tenants')
-    api.add_resource(tenants.TenantsId, '/tenants/<string:id>')
-    api.add_resource(tenantlimits.Limits, '/limits')
-    api.add_resource(tenantlimits.LimitsId, '/limits/<string:id>')
+    _set_versioned_urls(api, endpoints.Endpoints, '/endpoints')
+    _set_versioned_urls(api, endpoints.EndpointsId, '/endpoints/<string:id>/')
+    _set_versioned_urls(api, tenants.Tenants, '/tenants')
+    _set_versioned_urls(api, tenants.TenantsId, '/tenants/<string:id>')
+    _set_versioned_urls(api, tenantlimits.Limits, '/limits')
+    _set_versioned_urls(api, tenantlimits.LimitsId, '/limits/<string:id>')
 
     # walle admin part, will check walle auth
-    api.add_resource(login_walle.LoginWalle, '/login_walle')
-    api.add_resource(plugins.ApprovedPlugins, '/manage/approved_plugins')
-    api.add_resource(plugins.ApprovedPluginsFromFile,
-                     '/manage/approved_plugins/from_file')
-    api.add_resource(plugins.ApprovedPluginsId,
-                     '/manage/approved_plugins/<string:name>')
+    _set_versioned_urls(api, login_walle.LoginWalle, '/login_walle')
+    _set_versioned_urls(api, plugins.ApprovedPlugins,
+                        '/manage/approved_plugins')
+    _set_versioned_urls(api, plugins.ApprovedPluginsFromFile,
+                        '/manage/approved_plugins/from_file')
+    _set_versioned_urls(api, plugins.ApprovedPluginsId,
+                        '/manage/approved_plugins/<string:name>')
+
+
+def _set_versioned_urls(api, resource, suffix):
+    api.add_resource(resource, '/api/v2.1' + suffix)

@@ -16,8 +16,12 @@ server {
       proxy_pass http://hpwidget-backend;
  }
 
+ location /api/v2.1{
+      proxy_pass http://hpwidget-backend;
+ }
+
  location /backend/cloudify-api{
-      rewrite  ^/backend/cloudify-api/(.*)$ /$1 break;
+      rewrite  ^/backend/cloudify-api/(.*)$ /api/v2.1/$1 break;
       proxy_pass http://hpwidget-backend;
  }
 
