@@ -20,3 +20,4 @@ jsonschema
 # last version with requests 2.7.0 support
 six==1.10.0
 python-keystoneclient>=1.6.0,<2.0.0
+python-ceilometerclient

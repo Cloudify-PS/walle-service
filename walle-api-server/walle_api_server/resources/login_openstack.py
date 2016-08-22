@@ -6,6 +6,10 @@ from walle_api_server.common import util
 import keystoneclient.v2_0.client as ksclient
 from flask_restful_swagger import swagger
 from walle_api_server.common import service_limit
+import ceilometerclient.client
+import novaclient.client
+from datetime import datetime, timedelta
+
 
 logger = util.setup_logging(__name__)
 
@@ -71,6 +75,20 @@ class LoginOpenStack(restful.Resource):
         except Exception as e:
             logger.error("Login failed: %s.", str(e))
         if openstack_logined:
+            nova_client = novaclient.client.Client(2, user, password, tenant_name, auth_url)
+            servers = nova_client.servers.list()
+            server_id = None
+            for server in servers:
+                if server.name == 'vyatta-node':
+                    server_id = server.id
+            if server_id:
+                meterclient = ceilometerclient.client.get_client(2, os_username=user, os_password=password, os_tenant_name=tenant_name, os_auth_url=auth_url)
+                now_stamp = datetime.utcnow()
+                query = [
+                    dict(field='timestamp', op='gt', value=(now_stamp - timedelta(seconds=5)).isoformat()),
+                    dict(field='resource_id', op='eq', value='4238d0b2-142f-4219-b0ff-576ea33dabba')
+                ]
+                raise Exception(str(meterclient.new_samples.list(q=query, limit=10)))
             logger.info("Authorizing tenant {0}.".format(tenant_name))
             logger.info("Org-ID registered object {0}".format(
                 service_limit.check_endpoint_url(auth_url, 'openstack')))
