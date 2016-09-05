@@ -77,18 +77,14 @@ class LoginOpenStack(restful.Resource):
         if openstack_logined:
             nova_client = novaclient.client.Client(2, user, password, tenant_name, auth_url)
             servers = nova_client.servers.list()
+            flavors = nova_client.flavors.list()
             server_id = None
             for server in servers:
-                if server.name == 'vyatta-node':
+                if server.name == 'CSR1000V' and False:
                     server_id = server.id
-            if server_id:
-                meterclient = ceilometerclient.client.get_client(2, os_username=user, os_password=password, os_tenant_name=tenant_name, os_auth_url=auth_url)
-                now_stamp = datetime.utcnow()
-                query = [
-                    dict(field='timestamp', op='gt', value=(now_stamp - timedelta(seconds=5)).isoformat()),
-                    dict(field='resource_id', op='eq', value='4238d0b2-142f-4219-b0ff-576ea33dabba')
-                ]
-                raise Exception(str(meterclient.new_samples.list(q=query, limit=10)))
+                    for flavor in flavors:
+                        if flavor.id == server.flavor['id']:
+                            raise Exception(str((flavor.disk, flavor.ram, flavor.vcpus, flavor.ephemeral)))
             logger.info("Authorizing tenant {0}.".format(tenant_name))
             logger.info("Org-ID registered object {0}".format(
                 service_limit.check_endpoint_url(auth_url, 'openstack')))
