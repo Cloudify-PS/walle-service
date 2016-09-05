@@ -10,7 +10,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 if [ x"$SKIP_INSTALLATION" != x"true" ]; then
 
-    echo "Installing Nginx."
+    ctx logger info "Installing Nginx."
 
     sudo apt-get update
 
@@ -19,13 +19,13 @@ if [ x"$SKIP_INSTALLATION" != x"true" ]; then
     sudo apt-get install -qy nginx 2>&1
 
 else
-    echo "Skipping installation, using existing Nginx."
+    ctx logger info "Skipping installation, using existing Nginx."
 fi
 
 rm -f walle-nginx-configration.tar.gz
 curl -o walle-nginx-configration.tar.gz ${WALLE_NGINX_CONFIGURATION_URL} 2>&1
 if [ "$?" -gt "0" ]; then
-    echo "Download configuration."
+    ctx logger info "Download configuration."
     wget -c ${WALLE_NGINX_CONFIGURATION_URL} -O walle-nginx-configration.tar.gz 2>&1
 fi
 
@@ -43,7 +43,7 @@ if [ -d "$HOME/www" ]; then
 fi
 mv www $HOME/www
 
-sed "s/127.0.0.1/${WALLE_INTERNAL_IP_ADDRESS}/g" -i etc/nginx/vca_io
+sed "s/walle_ip_gunicorn/${WALLE_INTERNAL_IP_ADDRESS}/g" -i etc/nginx/vca_io
 
 sudo chmod 600 etc/keys/*
 sudo cp etc/keys/* /etc/nginx

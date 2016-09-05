@@ -1,4 +1,3 @@
-
 server {
 
     client_max_body_size 50M;
@@ -25,31 +24,71 @@ server {
 
     server_name walle.vca.io www.vca.io vca.io;
 
-    location /login {
-        proxy_pass http://127.0.0.1:8001;
-    }
-
-    location /status {
-        proxy_pass http://127.0.0.1:8001;
-    }
-
     location /blueprints {
-        proxy_pass http://127.0.0.1:8001;
+        proxy_pass http://walle_ip_gunicorn:8001;
     }
 
     location /deployments {
-        proxy_pass http://127.0.0.1:8001;
+        proxy_pass http://walle_ip_gunicorn:8001;
+    }
+
+    location /deployment-updates {
+        proxy_pass http://walle_ip_gunicorn:8001;
     }
 
     location /executions {
-        proxy_pass http://127.0.0.1:8001;
+        proxy_pass http://walle_ip_gunicorn:8001;
     }
 
     location /events {
-        proxy_pass http://127.0.0.1:8001;
+        proxy_pass http://walle_ip_gunicorn:8001;
+    }
+
+    location /status {
+        proxy_pass http://walle_ip_gunicorn:8001;
+    }
+
+    location /login_vcloud {
+        proxy_pass http://walle_ip_gunicorn:8001;
+    }
+
+    location /login_openstack {
+        proxy_pass http://walle_ip_gunicorn:8001;
+    }
+
+    location /endpoints {
+        proxy_pass http://walle_ip_gunicorn:8001;
+    }
+
+    location /tenants {
+        proxy_pass http://walle_ip_gunicorn:8001;
+    }
+
+    location /limits {
+        proxy_pass http://walle_ip_gunicorn:8001;
+    }
+
+    location /login_walle {
+        proxy_pass http://walle_ip_gunicorn:8001;
+    }
+
+    location /manage {
+        proxy_pass http://walle_ip_gunicorn:8001;
+    }
+
+    location /maintenance {
+        proxy_pass http://walle_ip_gunicorn:8001;
+    }
+
+    location /nodes {
+        proxy_pass http://walle_ip_gunicorn:8001;
+    }
+
+    location /node-instances {
+        proxy_pass http://walle_ip_gunicorn:8001;
     }
 
     location / {
-        try_files $uri $uri/ =404;
+        proxy_pass http://localhost:9000;
     }
 }

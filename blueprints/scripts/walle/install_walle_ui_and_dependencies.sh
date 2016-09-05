@@ -7,15 +7,13 @@ cd $HOME
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
+ctx logger info "Walle URL: http://${WALLE_IP}:80"
 
-echo "Walle package URL: ${WALLE_UI_PACKAGE_URL}"
-echo "Walle URL: http://${WALLE_IP}:80"
-
-curl -sL https://deb.nodesource.com/setup | sudo bash -
+curl -sL https://deb.nodesource.com/setup_5.x | sudo -E bash -
 sudo apt-get update 2>&1
-
-sudo apt-get -qy install nodejs make g++ git
+sudo apt-get install -qy python-software-properties python g++ make nodejs git
 sudo npm install -g grunt-cli bower
+sudo chown ubuntu:ubuntu $HOME -R
 
-rm -f walle-ui-src.tar.gz
-curl -o walle-ui-src.tar.gz ${WALLE_UI_PACKAGE_URL}
+rm -rf walle-cloudify-ui
+git clone https://github.com/Cloudify-PS/walle-cloudify-ui.git
