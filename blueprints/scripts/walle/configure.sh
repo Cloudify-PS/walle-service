@@ -9,7 +9,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 if [ x"$IS_PRODUCTION" != x"false" ]; then
 
-echo "Prodaction mode."
+ctx logger info "Prodaction mode."
 # Report about exceeded org-ids
 
 PATHNAME="/opt/walle/bin"
@@ -103,7 +103,7 @@ echo "/var/log/walle-api.log {
 
 }" | sudo tee /etc/logrotate.d/walle-api
 else
-    echo "Skipping reports configuration, due on staging installation."
+    ctx logger info "Skipping reports configuration, due on staging installation."
 fi
 
 mkdir -p $HOME/walle_logs
@@ -127,6 +127,7 @@ sudo touch /var/log/walle-api.log
 sudo chown ubuntu:ubuntu /var/log/gunicorn_walle.log /var/log/walle-api.log
 sudo chmod 660 /var/log/gunicorn_walle.log /var/log/walle-api.log
 
+# gunicorn
 echo -e "description 'walle service'
 # used to be: start on startup
 # until we found some mounts were not ready yet while booting:

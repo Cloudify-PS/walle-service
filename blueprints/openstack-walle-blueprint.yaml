@@ -1,9 +1,9 @@
-tosca_definitions_version: cloudify_dsl_1_2
+tosca_definitions_version: cloudify_dsl_1_3
 
 imports:
-    - http://www.getcloudify.org/spec/cloudify/3.3.1/types.yaml
-    - http://www.getcloudify.org/spec/openstack-plugin/1.3.1/plugin.yaml
-    - https://raw.githubusercontent.com/cloudify-cosmo/cloudify-fabric-plugin/1.3.1/plugin.yaml
+  - http://www.getcloudify.org/spec/cloudify/3.4/types.yaml
+  - http://www.getcloudify.org/spec/fabric-plugin/1.4.1/plugin.yaml
+  - http://www.getcloudify.org/spec/openstack-plugin/1.4/plugin.yaml
 
 inputs:
 
@@ -16,8 +16,8 @@ inputs:
     server_flavor_name:
         default: m1.medium
 
-    server_security_groups:
-        default: ['All_ports_open']
+    server_security_group:
+        default: all_ports_open_walle
 
     walle_package_url:
         type: string
@@ -28,11 +28,6 @@ inputs:
         type: string
         description: >
             Walle-related nginx configuration
-
-    walle_ui_package_url:
-        type: string
-        description: >
-            Walle UI package
 
     postgresql_db_name:
         type: string
@@ -90,11 +85,11 @@ node_templates:
     postgresql_ip:
         type: cloudify.openstack.nodes.FloatingIP
 
-    All_ports_open:
+    all_ports_open_walle:
         type: cloudify.openstack.nodes.SecurityGroup
         properties:
             security_group:
-                name: All_ports_open
+                name: { get_input: server_security_group }
             rules:
                 - remote_ip_prefix: 0.0.0.0/0
                   port_range_min: 1
@@ -113,12 +108,13 @@ node_templates:
             server:
                 image: { get_input: server_image }
                 flavor_name: { get_input: server_flavor_name }
-                security_groups: { get_input: server_security_groups }
+                security_groups:
+                    - { get_input: server_security_group }
         relationships:
             -   type: cloudify.openstack.server_connected_to_floating_ip
                 target: walle_ip
             -   type: cloudify.relationships.depends_on
-                target: All_ports_open
+                target: all_ports_open_walle
 
     nginx_host:
         type: cloudify.openstack.nodes.Server
@@ -128,12 +124,13 @@ node_templates:
             server:
                 image: { get_input: server_image }
                 flavor_name: { get_input: server_flavor_name }
-                security_groups: { get_input: server_security_groups }
+                security_groups:
+                    - { get_input: server_security_group }
         relationships:
             -   type: cloudify.openstack.server_connected_to_floating_ip
                 target: nginx_ip
             -   type: cloudify.relationships.depends_on
-                target: All_ports_open
+                target: all_ports_open_walle
 
     postgresql_host:
         type: cloudify.openstack.nodes.Server
@@ -143,12 +140,13 @@ node_templates:
             server:
                 image: { get_input: server_image }
                 flavor_name: { get_input: server_flavor_name }
-                security_groups: { get_input: server_security_groups }
+                security_groups:
+                    - { get_input: server_security_group }
         relationships:
             -   type: cloudify.openstack.server_connected_to_floating_ip
                 target: postgresql_ip
             -   type: cloudify.relationships.depends_on
-                target: All_ports_open
+                target: all_ports_open_walle
 
     nginx:
         type: cloudify.nodes.SoftwareComponent
@@ -187,7 +185,6 @@ node_templates:
                     implementation: scripts/install_postgresql.sh
                     inputs:
                         SKIP_INSTALLATION: { get_input: use_existing_walle_db_node }
-
 
     postgresql_walle:
         type: cloudify.nodes.SoftwareComponent
@@ -237,14 +234,17 @@ node_templates:
                 create:
                     implementation: scripts/walle/install_walle_ui_and_dependencies.sh
                     inputs:
-                        WALLE_UI_PACKAGE_URL: { get_input: walle_ui_package_url }
+                        WALLE_INTERNAL_IP_ADDRESS: { get_attribute: [ walle_host, ip] }
                         WALLE_IP: { get_attribute: [nginx_host, ip] }
                 start:
                     implementation: scripts/walle/configure_ui.sh
+                    inputs:
+                        WALLE_INTERNAL_IP_ADDRESS: { get_attribute: [ walle_host, ip] }
         relationships:
           - type: cloudify.relationships.contained_in
             target: nginx
-
+          - type: cloudify.relationships.depends_on
+            target: walle
 outputs:
     nginx_ip:
         value: { get_attribute: [ nginx_ip, floating_ip_address ] }

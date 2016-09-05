@@ -199,11 +199,6 @@ inputs:
         description: >
             Walle-related nginx configuration
 
-    walle_ui_package_url:
-        type: string
-        description: >
-            Walle UI package
-
     manager_server_ip:
         type: string
         default: ''
@@ -634,7 +629,7 @@ node_templates:
             cloudify.interfaces.lifecycle:
                 create:
                     inputs:
-                        WALLE_UI_PACKAGE_URL: { get_input: walle_ui_package_url }
+                        WALLE_INTERNAL_IP_ADDRESS: { get_attribute: [ walle_host, ip] }
                         WALLE_IP: { get_attribute: [nginx_host, ip] }
                         fabric_env:
                             user: { get_input: servers_user }
