@@ -20,7 +20,7 @@ from walle_api_server.resources import backend
 
 def setup_resources(api):
     api = swagger.docs(api,
-                       apiVersion='0.1')
+                       apiVersion='2.1')
     _set_versioned_urls(api, blueprints.Blueprints, '/blueprints')
     _set_versioned_urls(api, blueprints.BlueprintsId,
                         '/blueprints/<string:blueprint_id>')
