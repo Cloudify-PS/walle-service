@@ -10,6 +10,8 @@ PLUGIN_EDIT_RIGHT = 'plugins'
 # Have rights to see blueprint/deployments/executions,
 # users in  WalleAdministrators doesn't have such right
 USER_RIGHT = 'user'
+# Common right for walle administrators
+ADMIN_RIGHT = 'admin'
 
 
 def check_endpoint_url(endpoint_url, type):
@@ -51,24 +53,13 @@ def get_right(rights_name):
     return Rights.find_by(name=rights_name)
 
 
-def valid_walle_admin_token(token):
-    from walle_api_server.db.models import WalleAdministrators
+def user_rights(user_id):
+    from walle_api_server.db.models import UserRights
 
-    walle_admin = WalleAdministrators.find_by(token=token)
-    if walle_admin and walle_admin.expire > time.time():
-        return True
+    list = []
 
-    return False
-
-
-def tenant_rights(tenant_id):
-    from walle_api_server.db.models import TenantRights
-
-    list = [USER_RIGHT]
-
-    rights = TenantRights.query.filter(
-        TenantRights.tenant_id == tenant_id
-    ).all()
+    rights = UserRights.query.filter(
+        UserRights.user_id == user_id).all()
     for right in rights:
         if right.right:
             list += [right.right.name]

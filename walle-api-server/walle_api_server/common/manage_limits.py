@@ -1,5 +1,6 @@
 from walle_api_server.db import models
 from walle_api_server.common import service_limit
+import keystoneclient.v2_0.client as ksclient
 
 
 def endpoint_add(endpoint_url, type, version, description):
@@ -208,10 +209,10 @@ def rights_delete(id):
     if not rights:
         return False, "ERROR: No such rights entity."
 
-    tenant_rights = models.TenantRights.find_by(
+    user_rights = models.UserRights.find_by(
         rights_id=id)
 
-    if tenant_rights:
+    if user_rights:
         return False, "ERROR: we have some tenant with such role"
 
     rights.delete()
@@ -222,14 +223,12 @@ def rights_list():
     return True, models.Rights.list()
 
 
-def tenant_rights_add(tenant_id, endpoint_url, endpoint_type, tenant_name,
-                      right_id, right):
+def user_rights_add(username, password, tenant_name, endpoint_url,
+                    endpoint_type, right):
     rights = None
 
     if right:
         rights = models.Rights.find_by(name=right)
-    else:
-        rights = models.Rights.find_by(id=right_id)
 
     if not rights:
         return False, "ERROR: we dont have such rights"
@@ -238,30 +237,37 @@ def tenant_rights_add(tenant_id, endpoint_url, endpoint_type, tenant_name,
         tenant = service_limit.get_endpoint_tenant(
             endpoint_url, endpoint_type, tenant_name
         )
-    else:
-        tenant = models.Tenant.find_by(
-            id=tenant_id)
 
     if not tenant:
-        return False, "ERROR: no such tenant"
+        return False, "ERROR: no such tenant '{}'"\
+                      " for endpoint '{}'".format(tenant, endpoint_url)
+    try:
+        keystone = ksclient.Client(
+            auth_url=endpoint_url,
+            username=username,
+            password=password,
+            tenant_name=tenant_name
+        )
+    except Exception as e:
+        return False, "Login failed: %s.".format(str(e))
+    user_id = keystone.user_id
+    userrights = models.UserRights.find_by(user_id=user_id,
+                                           rights_id=rights.id)
+    if userrights:
+        return True, userrights
+    return True, models.UserRights(user_id, rights.id)
 
-    tenantrights = models.TenantRights.find_by(tenant_id=tenant.id,
-                                               rights_id=rights.id)
-    if tenantrights:
-        return True, tenantrights
-    return True, models.TenantRights(tenant.id, rights.id)
+
+def user_rights_list():
+    return True, models.UserRights.list()
 
 
-def tenant_rights_list():
-    return True, models.TenantRights.list()
-
-
-def tenant_rights_delete(id):
-    tenant_rights = models.TenantRights.find_by(
+def user_rights_delete(id):
+    user_rights = models.UserRights.find_by(
         id=id)
 
-    if not tenant_rights:
+    if not user_rights:
         return False, "ERROR: No such rights/tenant entity."
 
-    tenant_rights.delete()
+    user_rights.delete()
     return True, "OK"

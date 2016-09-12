@@ -1,11 +1,15 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
+import warnings
+from flask.exthook import ExtDeprecationWarning
+warnings.simplefilter('ignore', ExtDeprecationWarning)
+
 from flask import Flask
-from flask.ext import restful
+import flask_restful as restful
 from flask import request, g, make_response
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.migrate import Migrate
-from flask.ext.cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_cors import CORS
 
 # vcloud air
 from pyvcloud.vcloudsession import VCS
@@ -48,22 +52,16 @@ def check_authorization():
     # doesn't have any rights
     g.rights = []
 
-    walle_token = request.headers.get('x-walle-authorization')
     vcloud_token = request.headers.get('x-vcloud-authorization')
     vcloud_org_url = request.headers.get('x-vcloud-org-url', '')
     vcloud_version = request.headers.get('x-vcloud-version')
 
-    if walle_token:
-        return check_authorization_walle(walle_token)
-
     if (vcloud_org_url and vcloud_token and vcloud_version):
         return check_authorization_vcloud(
-            vcloud_org_url, vcloud_token, vcloud_version
-        )
+            vcloud_org_url, vcloud_token, vcloud_version)
 
     openstack_authorization = request.headers.get(
-        'x-openstack-authorization'
-    )
+        'x-openstack-authorization')
     openstack_keystore = request.headers.get("x-openstack-keystore-url")
     openstack_region = request.headers.get("x-openstack-keystore-region", "")
     tenant_name = request.headers.get("x-openstack-keystore-tenant", "")
@@ -71,26 +69,13 @@ def check_authorization():
     if (openstack_keystore and openstack_authorization):
         return check_authorization_openstack(
             openstack_authorization, openstack_keystore,
-            openstack_region, tenant_name
-        )
+            openstack_region, tenant_name)
     logger.error("Unauthorized. Aborting.")
     return make_response("Unauthorized.", 401)
 
 
-def check_authorization_walle(token):
-
-    if not service_limit.valid_walle_admin_token(token):
-        return make_response("Unauthorized.", 401)
-
-    g.rights = [
-        service_limit.TENANT_EDIT_RIGHT,
-        service_limit.PLUGIN_EDIT_RIGHT
-    ]
-
-
-def check_authorization_openstack(
-    openstack_authorization, openstack_keystore, openstack_region, tenant_name
-):
+def check_authorization_openstack(openstack_authorization, openstack_keystore,
+                                  openstack_region, tenant_name):
     openstack_logined = False
     try:
         keystone = ksclient.Client(
@@ -98,7 +83,7 @@ def check_authorization_openstack(
             project_name=tenant_name
         )
         g.token = keystone.auth_ref['token']['id']
-        g.tenant_id = keystone.user_id
+        g.tenant_id = keystone.tenant_id
         g.openstack_region = openstack_region
         g.tenant_name = tenant_name
         openstack_logined = True
@@ -109,34 +94,40 @@ def check_authorization_openstack(
         return make_response("Unauthorized.", 401)
 
     g.keystore_url = openstack_keystore
-    if not service_limit.check_endpoint_url(g.keystore_url, 'openstack'):
-        logger.error("Unauthorized. Aborting authorization "
-                     "for Keystore Url: %s.", g.keystore_url)
-        return make_response("Unauthorized.", 401)
-
     logger.info("Tenant id: %s.", str(g.tenant_id))
-
     g.current_tenant = service_limit.get_endpoint_tenant(
-        g.keystore_url, 'openstack', tenant_name
-    )
+        g.keystore_url, 'openstack', tenant_name)
     if g.current_tenant:
-        g.rights = service_limit.tenant_rights(g.current_tenant.id)
+        if not g.current_tenant.tenant_id:
+            g.current_tenant.tenant_id = g.tenant_id
+            g.current_tenant.save()
+        g.rights = service_limit.user_rights(keystone.user_id)
         logger.info("Have such rights: %s", str(g.rights))
 
         logger.info("Tenant entity: %s",
                     g.current_tenant.to_dict())
-        logger.info("Limits for Keystore Url:%s were found.", g.keystore_url)
+        logger.info("Keystore Url:%s were found.", g.keystore_url)
         g.cc = CloudifyClient(host=g.current_tenant.cloudify_host,
                               port=g.current_tenant.cloudify_port)
-        g.proxy = client.HTTPClient(g.current_tenant.cloudify_host)
+        g.proxy = client.HTTPClient(g.current_tenant.cloudify_host,
+                                    port=g.current_tenant.cloudify_port)
+        if service_limit.ADMIN_RIGHT in g.rights:
+            from walle_api_server.db.models import Tenant
+            g.managers = []
+            for tenant in Tenant.list():
+                g.managers.append(
+                    client.HTTPClient(tenant.cloudify_host,
+                                      port=tenant.cloudify_port,
+                                      add_prefix=False))
+        else:
+                g.rights += [service_limit.USER_RIGHT]
     else:
         logger.error(
-            "No limits were defined for Keystore Url: %s/%s",
-            g.keystore_url, tenant_name
-        )
-        return make_response("Limits for Org-ID: %s were not defined. "
-                             "Please contact administrator."
-                             % g.tenant_id, 403)
+            "Not found keystore Url: '{}' for tenant '{}'".format(
+                g.keystore_url, tenant_name))
+        return make_response("Tenant: '{}' were not defined. "
+                             "Please contact administrator.".format(
+                                 tenant_name), 403)
 
 
 def check_authorization_vcloud(vcloud_org_url, vcloud_token, vcloud_version):
@@ -187,17 +178,9 @@ def _can_skip_auth(path):
         logger.info("Skipping authorizations with request headers,"
                     " show api specification.")
         return True
-    elif name == 'login_vcloud':
+    elif name == 'login':
         logger.info("Skipping authorizations with request headers,"
-                    " using user:password VCloud authorization.")
-        return True
-    elif name == 'login_openstack':
-        logger.info("Skipping authorizations with request headers,"
-                    " using user:password OpenStack authorization.")
-        return True
-    elif name == 'login_walle':
-        logger.info("Skipping authorizations with request headers,"
-                    " using user:password Walle authorization.")
+                    " using user:password authorization.")
         return True
     return False
 

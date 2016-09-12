@@ -1,9 +1,6 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
 import yaml
-# for security reason
-import hashlib
-
 
 from walle_api_server.db import base
 
@@ -30,37 +27,6 @@ VERSION_SIZE = 16
 # Table version, for renerate all tables at once, use some value before
 # regenerate all tables
 TABLES_VERSION = ""
-
-
-class WalleAdministrators(base.BaseDatabaseModel, base.db.Model):
-    __tablename__ = 'walle_admins' + TABLES_VERSION
-
-    id = base.db.Column(base.db.String(ID_SIZE), primary_key=True)
-    name = base.db.Column(base.db.String(NAME_SIZE), unique=True)
-    # md5(id + raw_password)
-    password = base.db.Column(base.db.String(MD5_SIZE))
-    token = base.db.Column(base.db.String(MD5_SIZE))
-    expire = base.db.Column(base.db.Integer())
-
-    def __init__(self, name, password, token='', expire=0):
-        self.name = name
-        self.token = token
-        self.expire = expire
-        super(WalleAdministrators, self).__init__()
-        self.password = hashlib.md5(self.id + password).hexdigest()
-        self.save()
-
-    def password_check(self, password):
-        return self.password == hashlib.md5(self.id + password).hexdigest()
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "password": self.password,
-            "token": self.token,
-            "expire": self.expire
-        }
 
 
 class Endpoint(base.BaseDatabaseModel, base.db.Model):
@@ -132,14 +98,12 @@ class Rights(base.BaseDatabaseModel, base.db.Model):
 
 # Users with some special rights, like admin,
 # can be not admin in endpoint rights system
-class TenantRights(base.BaseDatabaseModel, base.db.Model):
-    __tablename__ = 'tenant_rights' + TABLES_VERSION
+class UserRights(base.BaseDatabaseModel, base.db.Model):
+    __tablename__ = 'user_rights' + TABLES_VERSION
 
     id = base.db.Column(base.db.String(ID_SIZE), primary_key=True)
-    tenant_id = base.db.Column(
-        base.db.String(ID_SIZE),
-        base.db.ForeignKey('tenants' + TABLES_VERSION + '.id')
-    )
+    user_id = base.db.Column(
+        base.db.String(ID_SIZE))
     rights_id = base.db.Column(
         base.db.String(ID_SIZE),
         base.db.ForeignKey('rights' + TABLES_VERSION + '.id')
@@ -150,22 +114,22 @@ class TenantRights(base.BaseDatabaseModel, base.db.Model):
     created_at = base.db.Column(base.db.DateTime())
     updated_at = base.db.Column(base.db.DateTime())
 
-    def __init__(self, tenant_id, rights_id):
-        self.tenant_id = tenant_id
+    def __init__(self, user_id, rights_id):
+        self.user_id = user_id
         self.rights_id = rights_id
-        super(TenantRights, self).__init__()
+        super(UserRights, self).__init__()
         self.save()
 
     def __repr__(self):
         return '#{}: Allowed {} for {}'.format(
-            self.id, self.rights_id, self.tenant_id
+            self.id, self.rights_id, self.user_id
         )
 
     def to_dict(self):
         return {
             "id": self.id,
             "rights_id": self.rights_id,
-            "tenant_id": self.tenant_id
+            "user_id": self.user_id
         }
 
 
@@ -176,6 +140,7 @@ class Tenant(base.BaseDatabaseModel, base.db.Model):
 
     id = base.db.Column(base.db.String(ID_SIZE), primary_key=True)
     tenant_name = base.db.Column(base.db.String(NAME_SIZE))
+    tenant_id = base.db.Column(base.db.String(NAME_SIZE))
     description = base.db.Column(base.db.String(DESCRIPTION_SIZE))
     endpoint_id = base.db.Column(
         base.db.String(ID_SIZE),

@@ -44,6 +44,19 @@ def remove_org_prefix(obj):
     return obj_copy
 
 
+def replace_tenant_id(item_list):
+    from walle_api_server.db.models import Tenant
+    tenant_map = {}
+    for tenant in Tenant.list():
+        tenant_map[tenant.tenant_id] = tenant.tenant_name
+    for item in item_list["items"]:
+        item_id = item["id"]
+        tenant, name = item_id.split('_')
+        new_id = "{}_{}".format(tenant_map.get(tenant, tenant), name)
+        item["id"] = new_id
+    return item_list
+
+
 def make_response_from_exception(exception, code=None):
     def remove_org(e):
         response = str(e)

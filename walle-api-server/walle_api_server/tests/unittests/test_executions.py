@@ -6,6 +6,8 @@ import mock
 import json
 
 from walle_api_server.resources import executions
+from walle_api_server.common import service_limit
+from walle_api_server.tests.fakes.fake_objects import ListResponse
 
 
 class TestBase(testtools.TestCase):
@@ -22,6 +24,7 @@ class TestBase(testtools.TestCase):
         flask.g.token = "secret token"
         flask.g.org_url = "org_url"
         flask.g.cc = mock.MagicMock()
+        flask.g.rights = [service_limit.USER_RIGHT]
 
     def prefix_deployment(self, deployment):
         return "{}_{}".format(self.test_id, deployment)
@@ -29,17 +32,19 @@ class TestBase(testtools.TestCase):
     def test_list_executions(self):
         with self.app.app_context():
             self.setup_context()
-            flask.g.cc.executions.list = (lambda deployment_id:
-                                          [{'deployment_id': deployment_id,
-                                            'workflow_id': 'wallyinstall'},
-                                           {'deployment_id': 'test',
-                                            'workflow_id': 'wallyinstall'}])
+            flask.g.cc.executions.list = (lambda deployment_id, _include,
+                                          status:
+                                          ListResponse(
+                                              [{'deployment_id': deployment_id,
+                                                'workflow_id': 'walleinstall'},
+                                               {'deployment_id': 'test',
+                                                'workflow_id': 'walleinstal'}]))
             deployment = '123'
             with self.app.test_request_context('/executions?deployment_id={}'.
                                                format(deployment)):
                 deployment_list = self.executions.get()
                 self.assertTrue(len(deployment_list), 1)
-                self.assertEqual(deployment_list[0]['deployment_id'],
+                self.assertEqual(deployment_list['items'][0]['deployment_id'],
                                  deployment)
 
     def test_start_executions(self):
@@ -57,8 +62,8 @@ class TestBase(testtools.TestCase):
                 'deployment_id': deployment,
                 'workflow_id': workflow,
                 'parameters': None,
-                'allow_custom_parameters': False,
-                'force': False}
+                'allow_custom_parameters': 'false',
+                'force': 'false'}
             with self.app.test_request_context('/executions', method="POST",
                                                data=json.dumps(data),
                                                content_type='application/'
@@ -76,7 +81,7 @@ class TestBase(testtools.TestCase):
                 'force': a, 'workflow_id': 'walleinstall'
             }
             execution = 1
-            force = False
+            force = 'false'
             data = {'force': force}
             with self.app.test_request_context('/executions/{}'.
                                                format(execution),

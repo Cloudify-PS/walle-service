@@ -1,6 +1,6 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
-from flask.ext.restful import fields
+from flask_restful import fields
 from flask_restful_swagger import swagger
 
 
