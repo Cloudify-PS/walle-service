@@ -16,6 +16,7 @@ from walle_api_server.resources import tenants
 from walle_api_server.resources import tenantlimits
 from walle_api_server.resources import service
 from walle_api_server.resources import nodes
+from walle_api_server.resources import sso
 
 
 def setup_resources(api):
@@ -39,6 +40,9 @@ def setup_resources(api):
     api.add_resource(status.Status, '/status')
     api.add_resource(login_vcloud.LoginVcloud, '/login_vcloud')
     api.add_resource(login_openstack.LoginOpenStack, '/login_openstack')
+
+    # sso?
+    api.add_resource(sso.Login, '/sso')
 
     # admin part, you must have rights for do operation from this section
     # look to rights table, partial copy of manage section

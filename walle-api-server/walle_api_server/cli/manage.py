@@ -280,10 +280,11 @@ def update(**kwargs):
 def delete(**kwargs):
     """Deletes limit by its ID."""
     db_uri = kwargs.get("db_uri")
+    limit_id = kwargs.get("id")
     if db_uri:
         flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 
-    _, value = manage_limits.limit_delete(id)
+    _, value = manage_limits.limit_delete(limit_id)
     print(value)
 
 

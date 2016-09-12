@@ -180,8 +180,9 @@ def limit_update(**kwargs):
     return True, updated_limit
 
 
-def limit_delete(id):
-    limit = models.Limit.find_by(id=id)
+def limit_delete(limit_id):
+    print limit_id
+    limit = models.Limit.find_by(id=limit_id)
 
     if not limit:
         return False, "ERROR: No such tenant entity."

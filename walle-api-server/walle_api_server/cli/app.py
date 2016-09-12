@@ -187,6 +187,11 @@ def _can_skip_auth(path):
         logger.info("Skipping authorizations with request headers,"
                     " show api specification.")
         return True
+    if name == 'sso':
+        logger.info("Skipping authorizations with request headers,"
+                    " using SAML authorization.")
+        return True
+        return True
     elif name == 'login_vcloud':
         logger.info("Skipping authorizations with request headers,"
                     " using user:password VCloud authorization.")

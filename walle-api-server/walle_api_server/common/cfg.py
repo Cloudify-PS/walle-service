@@ -14,7 +14,7 @@ class PortOpt(cfg.Opt):
 rest_opts = [
     cfg.IPOpt("host", version=4,
               default=os.getenv("WALLE_HOST", "127.0.0.1")),
-    PortOpt("port", default=int(os.getenv("WALLE_PORT", 5000))),
+    PortOpt("port", default=int(os.getenv("WALLE_PORT", 80))),
     cfg.IntOpt("workers", default=int(os.getenv("WALLE_WORKERS", 4))),
     cfg.StrOpt('db_uri', default=os.getenv(
         "WALLE_DB", 'sqlite:////tmp/walle.db'
