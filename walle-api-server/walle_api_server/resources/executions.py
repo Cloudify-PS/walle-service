@@ -1,8 +1,8 @@
 # Copyright (c) 2015 VMware. All rights reserved
 
 from flask import g
-from flask.ext import restful
-from flask.ext.restful import reqparse
+import flask_restful as restful
+from flask_restful import reqparse
 from flask_restful_swagger import swagger
 
 from cloudify_rest_client import exceptions
@@ -48,7 +48,7 @@ class Executions(restful.Resource):
                         deployment_id)
             executions = g.cc.executions.list(deployment_id,
                                               _include=_include,
-                                              status=parsed['status'])
+                                              status=parsed.get('status', ''))
             logger.info("Cloudify executions list: {0}.".format(
                 str(executions)))
             executions.items = [util.remove_org_prefix(e) for e in executions

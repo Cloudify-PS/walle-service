@@ -31,27 +31,30 @@ class HTTPClient(object):
 
     def __init__(self, host, port=DEFAULT_PORT,
                  protocol=DEFAULT_PROTOCOL, api_version=DEFAULT_API_VERSION,
-                 headers=None, query_params=None, cert=None, trust_all=False):
+                 headers=None, query_params=None, cert=None, trust_all=False,
+                 add_prefix=True):
         self.port = port
         self.host = host
         self.url = '{0}://{1}:{2}/api/{3}'.format(protocol, host, port,
                                                   api_version)
         self.headers = headers.copy() if headers else {}
+        self.add_prefix = add_prefix
         if not self.headers.get('Content-type'):
             self.headers['Content-type'] = 'application/json'
 
     def get(self, request):
         path = request.path
         parameters = dict(request.args)
-        if request.args.get('id'):
-            id = request.args['id']
-            parameters['id'] = [util.add_org_prefix(id)]
-        if request.args.get('blueprint_id'):
-            bpid = request.args['blueprint_id']
-            parameters['blueprint_id'] = [util.add_org_prefix(bpid)]
-        if request.args.get('deployment_id'):
-            did = request.args['deployment_id']
-            parameters['deployment_id'] = [util.add_org_prefix(did)]
+        if self.add_prefix:
+            if request.args.get('id'):
+                id = request.args['id']
+                parameters['id'] = [util.add_org_prefix(id)]
+            if request.args.get('blueprint_id'):
+                bpid = request.args['blueprint_id']
+                parameters['blueprint_id'] = [util.add_org_prefix(bpid)]
+            if request.args.get('deployment_id'):
+                did = request.args['deployment_id']
+                parameters['deployment_id'] = [util.add_org_prefix(did)]
         response = requests.get(self.url + path,
                                 params=parameters,
                                 headers=self.headers)

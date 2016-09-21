@@ -5,6 +5,7 @@ import flask
 import mock
 
 from walle_api_server.resources import deployments
+from walle_api_server.common import service_limit
 
 
 class TestBase(testtools.TestCase):
@@ -25,6 +26,7 @@ class TestBase(testtools.TestCase):
             self.setup_context()
             output = {"var": "val"}
             flask.g.cc.deployments.outputs = mock.MagicMock()
+            flask.g.rights = [service_limit.USER_RIGHT]
             flask.g.cc.deployments.outputs.get = lambda d: {"outputs": output,
                                                             "deployment_id": d}
             deployment_id = "deployment_id"

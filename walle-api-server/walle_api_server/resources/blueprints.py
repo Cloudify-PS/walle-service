@@ -82,11 +82,32 @@ class Blueprints(restful.Resource):
     )
     def get(self):
         logger.debug("Entering Blueprints.get method.")
-        restricted = service_limit.cant_see_blueprints()
-        if restricted:
-            return restricted
+        if service_limit.ADMIN_RIGHT in g.rights:
+            return self.show_all_blueprints()
+        else:
+            restricted = service_limit.cant_see_blueprints()
+            if restricted:
+                return restricted
+            return self.show_users_blueprints()
+
+    def show_all_blueprints(self):
         try:
-            logger.info("Listing all blueprints.")
+            logger.info("Listing all blueprints for admin.")
+            blueprints = {"items": [],
+                          "metadata": {"total": 0, "offset": 0, "size": 0}}
+            for proxy in g.managers:
+                bp = proxy.get(request)
+                blueprints["items"].extend(bp["items"])
+                blueprints["metadata"]["total"] += len(bp["items"])
+            logger.debug("Done. Exiting Blueprints.get method.")
+            return util.replace_tenant_id(blueprints)
+        except exceptions.CloudifyClientError as e:
+            logger.exception(str(e))
+            return util.make_response_from_exception(e)
+
+    def show_users_blueprints(self):
+        try:
+            logger.info("Listing all blueprints for user.")
             blueprints = g.proxy.get(request)
             util.filter_response(blueprints, "id")
             logger.debug("Done. Exiting Blueprints.get method.")

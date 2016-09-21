@@ -6,7 +6,8 @@ import mock
 import testtools
 
 import walle_api_server
-from walle_api_server.resources import login_vcloud
+from walle_api_server.login import login_vcloud
+from walle_api_server.resources import login
 
 
 class TestBase(testtools.TestCase):
@@ -96,7 +97,7 @@ class TestBase(testtools.TestCase):
                           1, 2, 3, 4, 5, 6, 7, 8)
 
     def test_post(self):
-        testlogin = login_vcloud.LoginVcloud()
+        testlogin = login.Login()
         data = {
             'user': 'user',
             'password': 'password',
@@ -110,7 +111,7 @@ class TestBase(testtools.TestCase):
                                            data=json.dumps(data),
                                            content_type='application/'
                                            'json'):
-            with mock.patch.object(walle_api_server.resources.login_vcloud,
+            with mock.patch.object(walle_api_server.login.login_vcloud,
                                    '_login_user_to_service') as fake_login:
                 with mock.patch.object(walle_api_server.common.service_limit,
                                        'check_endpoint_url') as mock.MagicMock:
@@ -140,7 +141,7 @@ class TestBase(testtools.TestCase):
                                            data=json.dumps(data),
                                            content_type='application/'
                                            'json'):
-            with mock.patch.object(walle_api_server.resources.login_vcloud,
+            with mock.patch.object(walle_api_server.login.login_vcloud,
                                    '_login_user_to_service') as fake_login:
                 token = 1
                 org_url = 'url'

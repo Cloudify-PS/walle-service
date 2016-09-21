@@ -7,9 +7,7 @@ from walle_api_server.resources import deployments
 from walle_api_server.resources import executions
 from walle_api_server.resources import events
 from walle_api_server.resources import status
-from walle_api_server.resources import login_vcloud
-from walle_api_server.resources import login_openstack
-from walle_api_server.resources import login_walle
+from walle_api_server.resources import login
 from walle_api_server.resources import endpoints
 from walle_api_server.resources import plugins
 from walle_api_server.resources import tenants
@@ -37,8 +35,7 @@ def setup_resources(api):
                      '/executions/<string:execution_id>')
     api.add_resource(events.Events, '/events')
     api.add_resource(status.Status, '/status')
-    api.add_resource(login_vcloud.LoginVcloud, '/login_vcloud')
-    api.add_resource(login_openstack.LoginOpenStack, '/login_openstack')
+    api.add_resource(login.Login, '/login')
 
     # admin part, you must have rights for do operation from this section
     # look to rights table, partial copy of manage section
@@ -50,7 +47,6 @@ def setup_resources(api):
     api.add_resource(tenantlimits.LimitsId, '/limits/<string:id>')
 
     # walle admin part, will check walle auth
-    api.add_resource(login_walle.LoginWalle, '/login_walle')
     api.add_resource(plugins.ApprovedPlugins, '/manage/approved_plugins')
     api.add_resource(plugins.ApprovedPluginsFromFile,
                      '/manage/approved_plugins/from_file')
