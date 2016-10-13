@@ -14,7 +14,7 @@ deployment_plugins:
 
     - openstack:
         source:
-            - https://github.com/0lvin/cloudify-openstack-plugin/archive/1.4-build.zip
+            - https://github.com/Cloudify-PS/cloudify-openstack-plugin/archive/1.4walle.zip
 
 workflow_plugins:
 
@@ -23,4 +23,4 @@ workflow_plugins:
             - ''
     - openstack:
         source:
-            - https://github.com/0lvin/cloudify-openstack-plugin/archive/1.4-build.zip
+            - https://github.com/Cloudify-PS/cloudify-openstack-plugin/archive/1.4walle.zip
