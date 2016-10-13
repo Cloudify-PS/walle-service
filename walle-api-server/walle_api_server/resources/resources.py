@@ -42,7 +42,7 @@ def setup_resources(api):
     api.add_resource(login_openstack.LoginOpenStack, '/login_openstack')
 
     # sso?
-    api.add_resource(sso.Login, '/sso')
+    api.add_resource(sso.Login, '/sso/')
 
     # admin part, you must have rights for do operation from this section
     # look to rights table, partial copy of manage section

@@ -1,8 +1,9 @@
 import os
 
 from flask.ext import restful
+from flask_restful_swagger import swagger
 
-from flask import (request, redirect, session)
+from flask import (request, redirect, session, make_response)
 from urlparse import urlparse
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
@@ -31,12 +32,41 @@ def prepare_flask_request():
 
 class Login(restful.Resource):
 
+    @swagger.operation(
+        nickname="sso actions",
+        notes="""Return for action equal metadata, possible action:
+        * metadata - return metadata,
+        * acs - sso login
+        * slo - logout
+        """
+    )
     def get(self):
         req = prepare_flask_request()
         auth = init_saml_auth(req)
-        if 'sso' in request.args:
-            return redirect(auth.login())
+        if 'metadata' in request.args:
+            settings = auth.get_settings()
+            metadata = settings.get_sp_metadata()
+            errors = settings.validate_metadata(metadata)
 
+            if len(errors) == 0:
+                resp = make_response(metadata, 200)
+                resp.headers['Content-Type'] = 'text/xml'
+            else:
+                resp = make_response(', '.join(errors), 500)
+            return resp
+        elif 'acs' in request.args:
+            return redirect(auth.login())
+        elif 'slo' in request.args:
+            return redirect(auth.logout(name_id=None, session_index=None))
+        return make_response("Unsupported", 404)
+
+    @swagger.operation(
+        nickname="sso actions",
+        notes="""Return for action equal metadata, possible action:
+        * acs - login redirect
+        * sls - logout redirect
+        """
+    )
     def post(self):
         req = prepare_flask_request()
         auth = init_saml_auth(req)
@@ -46,21 +76,12 @@ class Login(restful.Resource):
             not_auth_warn = not auth.is_authenticated()
             self_url = OneLogin_Saml2_Utils.get_self_url(req)
             if 'RelayState' in request.form and self_url != request.form['RelayState']:
-                return str((self_url, request.form['RelayState']))
-                #    return redirect(auth.redirect_to(request.form['RelayState']))
+                return redirect(auth.redirect_to(request.form['RelayState']))
             return str((not_auth_warn, auth.get_attributes(), auth.get_nameid(), auth.get_session_index()))
-        return "?????"
-
-class AssertionConsumerService(restful.Resource):
-
-    def post(self):
-        req = prepare_flask_request()
-        auth = init_saml_auth(req)
-        auth.process_response()
-        errors = auth.get_errors()
-        not_auth_warn = not auth.is_authenticated()
-        self_url = OneLogin_Saml2_Utils.get_self_url(req)
-        if 'RelayState' in request.form and self_url != request.form['RelayState']:
-            return str((self_url, request.form['RelayState']))
-        #    return redirect(auth.redirect_to(request.form['RelayState']))
-        return str((not_auth_warn, auth.get_attributes(), auth.get_nameid(), auth.get_session_index()))
+        elif 'sls' in request.args:
+            url = auth.process_slo(delete_session_cb=[])
+            errors = auth.get_errors()
+            if len(errors) == 0:
+                if url is not None:
+                    return redirect(url)
+        return make_response("Unsupported", 404)
